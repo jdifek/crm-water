@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DeviceNavigate } from "../../components/Device/Navigate";
 
 const DeviceDetails = () => {
   const devices = [
@@ -164,26 +165,7 @@ const DeviceDetails = () => {
 
       <div className="flex gap-3">
         <div className="bg-white rounded-lg shadow p-6">
-          <ul className="flex gap-3 mb-4">
-            <li className="text-white bg-blue-500 rounded-lg shadow-md p-2">
-              Подробно
-            </li>
-            <li className="text-black p-2 hover:underline cursor-pointer">
-              Настройки
-            </li>
-            <li className="text-black p-2 hover:underline cursor-pointer">
-              Регламент
-            </li>
-            <li className="text-black p-2 hover:underline cursor-pointer">
-              Замена значений
-            </li>
-            <li className="text-black p-2 hover:underline cursor-pointer">
-              Конфигурация
-            </li>
-            <li className="text-black p-2 hover:underline cursor-pointer">
-              Тариф
-            </li>
-          </ul>
+          <DeviceNavigate selectedDeviceId={selectedDeviceId} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Информация об устройстве */}
@@ -382,13 +364,13 @@ const DeviceDetails = () => {
           </button>
 
           <div className="mb-10">
-            <span>Торговая точка</span>
+            <span className="font-bold">Торговая точка</span>
             <p>вул.Головна,1а:№1212332</p>
             <p>....</p>
           </div>
 
-          <div  className="mb-10">
-            <span>Номера SMS оповещений:</span>
+          <div className="mb-10">
+            <span className="font-bold">Номера SMS оповещений:</span>
             <div className="flex">
               <p>техник андрей</p>
               <p>Тел. 38043443</p>
@@ -396,7 +378,9 @@ const DeviceDetails = () => {
           </div>
 
           <div>
-            <span>Пользователи с доступом к аппарату:</span>
+            <span className="font-bold">
+              Пользователи с доступом к аппарату:
+            </span>
             <p>техник андрей</p>
             <p>техник павел</p>
             <p>техник иван</p>
