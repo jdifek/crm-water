@@ -4,9 +4,12 @@ import { Layout } from './components/Layout'
 import Users from './pages/admin/Users'
 import CardsList from './pages/cards/CardsList'
 import Dashboard from './pages/Dashboard'
+import { DeviceConfig } from './pages/devices/DeviceConfig'
 import DeviceDetails from './pages/devices/DeviceDetails'
 import DeviceRegulations from './pages/devices/DeviceRegulations'
 import DeviceSettings from './pages/devices/DeviceSettings'
+import { DeviceTarif } from './pages/devices/DeviceTarif'
+import { ReplacingValues } from './pages/devices/ReplacingValues'
 import MaintenanceHistory from './pages/maintenance/MaintenanceHistory'
 import Collection from './pages/statistics/Collection'
 import DailyStats from './pages/statistics/DailyStats'
@@ -27,6 +30,9 @@ function App() {
 					<Route path='/devices/list' element={<DevicesList />} />
 					<Route path='/devices/details/:id' element={<DeviceDetails />} />
 					<Route path='/devices/settings/:id' element={<DeviceSettings />} />
+					<Route path='/devices/replacing/:id' element={<ReplacingValues />} />
+					<Route path='/devices/config/:id' element={<DeviceConfig />} />
+					<Route path='/devices/tarif/:id' element={<DeviceTarif />} />
 					<Route
 						path='/devices/regulations/:id'
 						element={<DeviceRegulations />}

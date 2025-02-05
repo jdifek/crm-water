@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { DeviceNavigate } from "../../components/Device/Navigate";
 import { SelectDevice } from "../../components/Device/SelectDevice";
+import { DeviceNavigate } from "../../components/Device/Navigate";
 import { devices } from "../../data/device/device";
 import { DeviceSidebar } from "../../components/Device/DeviceSidebar";
 import { ButtonSave } from "../../components/ui/Button";
 
-const DeviceRegulations = () => {
+export const ReplacingValues = () => {
   const navigate = useNavigate();
 
   const [selectedDeviceId, setSelectedDeviceId] = useState(devices[0].id);
@@ -33,13 +33,13 @@ const DeviceRegulations = () => {
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    До замены предварительных фильтров
+                    Счетчик воды на входе
                   </label>
                   <div className="mt-1 flex rounded-md shadow-sm">
                     <input
                       type="number"
                       className="block w-full rounded-md border-gray-300 shadow-sm"
-                      defaultValue="25000"
+                      defaultValue="0"
                     />
                     <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500">
                       л
@@ -49,55 +49,71 @@ const DeviceRegulations = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    До замены постфильтров
+                    Количество моент за все время
                   </label>
                   <div className="mt-1 flex rounded-md shadow-sm">
                     <input
                       type="number"
                       className="block w-full rounded-md border-gray-300 shadow-sm"
-                      defaultValue="3000"
+                      defaultValue="48"
                     />
                     <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500">
-                      л
+                      шт
                     </span>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    До замены (промывки) мембран
+                    Сумма монет за все время
                   </label>
                   <div className="mt-1 flex rounded-md shadow-sm">
                     <input
                       type="number"
                       className="block w-full rounded-md border-gray-300 shadow-sm"
-                      defaultValue="150000"
+                      defaultValue="14"
                     />
                     <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500">
-                      л
+                      B
                     </span>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    До замены антискаланта
+                    Количество купюр за все время
                   </label>
                   <div className="mt-1 flex rounded-md shadow-sm">
                     <input
                       type="number"
                       className="block w-full rounded-md border-gray-300 shadow-sm"
-                      defaultValue="30000"
+                      defaultValue="22"
                     />
                     <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500">
-                      л
+                      шт
                     </span>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    До замены минералов
+                    Сумма купюр за все время
+                  </label>
+                  <div className="mt-1 flex rounded-md shadow-sm">
+                    <input
+                      type="number"
+                      className="block w-full rounded-md border-gray-300 shadow-sm"
+                      defaultValue="14"
+                    />
+                    <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500">
+                      B
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Всего продуктов продано
                   </label>
                   <div className="mt-1 flex rounded-md shadow-sm">
                     <input
@@ -107,6 +123,22 @@ const DeviceRegulations = () => {
                     />
                     <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500">
                       л
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Счетчик Электроэнергии
+                  </label>
+                  <div className="mt-1 flex rounded-md shadow-sm">
+                    <input
+                      type="number"
+                      className="block w-full rounded-md border-gray-300 shadow-sm"
+                      defaultValue="190"
+                    />
+                    <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500">
+                      kW h
                     </span>
                   </div>
                 </div>
@@ -123,5 +155,3 @@ const DeviceRegulations = () => {
     </div>
   );
 };
-
-export default DeviceRegulations;
