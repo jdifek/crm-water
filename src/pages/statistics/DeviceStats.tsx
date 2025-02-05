@@ -49,7 +49,7 @@ const DeviceStats = () => {
 	>('liters')
 	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
 		new Date('2024-01-01'),
-		new Date('2024-10-01'),
+		new Date('2024-01-10'),
 	])
 
 	const [startDate, endDate] = dateRange
@@ -112,12 +112,7 @@ const DeviceStats = () => {
 						<BarChart data={filteredData} layout='vertical'>
 							<CartesianGrid strokeDasharray='3 3' />
 							<XAxis type='number' />
-							<YAxis
-								dataKey='devices'
-								type='category'
-								interval={0}
-								width={100}
-							/>
+							<YAxis dataKey='devices' type='category' width={100} />
 							<Tooltip />
 							<Bar
 								dataKey={selectedTab}

@@ -3,59 +3,49 @@ import { useState } from 'react'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FiChevronDown, FiChevronUp, FiDownload } from 'react-icons/fi'
 import * as XLSX from 'xlsx'
+import { LiterStatsTableData } from '../../types'
 
-const TABLE_DATA = [
-	{ device: '111756', sessions: 20, liters: 400, income: 5000 },
-	{ device: '111757', sessions: 25, liters: 600, income: 7000 },
-	{ device: '111758', sessions: 18, liters: 500, income: 6200 },
-	{ device: '111709', sessions: 30, liters: 800, income: 10000 },
-	{ device: '111579', sessions: 15, liters: 300, income: 4000 },
-	{ device: '111782', sessions: 22, liters: 450, income: 5500 },
-	{ device: '110675', sessions: 27, liters: 700, income: 8500 },
-]
+interface LiterStatsTableSectionProps {
+	tableData: LiterStatsTableData[]
+}
 
 const ITEMS_PER_PAGE_OPTIONS = [3, 5, 10]
-const TOTAL_PAGES = 3
+const TOTAL_PAGES = 4
 
-const DeviceStatsTableSection = () => {
+const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 	const [itemsPerPage, setItemsPerPage] = useState(3)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [searchQuery, setSearchQuery] = useState('')
-	const [sortStates, setSortStates] = useState<
-		Record<string, 'asc' | 'desc' | null>
-	>({
-		devices: null,
-		sessions: null,
-		liters: null,
-		income: null,
+	const [sortState, setSortState] = useState<{
+		column: keyof (typeof tableData)[0]
+		order: 'asc' | 'desc' | null
+	}>({
+		column: 'container',
+		order: null,
 	})
 
-	const filteredData = TABLE_DATA.filter(item =>
-		item.device.includes(searchQuery.trim())
+	const filteredData = tableData.filter(
+		item =>
+			item.container.toString().includes(searchQuery.trim()) ||
+			item.sessions.toString().includes(searchQuery.toLowerCase().trim()) ||
+			item.liters.toString().includes(searchQuery.trim())
 	)
 
-	const getSortedData = (data: typeof TABLE_DATA) => {
-		const activeColumn = Object.entries(sortStates).find(([, order]) => order)
+	// Сортировка данных
+	const sortedData = [...filteredData].sort((a, b) => {
+		if (!sortState.order) return 0
+		const valueA = a[sortState.column]
+		const valueB = b[sortState.column]
 
-		if (!activeColumn) return data
-
-		const [col, order] = activeColumn
-		return [...data].sort((a, b) => {
-			const valueA = a[col as keyof (typeof TABLE_DATA)[0]]
-			const valueB = b[col as keyof (typeof TABLE_DATA)[0]]
-
-			if (typeof valueA === 'number' && typeof valueB === 'number') {
-				return order === 'asc' ? valueA - valueB : valueB - valueA
-			} else if (typeof valueA === 'string' && typeof valueB === 'string') {
-				return order === 'asc'
-					? valueA.localeCompare(valueB)
-					: valueB.localeCompare(valueA)
-			}
-			return 0
-		})
-	}
-
-	const sortedData = getSortedData(filteredData)
+		if (typeof valueA === 'number' && typeof valueB === 'number') {
+			return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
+		} else if (typeof valueA === 'string' && typeof valueB === 'string') {
+			return sortState.order === 'asc'
+				? valueA.localeCompare(valueB)
+				: valueB.localeCompare(valueA)
+		}
+		return 0
+	})
 
 	const totalPages = Math.ceil(sortedData.length / itemsPerPage)
 	const paginatedData = sortedData.slice(
@@ -63,24 +53,15 @@ const DeviceStatsTableSection = () => {
 		currentPage * itemsPerPage
 	)
 
-	const handleSort = (column: keyof (typeof TABLE_DATA)[0]) => {
-		setSortStates(prevStates => {
-			const newSortStates = Object.keys(prevStates).reduce((acc, key) => {
-				acc[key] =
-					key === column
-						? prevStates[column] === 'asc'
-							? 'desc'
-							: 'asc'
-						: null
-				return acc
-			}, {} as Record<string, 'asc' | 'desc' | null>)
-
-			return newSortStates
-		})
+	const handleSort = (column: keyof (typeof tableData)[0]) => {
+		setSortState(prev => ({
+			column,
+			order: prev.column === column && prev.order === 'asc' ? 'desc' : 'asc',
+		}))
 	}
 
 	const handleExportToExcel = () => {
-		const worksheet = XLSX.utils.json_to_sheet(sortedData)
+		const worksheet = XLSX.utils.json_to_sheet(tableData)
 		const workbook = XLSX.utils.book_new()
 		XLSX.utils.book_append_sheet(workbook, worksheet, 'Sales Data')
 		XLSX.writeFile(workbook, 'sales_data.xlsx')
@@ -137,58 +118,59 @@ const DeviceStatsTableSection = () => {
 			<div className='overflow-x-auto'>
 				<table className='w-full border-collapse text-left'>
 					<thead>
-						<tr className='border-b border-gray-300'>
-							{['device', 'sessions', 'liters', 'income'].map(key => (
-								<th
-									key={key}
-									className='p-3 cursor-pointer'
-									onClick={() =>
-										handleSort(key as keyof (typeof TABLE_DATA)[0])
-									}
-								>
-									<div className='flex items-center gap-2'>
-										{key === 'device'
-											? 'Аппарат'
-											: key === 'sessions'
-											? 'Сеансы'
-											: key === 'liters'
-											? 'Литры'
-											: 'Доход'}
-										<div className='flex flex-col'>
-											<FiChevronUp
-												size={14}
-												className={
-													sortStates[key] === 'asc'
-														? 'text-blue-500'
-														: 'text-gray-400'
-												}
-											/>
-											<FiChevronDown
-												size={14}
-												className={
-													sortStates[key] === 'desc'
-														? 'text-blue-500'
-														: 'text-gray-400'
-												}
-											/>
+						<tr className='border-b border-gray-300 text-gray-700'>
+							{['Тара', 'Сеансы', 'Литров'].map((header, index) => {
+								const key = ['container', 'sessions', 'liters'][
+									index
+								] as keyof (typeof tableData)[0]
+								return (
+									<th
+										key={header}
+										className='p-3 cursor-pointer'
+										onClick={() => handleSort(key)}
+									>
+										<div className='flex items-center'>
+											{header}
+											<div className='ml-2'>
+												<FiChevronUp
+													size={14}
+													className={
+														sortState.column === key &&
+														sortState.order === 'asc'
+															? 'text-blue-500'
+															: 'text-gray-400'
+													}
+												/>
+												<FiChevronDown
+													size={14}
+													className={
+														sortState.column === key &&
+														sortState.order === 'desc'
+															? 'text-blue-500'
+															: 'text-gray-400'
+													}
+												/>
+											</div>
 										</div>
-									</div>
-								</th>
-							))}
+									</th>
+								)
+							})}
 						</tr>
 					</thead>
 					<tbody>
 						{paginatedData.length > 0 ? (
 							paginatedData.map((row, index) => (
-								<tr
+								<motion.tr
 									key={index}
 									className='border-b border-gray-200 hover:bg-gray-100'
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									transition={{ duration: 0.3 }}
 								>
-									<td className='p-3'>{row.device}</td>
+									<td className='p-3'>{row.container}</td>
 									<td className='p-3'>{row.sessions}</td>
 									<td className='p-3'>{row.liters}</td>
-									<td className='p-3'>{row.income}</td>
-								</tr>
+								</motion.tr>
 							))
 						) : (
 							<tr>
@@ -259,4 +241,4 @@ const DeviceStatsTableSection = () => {
 	)
 }
 
-export default DeviceStatsTableSection
+export default LiterStatsTableSection

@@ -8,10 +8,13 @@ import DeviceDetails from './pages/devices/DeviceDetails'
 import DeviceRegulations from './pages/devices/DeviceRegulations'
 import DeviceSettings from './pages/devices/DeviceSettings'
 import MaintenanceHistory from './pages/maintenance/MaintenanceHistory'
+import Collection from './pages/statistics/Collection'
 import DailyStats from './pages/statistics/DailyStats'
 import DeviceStats from './pages/statistics/DeviceStats'
+import LiterStats from './pages/statistics/LiterStats'
 import SalesByDay from './pages/statistics/SalesByDay'
 import Statistics from './pages/statistics/Statistics'
+import YearlyReport from './pages/statistics/YearlyReport'
 
 function App() {
 	return (
@@ -34,9 +37,9 @@ function App() {
 					<Route path='/stats/by-days' element={<SalesByDay />} />
 					<Route path='/stats/daily' element={<DailyStats />} />
 					<Route path='/stats/devices' element={<DeviceStats />} />
-					{/* <Route path="/stats/collection" element={<Collection />} /> */}
-					{/* <Route path="/stats/by-liters" element={<LiterStats />} /> */}
-					{/* <Route path="/stats/yearly" element={<YearlyReport />} /> */}
+					<Route path='/stats/collection' element={<Collection />} />
+					<Route path='/stats/by-liters' element={<LiterStats />} />
+					<Route path='/stats/yearly' element={<YearlyReport />} />
 
 					{/* Cards */}
 					<Route path='/cards/list' element={<CardsList />} />
