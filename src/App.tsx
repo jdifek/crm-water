@@ -12,6 +12,9 @@ import DailyStats from './pages/statistics/DailyStats'
 import DeviceStats from './pages/statistics/DeviceStats'
 import SalesByDay from './pages/statistics/SalesByDay'
 import Statistics from './pages/statistics/Statistics'
+import { ReplacingValues } from './pages/devices/ReplacingValues'
+import { DeviceConfig } from './pages/devices/DeviceConfig'
+import { DeviceTarif } from './pages/devices/DeviceTarif'
 
 function App() {
 	return (
@@ -24,6 +27,9 @@ function App() {
 					<Route path='/devices/list' element={<DevicesList />} />
 					<Route path='/devices/details/:id' element={<DeviceDetails />} />
 					<Route path='/devices/settings/:id' element={<DeviceSettings />} />
+					<Route path='/devices/replacing/:id' element={<ReplacingValues />} />
+					<Route path='/devices/config/:id' element={<DeviceConfig />} />
+					<Route path='/devices/tarif/:id' element={<DeviceTarif />} />
 					<Route
 						path='/devices/regulations/:id'
 						element={<DeviceRegulations />}

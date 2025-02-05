@@ -11,7 +11,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   
-  // Get the current page title based on the route
   const getPageTitle = () => {
     const path = location.pathname;
     if (path === '/') return 'Главная';
@@ -19,6 +18,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     if (path.startsWith('/devices/details')) return 'Детально';
     if (path.startsWith('/devices/settings')) return 'Настройки';
     if (path.startsWith('/devices/regulations')) return 'Регламент';
+    if (path.startsWith('/devices/replacing')) return 'Замена значений';
+    if (path.startsWith('/devices/config')) return 'Конфигурация';
+    if (path.startsWith('/devices/tarif')) return 'Тариф';
+    if (path.startsWith('/stats/sales')) return 'Статистика продаж';
+    if (path.startsWith('/stats/daily')) return 'Статистика за сутки';
+    if (path.startsWith('/stats/by-days')) return 'Статистика по дням';
+    if (path.startsWith('/stats/devices')) return 'Статистика по дням';
+    if (path.startsWith('/stats/collection')) return 'Инкасация';
+    if (path.startsWith('/stats/by-liters')) return 'По литражу';
+    if (path.startsWith('/stats/yearly')) return 'Годовой отчет';
+    if (path.startsWith('/cards/list')) return 'Список карт';
+    if (path.startsWith('/cards/connections')) return 'Подключения карт';
+    if (path.startsWith('/maintenance/history')) return 'История обслуживания';
     // Add more title mappings as needed
     return 'Страница';
   };
