@@ -4,6 +4,7 @@ import { SelectDevice } from "../../components/Device/SelectDevice";
 import { DeviceNavigate } from "../../components/Device/Navigate";
 import { devices } from "../../data/device/device";
 import { DeviceSidebar } from "../../components/Device/DeviceSidebar";
+import { ButtonSave } from "../../components/ui/Button";
 
 export const DeviceConfig = () => {
   const navigate = useNavigate();
@@ -69,9 +70,7 @@ export const DeviceConfig = () => {
                   </div>
                 </div>
 
-                <button className="bg-blue-500 text-white px-4 py-2 rounded">
-                  Сохранить
-                </button>
+               <ButtonSave />
               </div>
             </div>
           </div>

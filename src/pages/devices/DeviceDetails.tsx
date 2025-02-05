@@ -7,7 +7,6 @@ import { DeviceSidebar } from "../../components/Device/DeviceSidebar";
 
 const DeviceDetails = () => {
   const navigate = useNavigate();
-
   const [selectedDeviceId, setSelectedDeviceId] = useState(devices[0].id);
 
   const selectedDevice = devices.find(
@@ -19,6 +18,141 @@ const DeviceDetails = () => {
     setSelectedDeviceId(id);
     navigate(`/devices/details/${id}`);
   };
+
+  if (!selectedDevice) {
+    return <div>Устройство не найдено</div>;
+  }
+
+  const infoSections = [
+    {
+      title: "Аппарат",
+      items: [
+        { label: "IMEI", value: selectedDevice.imei },
+        { label: "Серийный номер", value: selectedDevice.serial },
+        { label: "Модель аппарата", value: selectedDevice.model },
+        {
+          label: "Модель микроконтроллера",
+          value: selectedDevice.microcontroller,
+        },
+      ],
+    },
+    {
+      title: "Датчики",
+      items: [
+        { label: "Температура", value: selectedDevice.sensors.temperature },
+        { label: "TDS", value: selectedDevice.sensors.tds },
+      ],
+    },
+    {
+      title: "Счетчики",
+      items: [
+        {
+          label: "Остаток продукта",
+          value: selectedDevice.counters.productRemaining,
+        },
+        {
+          label: "Счетчик воды на входе",
+          value: selectedDevice.counters.waterMeter,
+        },
+        {
+          label: "Счетчик электрической энергии",
+          value: selectedDevice.counters.electricityMeter,
+        },
+      ],
+    },
+    {
+      title: "Статистика",
+      items: [
+        {
+          label: "Всего продано воды со дня запуска",
+          value: selectedDevice.statistics.totalWaterSold,
+        },
+        {
+          label: "Всего выручено денег со дня запуска",
+          value: selectedDevice.statistics.totalRevenue,
+        },
+        {
+          label: "Количество монет за все время",
+          value: selectedDevice.statistics.coinCount,
+        },
+        {
+          label: "Сумма монет за все время",
+          value: selectedDevice.statistics.coinAmount,
+        },
+        {
+          label: "Сумма купюр за все время",
+          value: selectedDevice.statistics.banknoteCount,
+        },
+        {
+          label: "Сумма купюр за все время",
+          value: selectedDevice.statistics.banknoteAmount,
+        },
+        {
+          label: "Дата последней активности",
+          value: selectedDevice.statistics.lastActivityDate,
+        },
+      ],
+    },
+    {
+      title: "Связь",
+      items: [
+        {
+          label: "Тип подключения",
+          value: selectedDevice.connectivity.connectionType,
+        },
+        {
+          label: "Номер SIM-карты",
+          value: selectedDevice.connectivity.simNumber,
+        },
+        {
+          label: "Оператор связи",
+          value: selectedDevice.connectivity.operator,
+        },
+        {
+          label: "Уровень сигнала",
+          value: selectedDevice.connectivity.signalLevel,
+        },
+        {
+          label: "Баланс SIM-карты",
+          value: selectedDevice.connectivity.simBalance,
+        },
+        {
+          label: "Дата последней активности",
+          value: selectedDevice.connectivity.connectivityLastActivity,
+        },
+      ],
+    },
+    {
+      title: "Продукты",
+      items: [
+        {
+          label: 'Цена "очищена вода"',
+          value: selectedDevice.products.cleanWaterPrice,
+        },
+      ],
+    },
+    {
+      title: "Программное обеспечение",
+      items: [
+        {
+          label: "Версия прошивки главного контроллера",
+          value: selectedDevice.software.firmwareVersionMainController,
+        },
+        {
+          label: "Версия прошивки контроллера подготовки воды",
+          value: selectedDevice.software.firmwareVersionWaterPrepController,
+        },
+        {
+          label: "Версия прошивки контроллера Дисплея",
+          value: selectedDevice.software.firmwareVersionDisplayController,
+        },
+        {
+          label: "Дата прошивки главного контроллера",
+          value: selectedDevice.software.firmwareDateMainController,
+        },
+      ],
+    },
+  ];
 
   return (
     <div className="p-4 lg:p-8">
@@ -32,190 +166,19 @@ const DeviceDetails = () => {
           <DeviceNavigate selectedDeviceId={selectedDeviceId} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Информация об устройстве */}
-            <div>
-              <h2 className="text-xl font-semibold mb-6">Аппарат</h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">IMEI</div>
-                  <div>{selectedDevice.imei}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Серийный номер</div>
-                  <div>{selectedDevice.serial}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Модель аппарата</div>
-                  <div>{selectedDevice.model}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Модель микроконтроллера</div>
-                  <div>{selectedDevice.microcontroller}</div>
+            {infoSections.map((section, sectionIndex) => (
+              <div key={sectionIndex}>
+                <h2 className="text-xl font-semibold mb-6">{section.title}</h2>
+                <div className="space-y-4">
+                  {section.items.map((item, itemIndex) => (
+                    <div key={itemIndex} className="grid grid-cols-2 gap-4">
+                      <div className="text-gray-600">{item.label}</div>
+                      <div>{item.value}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
-
-            {/* Датчики */}
-            <div>
-              <h2 className="text-xl font-semibold mb-6">Датчики</h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Температура</div>
-                  <div>{selectedDevice.sensors.temperature}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">TDS</div>
-                  <div>{selectedDevice.sensors.tds}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Счетчики */}
-            <div>
-              <h2 className="text-xl font-semibold mb-6">Счетчики</h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Остаток продукта</div>
-                  <div>{selectedDevice.counters.productRemaining}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Счетчик воды на входе</div>
-                  <div>{selectedDevice.counters.waterMeter}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">
-                    Счетчик электрической энергии
-                  </div>
-                  <div>{selectedDevice.counters.electricityMeter}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Статистика */}
-            <div>
-              <h2 className="text-xl font-semibold mb-6">Статистика</h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">
-                    Всего продано воды со дня запуска
-                  </div>
-                  <div>{selectedDevice.statistics.totalWaterSold}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">
-                    Всего вырученно денег со дня запуска
-                  </div>
-                  <div>{selectedDevice.statistics.totalRevenue}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">
-                    Количество монет за все время
-                  </div>
-                  <div>{selectedDevice.statistics.coinCount}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Сумма монет за все время</div>
-                  <div>{selectedDevice.statistics.coinAmount}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Сумма купюр за все время</div>
-                  <div>{selectedDevice.statistics.banknoteCount}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Сумма купюр за все время</div>
-                  <div>{selectedDevice.statistics.banknoteAmount}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Дата последней активности</div>
-                  <div>{selectedDevice.statistics.lastActivityDate}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Связь */}
-            <div>
-              <h2 className="text-xl font-semibold mb-6">Связь</h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Тип подключения</div>
-                  <div>{selectedDevice.connectivity.connectionType}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Номер SIM-карты</div>
-                  <div>{selectedDevice.connectivity.simNumber}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Оператор связи</div>
-                  <div>{selectedDevice.connectivity.operator}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Уровень сигнала</div>
-                  <div>{selectedDevice.connectivity.signalLevel}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Баланс SIM-карты</div>
-                  <div>{selectedDevice.connectivity.simBalance}</div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Дата последней активности</div>
-                  <div>
-                    {selectedDevice.connectivity.connectivityLastActivity}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Продукты */}
-            <div>
-              <h2 className="text-xl font-semibold mb-6">Продукты</h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">Цена "очищена вода"</div>
-                  <div>{selectedDevice.products.cleanWaterPrice}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Программное обеспечение */}
-            <div>
-              <h2 className="text-xl font-semibold mb-6">
-                Программное обеспечение
-              </h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">
-                    Версия прошивки главного контроллера
-                  </div>
-                  <div>
-                    {selectedDevice.software.firmwareVersionMainController}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">
-                    Версия прошивки контроллера подготовки воды
-                  </div>
-                  <div>
-                    {selectedDevice.software.firmwareVersionWaterPrepController}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">
-                    Версия прошивки контроллера Дисплея
-                  </div>
-                  <div>
-                    {selectedDevice.software.firmwareVersionDisplayController}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-gray-600">
-                    Дата прошивки главного контроллера
-                  </div>
-                  <div>
-                    {selectedDevice.software.firmwareDateMainController}
-                  </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
