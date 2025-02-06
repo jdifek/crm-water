@@ -420,7 +420,11 @@ const TableComponent = () => {
 
 					{/* Пагинация */}
 					<div className='flex gap-2'>
-						<button className='p-2 hover:bg-gray-300 disabled:opacity-50'>
+						<button
+							onClick={() => setCurrentPage(1)}
+							disabled={currentPage === 1}
+							className='p-2 hover:bg-gray-300 disabled:opacity-50'
+						>
 							Первая
 						</button>
 						<button
@@ -450,7 +454,11 @@ const TableComponent = () => {
 						>
 							Следующая
 						</button>
-						<button className='p-2 hover:bg-gray-300 disabled:opacity-50'>
+						<button
+							onClick={() => setCurrentPage(totalPages)}
+							disabled={currentPage === totalPages}
+							className='p-2 hover:bg-gray-300 disabled:opacity-50'
+						>
 							Последняя
 						</button>
 					</div>
