@@ -15,7 +15,6 @@ const TABLE_DATA = [
 ]
 
 const ITEMS_PER_PAGE_OPTIONS = [3, 5, 10]
-const TOTAL_PAGES = 3
 
 const DeviceStatsTableSection = () => {
 	const [itemsPerPage, setItemsPerPage] = useState(3)
@@ -219,7 +218,7 @@ const DeviceStatsTableSection = () => {
 					>
 						Предыдущая
 					</button>
-					{[...Array(TOTAL_PAGES)].map((_, i) => (
+					{[...Array(totalPages)].map((_, i) => (
 						<button
 							key={i}
 							onClick={() => setCurrentPage(i + 1)}

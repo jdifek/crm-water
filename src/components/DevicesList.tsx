@@ -90,7 +90,7 @@ const DevicesList = () => {
 				</div>
 			</div>
 
-			<div className='bg-white rounded-lg shadow p-5 pr-0'>
+			<div className='bg-white rounded-lg shadow p-5'>
 				<div className='flex items-center justify-between'>
 					<h1 className='text-xl lg:text-2xl font-semibold mb-5'>
 						Список аппаратов

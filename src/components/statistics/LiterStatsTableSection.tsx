@@ -10,7 +10,6 @@ interface LiterStatsTableSectionProps {
 }
 
 const ITEMS_PER_PAGE_OPTIONS = [3, 5, 10]
-const TOTAL_PAGES = 4
 
 const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 	const [itemsPerPage, setItemsPerPage] = useState(3)
@@ -24,11 +23,10 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 		order: null,
 	})
 
-	const filteredData = tableData.filter(
-		item =>
-			item.container.toString().includes(searchQuery.trim()) ||
-			item.sessions.toString().includes(searchQuery.toLowerCase().trim()) ||
-			item.liters.toString().includes(searchQuery.trim())
+	const filteredData = tableData.filter(item =>
+		Object.values(item).some(value =>
+			value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+		)
 	)
 
 	const sortedData = [...filteredData].sort((a, b) => {
@@ -51,6 +49,11 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 		(currentPage - 1) * itemsPerPage,
 		currentPage * itemsPerPage
 	)
+	const totalSessions = filteredData.reduce(
+		(sum, item) => sum + item.sessions,
+		0
+	)
+	const totalLiters = filteredData.reduce((sum, item) => sum + item.liters, 0)
 
 	const handleSort = (column: keyof (typeof tableData)[0]) => {
 		setSortState(prev => ({
@@ -115,9 +118,14 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 
 			{/* Таблица */}
 			<div className='overflow-x-auto'>
-				<table className='w-full border-collapse text-left'>
+				<table className='w-full border-collapse'>
 					<thead>
-						<tr className='border-b border-gray-300 text-gray-700'>
+						<tr className='font-medium text-lg'>
+							<td></td>
+							<td className='p-3 text-center'>{totalSessions.toFixed(1)}</td>
+							<td className='p-3 text-right'>{totalLiters.toFixed(1)} л</td>
+						</tr>
+						<tr className='text-gray-700'>
 							{['Тара', 'Сеансы', 'Литров'].map((header, index) => {
 								const key = ['container', 'sessions', 'liters'][
 									index
@@ -125,10 +133,24 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 								return (
 									<th
 										key={header}
-										className='p-3 cursor-pointer'
+										className={`p-3 cursor-pointer ${
+											index === 0
+												? 'text-left'
+												: index === 1
+												? 'text-center'
+												: 'text-right'
+										}`}
 										onClick={() => handleSort(key)}
 									>
-										<div className='flex items-center'>
+										<div
+											className={`flex items-center ${
+												index === 0
+													? 'justify-start'
+													: index === 1
+													? 'justify-center'
+													: 'justify-end'
+											}`}
+										>
 											{header}
 											<div className='ml-2'>
 												<FiChevronUp
@@ -166,14 +188,14 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 									animate={{ opacity: 1 }}
 									transition={{ duration: 0.3 }}
 								>
-									<td className='p-3'>{row.container}</td>
-									<td className='p-3'>{row.sessions}</td>
-									<td className='p-3'>{row.liters}</td>
+									<td className='p-3 text-left'>{row.container}</td>
+									<td className='p-3 text-center'>{row.sessions}</td>
+									<td className='p-3 text-right'>{row.liters}</td>
 								</motion.tr>
 							))
 						) : (
 							<tr>
-								<td colSpan={4} className='p-3 text-center text-gray-500'>
+								<td colSpan={3} className='p-3 text-center text-gray-500'>
 									Ничего не найдено
 								</td>
 							</tr>
@@ -207,7 +229,7 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 					>
 						Предыдущая
 					</button>
-					{[...Array(TOTAL_PAGES)].map((_, i) => (
+					{[...Array(totalPages)].map((_, i) => (
 						<button
 							key={i}
 							onClick={() => setCurrentPage(i + 1)}

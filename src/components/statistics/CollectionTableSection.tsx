@@ -10,7 +10,6 @@ interface CollectionTableSectionProps {
 }
 
 const ITEMS_PER_PAGE_OPTIONS = [3, 5, 10]
-const TOTAL_PAGES = 4
 
 const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
 	const [itemsPerPage, setItemsPerPage] = useState(3)
@@ -31,14 +30,12 @@ const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
 		.filter(item => item.type === 'Монеты')
 		.reduce((sum, item) => sum + item.amount, 0)
 
-	const filteredData = tableData.filter(
-		item =>
-			item.device.includes(searchQuery.trim()) ||
-			item.collector.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-			item.amount.toString().includes(searchQuery.trim())
+	const filteredData = tableData.filter(item =>
+		Object.values(item).some(value =>
+			value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+		)
 	)
 
-	// Сортировка данных
 	const sortedData = [...filteredData].sort((a, b) => {
 		if (!sortState.order) return 0
 		const valueA = a[sortState.column]
@@ -135,7 +132,7 @@ const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
 			<div className='overflow-x-auto'>
 				<table className='w-full border-collapse text-left'>
 					<thead>
-						<tr className='border-b border-gray-300 text-gray-700'>
+						<tr className='text-gray-700 font-medium text-lg'>
 							{[
 								'№',
 								'Дата',
@@ -243,7 +240,7 @@ const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
 					>
 						Предыдущая
 					</button>
-					{[...Array(TOTAL_PAGES)].map((_, i) => (
+					{[...Array(totalPages)].map((_, i) => (
 						<button
 							key={i}
 							onClick={() => setCurrentPage(i + 1)}

@@ -78,3 +78,17 @@ type TableItem = {
 export type YearlyReportTableData = {
 	[year: number]: TableItem[]
 }
+
+// Cards - Card list
+export type CardData = {
+	id: number
+	date: string
+	number: string
+	code: string
+	type: string
+	holder: string
+	active: boolean
+	device: string
+	address: string
+	registered: boolean
+}
