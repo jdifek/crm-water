@@ -8,7 +8,6 @@ import { DeviceConfig } from './pages/devices/DeviceConfig'
 import DeviceDetails from './pages/devices/DeviceDetails'
 import DeviceRegulations from './pages/devices/DeviceRegulations'
 import DeviceSettings from './pages/devices/DeviceSettings'
-import { DeviceTarif } from './pages/devices/DeviceTarif'
 import { ReplacingValues } from './pages/devices/ReplacingValues'
 import MaintenanceHistory from './pages/maintenance/MaintenanceHistory'
 import Collection from './pages/statistics/Collection'
@@ -32,7 +31,6 @@ function App() {
 					<Route path='/devices/settings/:id' element={<DeviceSettings />} />
 					<Route path='/devices/replacing/:id' element={<ReplacingValues />} />
 					<Route path='/devices/config/:id' element={<DeviceConfig />} />
-					<Route path='/devices/tarif/:id' element={<DeviceTarif />} />
 					<Route
 						path='/devices/regulations/:id'
 						element={<DeviceRegulations />}

@@ -270,7 +270,7 @@ const TableComponent = () => {
 				</div>
 			</div>
 
-			<div className='bg-white shadow-lg rounded-lg p-4 pt-16'>
+			<div className='bg-white shadow-lg rounded-lg p-4 pt-4'>
 				{/* Переключение между "Зарегистрированные карты" и "Неизвестные карты" */}
 				<div className='flex space-x-2 mb-4 border-b border-gray-200 pb-5 pl-5'>
 					<button

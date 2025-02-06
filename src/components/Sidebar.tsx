@@ -124,7 +124,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           text="Карточки"
           children={[
             { text: 'Список', path: '/cards/list' },
-            { text: 'Подключения', path: '/cards/connections' },
+            // { text: 'Подключения', path: '/cards/connections' },
           ]}
         />
         <NavItem

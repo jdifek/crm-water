@@ -11,7 +11,6 @@ export const DeviceNavigate = ({ selectedDeviceId }: DeviceNavigateProps) => {
     { name: "Регламент", path: `/devices/regulations/${selectedDeviceId}` },
     { name: "Замена значений", path: `/devices/replacing/${selectedDeviceId}` },
     { name: "Конфигурация", path: `/devices/config/${selectedDeviceId}` },
-    { name: "Тариф", path: `/devices/tarif/${selectedDeviceId}` },
   ];
 
   return (
