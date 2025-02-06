@@ -93,19 +93,21 @@ const DevicesList = () => {
 				</div>
 			</div>
 
-			<div className='flex items-center justify-between'>
-				<h1 className='text-xl lg:text-2xl font-semibold mb-5'>
-					Список аппаратов
-				</h1>
-				<div className='flex justify-between items-center mb-4'>
-					<span className='text-sm'>Поиск:</span>
-					<input
-						type='text'
-						placeholder='По ID'
-						value={searchQuery}
-						onChange={e => setSearchQuery(e.target.value)}
-						className='border-b border-gray-400 py-1 px-2 text-gray-700 focus:outline-none focus:border-blue-500 w-full sm:w-auto'
-					/>
+			<div className='bg-white rounded-lg shadow p-5'>
+				<div className='flex items-center justify-between'>
+					<h1 className='text-xl lg:text-2xl font-semibold mb-5'>
+						Список аппаратов
+					</h1>
+					<div className='flex justify-between items-center mb-4'>
+						<span className='text-sm'>Поиск:</span>
+						<input
+							type='text'
+							placeholder='По ID'
+							value={searchQuery}
+							onChange={e => setSearchQuery(e.target.value)}
+							className='border-b border-gray-400 py-1 px-2 text-gray-700 focus:outline-none focus:border-blue-500 w-full sm:w-auto'
+						/>
+					</div>
 				</div>
 				<div className='overflow-x-auto'>
 					<table className='min-w-full divide-y divide-gray-200 text-sm'>
