@@ -1,4 +1,4 @@
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import DevicesList from './components/DevicesList'
 import { Layout } from './components/Layout'
 import Users from './pages/admin/Users'
@@ -20,48 +20,46 @@ import YearlyReport from './pages/statistics/YearlyReport'
 
 function App() {
 	return (
-		<Router>
-			<Layout>
-				<Routes>
-					<Route path='/' element={<Dashboard />} />
+		<Layout>
+			<Routes>
+				<Route path='/' element={<Dashboard />} />
 
-					{/* Devices */}
-					<Route path='/devices/list' element={<DevicesList />} />
-					<Route path='/devices/details/:id' element={<DeviceDetails />} />
-					<Route path='/devices/settings/:id' element={<DeviceSettings />} />
-					<Route path='/devices/replacing/:id' element={<ReplacingValues />} />
-					<Route path='/devices/config/:id' element={<DeviceConfig />} />
-					<Route
-						path='/devices/regulations/:id'
-						element={<DeviceRegulations />}
-					/>
+				{/* Devices */}
+				<Route path='/devices/list' element={<DevicesList />} />
+				<Route path='/devices/details/:id' element={<DeviceDetails />} />
+				<Route path='/devices/settings/:id' element={<DeviceSettings />} />
+				<Route path='/devices/replacing/:id' element={<ReplacingValues />} />
+				<Route path='/devices/config/:id' element={<DeviceConfig />} />
+				<Route
+					path='/devices/regulations/:id'
+					element={<DeviceRegulations />}
+				/>
 
-					{/* Statistics */}
-					<Route path='/stats/sales' element={<Statistics />} />
-					<Route path='/stats/by-days' element={<SalesByDay />} />
-					<Route path='/stats/daily' element={<DailyStats />} />
-					<Route path='/stats/devices' element={<DeviceStats />} />
-					<Route path='/stats/collection' element={<Collection />} />
-					<Route path='/stats/by-liters' element={<LiterStats />} />
-					<Route path='/stats/yearly' element={<YearlyReport />} />
+				{/* Statistics */}
+				<Route path='/stats/sales' element={<Statistics />} />
+				<Route path='/stats/by-days' element={<SalesByDay />} />
+				<Route path='/stats/daily' element={<DailyStats />} />
+				<Route path='/stats/devices' element={<DeviceStats />} />
+				<Route path='/stats/collection' element={<Collection />} />
+				<Route path='/stats/by-liters' element={<LiterStats />} />
+				<Route path='/stats/yearly' element={<YearlyReport />} />
 
-					{/* Cards */}
-					<Route path='/cards/list' element={<CardsList />} />
-					{/* <Route path="/cards/connections" element={<CardConnections />} /> */}
+				{/* Cards */}
+				<Route path='/cards/list' element={<CardsList />} />
+				{/* <Route path="/cards/connections" element={<CardConnections />} /> */}
 
-					{/* Maintenance */}
-					<Route path='/maintenance/history' element={<MaintenanceHistory />} />
+				{/* Maintenance */}
+				<Route path='/maintenance/history' element={<MaintenanceHistory />} />
 
-					{/* Settings */}
-					{/* <Route path="/settings/branch" element={<BranchSettings />} /> */}
-					{/* <Route path="/settings/admin" element={<AdminSettings />} /> */}
+				{/* Settings */}
+				{/* <Route path="/settings/branch" element={<BranchSettings />} /> */}
+				{/* <Route path="/settings/admin" element={<AdminSettings />} /> */}
 
-					{/* Administration */}
-					<Route path='/admin/users' element={<Users />} />
-					{/* <Route path="/admin/access" element={<Access />} /> */}
-				</Routes>
-			</Layout>
-		</Router>
+				{/* Administration */}
+				<Route path='/admin/users' element={<Users />} />
+				{/* <Route path="/admin/access" element={<Access />} /> */}
+			</Routes>
+		</Layout>
 	)
 }
 
