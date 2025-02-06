@@ -14,7 +14,6 @@ const ITEMS_PER_PAGE_OPTIONS = [5, 10, 15]
 const SalesByDayTableSection = ({ tableData }: SalesByDayTableProps) => {
 	const [itemsPerPage, setItemsPerPage] = useState(10)
 	const [currentPage, setCurrentPage] = useState(1)
-	// const [selectedDate, setSelectedDate] = useState(new Date('2024-01-01'))
 	const [searchQuery, setSearchQuery] = useState('')
 	const [sortState, setSortState] = useState<{
 		column: string | null

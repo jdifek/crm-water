@@ -21,62 +21,50 @@ const DeviceStatsTableSection = () => {
 	const [itemsPerPage, setItemsPerPage] = useState(3)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [searchQuery, setSearchQuery] = useState('')
-	const [sortStates, setSortStates] = useState<
-		Record<string, 'asc' | 'desc' | null>
-	>({
-		devices: null,
-		sessions: null,
-		liters: null,
-		income: null,
-	})
+	const [sortState, setSortState] = useState<{
+		column: string | null
+		order: 'asc' | 'desc' | null
+	}>({ column: null, order: null })
 
 	const filteredData = TABLE_DATA.filter(item =>
-		item.device.includes(searchQuery.trim())
+		Object.values(item).some(value =>
+			value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+		)
 	)
 
-	const getSortedData = (data: typeof TABLE_DATA) => {
-		const activeColumn = Object.entries(sortStates).find(([, order]) => order)
+	const sortedData = sortState.column
+		? [...filteredData].sort((a, b) => {
+				const valueA = a[sortState.column as keyof typeof a]
+				const valueB = b[sortState.column as keyof typeof a]
 
-		if (!activeColumn) return data
-
-		const [col, order] = activeColumn
-		return [...data].sort((a, b) => {
-			const valueA = a[col as keyof (typeof TABLE_DATA)[0]]
-			const valueB = b[col as keyof (typeof TABLE_DATA)[0]]
-
-			if (typeof valueA === 'number' && typeof valueB === 'number') {
-				return order === 'asc' ? valueA - valueB : valueB - valueA
-			} else if (typeof valueA === 'string' && typeof valueB === 'string') {
-				return order === 'asc'
-					? valueA.localeCompare(valueB)
-					: valueB.localeCompare(valueA)
-			}
-			return 0
-		})
-	}
-
-	const sortedData = getSortedData(filteredData)
+				if (typeof valueA === 'number' && typeof valueB === 'number') {
+					return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
+				} else if (typeof valueA === 'string' && typeof valueB === 'string') {
+					return sortState.order === 'asc'
+						? valueA.localeCompare(valueB)
+						: valueB.localeCompare(valueA)
+				}
+				return 0
+		  })
+		: filteredData
 
 	const totalPages = Math.ceil(sortedData.length / itemsPerPage)
 	const paginatedData = sortedData.slice(
 		(currentPage - 1) * itemsPerPage,
 		currentPage * itemsPerPage
 	)
+	const totalSessions = filteredData.reduce(
+		(sum, item) => sum + item.sessions,
+		0
+	)
+	const totalLiters = filteredData.reduce((sum, item) => sum + item.liters, 0)
+	const totalIncome = filteredData.reduce((sum, item) => sum + item.income, 0)
 
 	const handleSort = (column: keyof (typeof TABLE_DATA)[0]) => {
-		setSortStates(prevStates => {
-			const newSortStates = Object.keys(prevStates).reduce((acc, key) => {
-				acc[key] =
-					key === column
-						? prevStates[column] === 'asc'
-							? 'desc'
-							: 'asc'
-						: null
-				return acc
-			}, {} as Record<string, 'asc' | 'desc' | null>)
-
-			return newSortStates
-		})
+		setSortState(prev => ({
+			column,
+			order: prev.column === column && prev.order === 'asc' ? 'desc' : 'asc',
+		}))
 	}
 
 	const handleExportToExcel = () => {
@@ -137,44 +125,49 @@ const DeviceStatsTableSection = () => {
 			<div className='overflow-x-auto'>
 				<table className='w-full border-collapse text-left'>
 					<thead>
-						<tr className='border-b border-gray-300'>
-							{['device', 'sessions', 'liters', 'income'].map(key => (
-								<th
-									key={key}
-									className='p-3 cursor-pointer'
-									onClick={() =>
-										handleSort(key as keyof (typeof TABLE_DATA)[0])
-									}
-								>
-									<div className='flex items-center gap-2'>
-										{key === 'device'
-											? 'Аппарат'
-											: key === 'sessions'
-											? 'Сеансы'
-											: key === 'liters'
-											? 'Литры'
-											: 'Доход'}
-										<div className='flex flex-col'>
-											<FiChevronUp
-												size={14}
-												className={
-													sortStates[key] === 'asc'
-														? 'text-blue-500'
-														: 'text-gray-400'
-												}
-											/>
-											<FiChevronDown
-												size={14}
-												className={
-													sortStates[key] === 'desc'
-														? 'text-blue-500'
-														: 'text-gray-400'
-												}
-											/>
+						<tr className='font-medium text-lg'>
+							<td></td>
+							<td className='p-3'>{totalSessions.toFixed(1)}</td>
+							<td className='p-3'>{totalLiters.toFixed(1)} л</td>
+							<td className='p-3'>{totalIncome.toFixed(1)} (₴)</td>
+						</tr>
+						<tr>
+							{['Аппарат', 'Сеансы', 'Литров', 'Доход'].map((header, index) => {
+								const key = ['device', 'sessions', 'liters', 'income'][
+									index
+								] as keyof (typeof TABLE_DATA)[0]
+								return (
+									<th
+										key={header}
+										className='p-3 cursor-pointer'
+										onClick={() => handleSort(key)}
+									>
+										<div className='flex items-center gap-2 font-medium text-base'>
+											{header}
+											<div className='ml-2'>
+												<FiChevronUp
+													size={14}
+													className={
+														sortState.column === key &&
+														sortState.order === 'asc'
+															? 'text-blue-500'
+															: 'text-gray-400'
+													}
+												/>
+												<FiChevronDown
+													size={14}
+													className={
+														sortState.column === key &&
+														sortState.order === 'desc'
+															? 'text-blue-500'
+															: 'text-gray-400'
+													}
+												/>
+											</div>
 										</div>
-									</div>
-								</th>
-							))}
+									</th>
+								)
+							})}
 						</tr>
 					</thead>
 					<tbody>
@@ -182,7 +175,7 @@ const DeviceStatsTableSection = () => {
 							paginatedData.map((row, index) => (
 								<tr
 									key={index}
-									className='border-b border-gray-200 hover:bg-gray-100'
+									className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
 								>
 									<td className='p-3'>{row.device}</td>
 									<td className='p-3'>{row.sessions}</td>

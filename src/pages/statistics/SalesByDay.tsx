@@ -61,7 +61,6 @@ const SalesByDay = () => {
 		new Date('2024-01-01'),
 		new Date('2024-01-31'),
 	])
-
 	const [startDate, endDate] = dateRange
 	const [selectedDevice, setSelectedDevice] = useState('Усі апарати')
 

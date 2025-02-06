@@ -31,7 +31,6 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 			item.liters.toString().includes(searchQuery.trim())
 	)
 
-	// Сортировка данных
 	const sortedData = [...filteredData].sort((a, b) => {
 		if (!sortState.order) return 0
 		const valueA = a[sortState.column]

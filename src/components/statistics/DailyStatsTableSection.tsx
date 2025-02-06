@@ -1,10 +1,9 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import 'react-datepicker/dist/react-datepicker.css'
-import { AiOutlineDown, AiOutlineUp } from 'react-icons/ai'
-import { FiDownload } from 'react-icons/fi'
+import { FiChevronDown, FiChevronUp, FiDownload } from 'react-icons/fi'
 import * as XLSX from 'xlsx'
-import { DailyStatsSortDirection, DailyStatsTableData } from '../../types'
+import { DailyStatsTableData } from '../../types'
 
 const TABLE_DATA: DailyStatsTableData[] = [
 	{ time: '10:00', sessions: 20, liters: 400, income: 5000 },
@@ -16,32 +15,46 @@ const TABLE_DATA: DailyStatsTableData[] = [
 	{ time: '16:00', sessions: 27, liters: 700, income: 8500 },
 ]
 
-const TOTAL_RECORDS = 30
-const TOTAL_PAGES = 3
+const ITEMS_PER_PAGE = 3
 
 const DailyStatsTableSection = () => {
-	const [itemsPerPage, setItemsPerPage] = useState(10)
 	const [currentPage, setCurrentPage] = useState(1)
-	const [sortColumn, setSortColumn] =
-		useState<keyof DailyStatsTableData>('time')
-	const [sortDirection, setSortDirection] =
-		useState<DailyStatsSortDirection>('asc')
+	const [sortState, setSortState] = useState<{
+		column: string | null
+		order: 'asc' | 'desc' | null
+	}>({ column: null, order: null })
 
-	const handleSort = (column: keyof DailyStatsTableData) => {
-		const direction = sortDirection === 'asc' ? 'desc' : 'asc'
-		setSortDirection(direction)
-		setSortColumn(column)
+	const handleSort = (column: keyof (typeof TABLE_DATA)[0]) => {
+		setSortState(prev => ({
+			column,
+			order: prev.column === column && prev.order === 'asc' ? 'desc' : 'asc',
+		}))
 	}
 
-	const sortedData = [...TABLE_DATA].sort((a, b) => {
-		if (a[sortColumn] < b[sortColumn]) {
-			return sortDirection === 'asc' ? -1 : 1
-		}
-		if (a[sortColumn] > b[sortColumn]) {
-			return sortDirection === 'asc' ? 1 : -1
-		}
-		return 0
-	})
+	const sortedData = sortState.column
+		? [...TABLE_DATA].sort((a, b) => {
+				const valueA = a[sortState.column as keyof typeof a]
+				const valueB = b[sortState.column as keyof typeof a]
+
+				if (typeof valueA === 'number' && typeof valueB === 'number') {
+					return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
+				} else if (typeof valueA === 'string' && typeof valueB === 'string') {
+					return sortState.order === 'asc'
+						? valueA.localeCompare(valueB)
+						: valueB.localeCompare(valueA)
+				}
+				return 0
+		  })
+		: TABLE_DATA
+
+	const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE)
+	const paginatedData = sortedData.slice(
+		(currentPage - 1) * ITEMS_PER_PAGE,
+		currentPage * ITEMS_PER_PAGE
+	)
+	const totalSessions = TABLE_DATA.reduce((sum, item) => sum + item.sessions, 0)
+	const totalLiters = TABLE_DATA.reduce((sum, item) => sum + item.liters, 0)
+	const totalIncome = TABLE_DATA.reduce((sum, item) => sum + item.income, 0)
 
 	const handleExportToExcel = () => {
 		const worksheet = XLSX.utils.json_to_sheet(TABLE_DATA)
@@ -71,62 +84,60 @@ const DailyStatsTableSection = () => {
 			<div className='overflow-x-auto'>
 				<table className='w-full border-collapse text-left'>
 					<thead>
+						<tr className='font-medium text-lg'>
+							<td></td>
+							<td className='p-3'>{totalSessions.toFixed(1)}</td>
+							<td className='p-3'>{totalLiters.toFixed(1)} л</td>
+							<td className='p-3'>{totalIncome.toFixed(1)} (₴)</td>
+							<td></td>
+							<td></td>
+							<td></td>
+						</tr>
 						<tr>
-							<th
-								onClick={() => handleSort('time')}
-								className='cursor-pointer flex items-center gap-1'
-							>
-								Время{' '}
-								{sortColumn === 'time' &&
-									(sortDirection === 'asc' ? (
-										<AiOutlineUp size={12} />
-									) : (
-										<AiOutlineDown size={12} />
-									))}
-							</th>
-							<th
-								onClick={() => handleSort('sessions')}
-								className='cursor-pointer'
-							>
-								Сеансы{' '}
-								{sortColumn === 'sessions' &&
-									(sortDirection === 'asc' ? (
-										<AiOutlineUp size={12} />
-									) : (
-										<AiOutlineDown size={12} />
-									))}
-							</th>
-							<th
-								onClick={() => handleSort('liters')}
-								className='cursor-pointer'
-							>
-								Питьевая вода (л){' '}
-								{sortColumn === 'liters' &&
-									(sortDirection === 'asc' ? (
-										<AiOutlineUp size={12} />
-									) : (
-										<AiOutlineDown size={12} />
-									))}
-							</th>
-							<th
-								onClick={() => handleSort('income')}
-								className='cursor-pointer'
-							>
-								Питьевая вода (₴){' '}
-								{sortColumn === 'income' &&
-									(sortDirection === 'asc' ? (
-										<AiOutlineUp size={12} />
-									) : (
-										<AiOutlineDown size={12} />
-									))}
-							</th>
+							{['time', 'sessions', 'liters', 'income'].map(key => (
+								<th
+									key={key}
+									className='p-3 cursor-pointer'
+									onClick={() =>
+										handleSort(key as keyof (typeof TABLE_DATA)[0])
+									}
+								>
+									<div className='flex items-center gap-2 text-base font-medium'>
+										{key === 'time'
+											? 'Время'
+											: key === 'sessions'
+											? 'Сеансы'
+											: key === 'liters'
+											? 'Литров'
+											: key === 'income' && 'Доход'}
+										<div className='flex flex-col'>
+											<FiChevronUp
+												size={14}
+												className={
+													sortState.column === key && sortState.order === 'asc'
+														? 'text-blue-500'
+														: 'text-gray-400'
+												}
+											/>
+											<FiChevronDown
+												size={14}
+												className={
+													sortState.column === key && sortState.order === 'desc'
+														? 'text-blue-500'
+														: 'text-gray-400'
+												}
+											/>
+										</div>
+									</div>
+								</th>
+							))}
 						</tr>
 					</thead>
 					<tbody>
-						{sortedData.slice(0, itemsPerPage).map((row, index) => (
+						{paginatedData.slice(0, ITEMS_PER_PAGE).map((row, index) => (
 							<tr
 								key={index}
-								className='border-b border-gray-200 hover:bg-gray-100'
+								className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
 							>
 								<td className='p-3'>
 									<span>{row.time}</span>
@@ -143,7 +154,10 @@ const DailyStatsTableSection = () => {
 			{/* Нижняя панель с записями и пагинацией */}
 			<div className='flex justify-between items-center mt-4'>
 				<p className='text-gray-600'>
-					Записи с {1} до {itemsPerPage} из {TOTAL_RECORDS} записей
+					Записи с{' '}
+					{Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, sortedData.length)}{' '}
+					до {Math.min(currentPage * ITEMS_PER_PAGE, sortedData.length)} из{' '}
+					{sortedData.length} записей
 				</p>
 
 				{/* Пагинация */}
@@ -158,7 +172,7 @@ const DailyStatsTableSection = () => {
 					>
 						Предыдущая
 					</button>
-					{[...Array(TOTAL_PAGES)].map((_, i) => (
+					{[...Array(totalPages)].map((_, i) => (
 						<button
 							key={i}
 							onClick={() => setCurrentPage(i + 1)}
@@ -173,7 +187,7 @@ const DailyStatsTableSection = () => {
 					))}
 					<button
 						onClick={() => setCurrentPage(currentPage + 1)}
-						disabled={currentPage === TOTAL_PAGES}
+						disabled={currentPage === totalPages}
 						className='p-2 hover:bg-gray-300 disabled:opacity-50'
 					>
 						Следующая
