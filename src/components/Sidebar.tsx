@@ -5,7 +5,7 @@ import {
   Car,
   CreditCard,
   Wrench,
-  Settings,
+  // Settings,
   Users,
   ChevronDown,
   ChevronRight,
@@ -134,14 +134,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
             { text: 'История обслуживания', path: '/maintenance/history' },
           ]}
         />
-        <NavItem
+        {/* <NavItem
           icon={<Settings size={20} />}
           text="Настройки"
           children={[
             { text: 'Настройка филиала', path: '/settings/branch' },
             { text: 'Настройки администратора', path: '/settings/admin' },
           ]}
-        />
+        /> */}
         <NavItem
           icon={<Users size={20} />}
           text="Администрирование"
