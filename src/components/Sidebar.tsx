@@ -147,7 +147,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           text="Администрирование"
           children={[
             { text: 'Пользователи', path: '/admin/users' },
-            { text: 'Доступы', path: '/admin/access' },
+            // { text: 'Доступы', path: '/admin/access' },
           ]}
         />
       </nav>
