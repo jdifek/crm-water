@@ -121,7 +121,7 @@ const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
 
 				<input
 					type='text'
-					placeholder='Поиск по инкассатору, аппарату, сумме...'
+					placeholder='Поиск...'
 					value={searchQuery}
 					onChange={e => {
 						setSearchQuery(e.target.value)
@@ -193,7 +193,7 @@ const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
 							paginatedData.map(row => (
 								<motion.tr
 									key={row.id}
-									className='border-b border-gray-200 hover:bg-gray-100'
+									className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
 									initial={{ opacity: 0 }}
 									animate={{ opacity: 1 }}
 									transition={{ duration: 0.3 }}
@@ -247,7 +247,7 @@ const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
 						<button
 							key={i}
 							onClick={() => setCurrentPage(i + 1)}
-							className={`px-3 py-1 rounded-lg ${
+							className={`px-4 py-1 rounded-full text-[12px] ${
 								currentPage === i + 1
 									? 'bg-blue-500 text-white'
 									: 'bg-gray-200 hover:bg-gray-300'

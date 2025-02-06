@@ -1,32 +1,63 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { FiDownload } from 'react-icons/fi'
+import { FiChevronDown, FiChevronUp, FiDownload } from 'react-icons/fi'
 import * as XLSX from 'xlsx'
+import { SalesByDayTableData } from '../../types'
 
-const TABLE_DATA = [
-	{ date: '01.01.24', sessions: 20, liters: 400, income: 5000 },
-	{ date: '02.01.24', sessions: 25, liters: 600, income: 7000 },
-	{ date: '03.01.24', sessions: 18, liters: 500, income: 6200 },
-	{ date: '04.01.24', sessions: 30, liters: 800, income: 10000 },
-	{ date: '05.01.24', sessions: 15, liters: 300, income: 4000 },
-	{ date: '06.01.24', sessions: 22, liters: 450, income: 5500 },
-	{ date: '07.01.24', sessions: 27, liters: 700, income: 8500 },
-]
+interface SalesByDayTableProps {
+	tableData: SalesByDayTableData[]
+}
 
 const ITEMS_PER_PAGE_OPTIONS = [5, 10, 15]
-const TOTAL_RECORDS = 30
-const TOTAL_PAGES = 3
 
-const SalesByDayTableSection = () => {
+const SalesByDayTableSection = ({ tableData }: SalesByDayTableProps) => {
 	const [itemsPerPage, setItemsPerPage] = useState(10)
 	const [currentPage, setCurrentPage] = useState(1)
-	const [selectedDate, setSelectedDate] = useState(new Date('2024-01-01'))
+	// const [selectedDate, setSelectedDate] = useState(new Date('2024-01-01'))
 	const [searchQuery, setSearchQuery] = useState('')
+	const [sortState, setSortState] = useState<{
+		column: string | null
+		order: 'asc' | 'desc' | null
+	}>({ column: null, order: null })
+
+	const filteredData = tableData.filter(item =>
+		Object.values(item).some(value =>
+			value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+		)
+	)
+
+	const sortedData = sortState.column
+		? [...filteredData].sort((a, b) => {
+				const valueA = a[sortState.column as keyof typeof a]
+				const valueB = b[sortState.column as keyof typeof a]
+
+				if (typeof valueA === 'number' && typeof valueB === 'number') {
+					return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
+				} else if (typeof valueA === 'string' && typeof valueB === 'string') {
+					return sortState.order === 'asc'
+						? valueA.localeCompare(valueB)
+						: valueB.localeCompare(valueA)
+				}
+				return 0
+		  })
+		: filteredData
+
+	const totalPages = Math.ceil(sortedData.length / itemsPerPage)
+	const paginatedData = sortedData.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage
+	)
+
+	const handleSort = (column: keyof (typeof tableData)[0]) => {
+		setSortState(prev => ({
+			column,
+			order: prev.column === column && prev.order === 'asc' ? 'desc' : 'asc',
+		}))
+	}
 
 	const handleExportToExcel = () => {
-		const worksheet = XLSX.utils.json_to_sheet(TABLE_DATA)
+		const worksheet = XLSX.utils.json_to_sheet(tableData)
 		const workbook = XLSX.utils.book_new()
 		XLSX.utils.book_append_sheet(workbook, worksheet, 'Sales Data')
 		XLSX.writeFile(workbook, 'sales_data.xlsx')
@@ -80,27 +111,59 @@ const SalesByDayTableSection = () => {
 			<div className='overflow-x-auto'>
 				<table className='w-full border-collapse text-left'>
 					<thead>
-						<tr className='border-b border-gray-300'>
-							<th className='p-3'>Дата</th>
-							<th className='p-3'>Сеансы</th>
-							<th className='p-3'>Питьевая вода (л)</th>
-							<th className='p-3'>Питьевая вода (₴)</th>
+						<tr>
+							{['date', 'sessions', 'liters', 'income'].map(key => (
+								<th
+									key={key}
+									className='cursor-pointer'
+									onClick={() => handleSort(key as keyof (typeof tableData)[0])}
+								>
+									<div
+										className={`flex items-center gap-2 text-base font-medium ${
+											key === 'sessions'
+												? 'pl-2 bg-violet-300'
+												: key === 'liters' || key === 'income'
+												? 'pl-2 bg-blue-300'
+												: ''
+										}`}
+									>
+										{key === 'date'
+											? 'День'
+											: key === 'sessions'
+											? 'Сеансы'
+											: key === 'liters'
+											? 'Питьевая вода (л)'
+											: key === 'income' && 'Питьевая вода (₴)'}
+										<div className='flex flex-col'>
+											<FiChevronUp
+												size={14}
+												className={
+													sortState.column === key && sortState.order === 'asc'
+														? 'text-blue-600'
+														: 'text-gray-600'
+												}
+											/>
+											<FiChevronDown
+												size={14}
+												className={
+													sortState.column === key && sortState.order === 'desc'
+														? 'text-blue-600'
+														: 'text-gray-600'
+												}
+											/>
+										</div>
+									</div>
+								</th>
+							))}
 						</tr>
 					</thead>
 					<tbody>
-						{TABLE_DATA.slice(0, itemsPerPage).map((row, index) => (
+						{paginatedData.slice(0, itemsPerPage).map((row, index) => (
 							<tr
 								key={index}
-								className='border-b border-gray-200 hover:bg-gray-100'
+								className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
 							>
-								<td className='p-3'>
-									<DatePicker
-										selected={selectedDate}
-										onChange={date => setSelectedDate(date as Date)}
-										dateFormat='dd.MM.yy'
-										className='w-24 bg-transparent focus:outline-none'
-									/>
-								</td>
+								<td className='p-3'>{row.date}</td>
 								<td className='p-3'>{row.sessions}</td>
 								<td className='p-3'>{row.liters}</td>
 								<td className='p-3'>{row.income}</td>
@@ -113,7 +176,10 @@ const SalesByDayTableSection = () => {
 			{/* Нижняя панель с записями и пагинацией */}
 			<div className='flex justify-between items-center mt-4'>
 				<p className='text-gray-600'>
-					Записи с {1} до {itemsPerPage} из {TOTAL_RECORDS} записей
+					Записи с{' '}
+					{Math.min((currentPage - 1) * itemsPerPage + 1, sortedData.length)} до{' '}
+					{Math.min(currentPage * itemsPerPage, sortedData.length)} из{' '}
+					{sortedData.length} записей
 				</p>
 
 				{/* Пагинация */}
@@ -128,11 +194,11 @@ const SalesByDayTableSection = () => {
 					>
 						Предыдущая
 					</button>
-					{[...Array(TOTAL_PAGES)].map((_, i) => (
+					{[...Array(totalPages)].map((_, i) => (
 						<button
 							key={i}
 							onClick={() => setCurrentPage(i + 1)}
-							className={`px-3 py-1 rounded-lg ${
+							className={`px-4 py-1 rounded-full text-[12px] ${
 								currentPage === i + 1
 									? 'bg-blue-500 text-white'
 									: 'bg-gray-200 hover:bg-gray-300'
@@ -143,7 +209,7 @@ const SalesByDayTableSection = () => {
 					))}
 					<button
 						onClick={() => setCurrentPage(currentPage + 1)}
-						disabled={currentPage === TOTAL_PAGES}
+						disabled={currentPage === totalPages}
 						className='p-2 hover:bg-gray-300 disabled:opacity-50'
 					>
 						Следующая

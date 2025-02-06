@@ -162,7 +162,7 @@ const DailyStatsTableSection = () => {
 						<button
 							key={i}
 							onClick={() => setCurrentPage(i + 1)}
-							className={`px-3 py-1 rounded-lg ${
+							className={`px-4 py-1 rounded-full text-[12px] ${
 								currentPage === i + 1
 									? 'bg-blue-500 text-white'
 									: 'bg-gray-200 hover:bg-gray-300'

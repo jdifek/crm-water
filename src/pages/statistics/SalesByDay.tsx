@@ -12,8 +12,9 @@ import {
 	YAxis,
 } from 'recharts'
 import SalesByDayTableSection from '../../components/statistics/SalesByDayTableSection'
+import { SalesByDayTableData } from '../../types'
 
-const DATA = [
+const DATA: SalesByDayTableData[] = [
 	{ date: '01.01', sessions: 20, liters: 400, income: 5000 },
 	{ date: '02.01', sessions: 25, liters: 600, income: 7000 },
 	{ date: '03.01', sessions: 18, liters: 500, income: 6200 },
@@ -156,7 +157,7 @@ const SalesByDay = () => {
 				</div>
 			</motion.div>
 
-			<SalesByDayTableSection />
+			<SalesByDayTableSection tableData={filteredData} />
 		</div>
 	)
 }
