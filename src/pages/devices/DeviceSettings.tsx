@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { DeviceNavigate } from "../../components/Device/Navigate";
-import { useNavigate } from "react-router-dom";
 import { SelectDevice } from "../../components/Device/SelectDevice";
-import { devices } from "../../data/device/device";
 import { DeviceSidebar } from "../../components/Device/DeviceSidebar";
 import { MachineState } from "../../components/Device/SettingsPage/MachineState";
 import { Wifi } from "../../components/Device/SettingsPage/Wifi";
@@ -13,28 +11,16 @@ import { DialSensor } from "../../components/Device/SettingsPage/DialSensor";
 import { DispenserMode } from "../../components/Device/SettingsPage/DispenserMode";
 
 const DeviceSettings = () => {
-  const navigate = useNavigate();
-
-  const [selectedDeviceId, setSelectedDeviceId] = useState(devices[0].id);
   const [active, setActive] = useState(true);
   const [isOn, setIsOn] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const id = Number(e.target.value);
-    setSelectedDeviceId(id);
-    navigate(`/devices/details/${id}`);
-  };
-
   return (
     <div className="p-4 lg:p-8">
-      <SelectDevice
-        handleChange={handleChange}
-        selectedDeviceId={selectedDeviceId}
-      />
+      <SelectDevice />
 
       <div className="flex gap-3 flex-nowrap w-full">
         <div className="bg-white rounded-lg shadow p-5 flex flex-col flex-1">
-          <DeviceNavigate selectedDeviceId={selectedDeviceId} />
+          <DeviceNavigate />
 
           <MachineState active={active} setActive={setActive} />
 

@@ -1,32 +1,19 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { SelectDevice } from "../../components/Device/SelectDevice";
 import { DeviceNavigate } from "../../components/Device/Navigate";
-import { devices } from "../../data/device/device";
 import { DeviceSidebar } from "../../components/Device/DeviceSidebar";
 import { ButtonSave } from "../../components/ui/Button";
 
 export const DeviceConfig = () => {
-  const navigate = useNavigate();
-
-  const [selectedDeviceId, setSelectedDeviceId] = useState(devices[0].id);
-
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const id = Number(e.target.value);
-    setSelectedDeviceId(id);
-    navigate(`/devices/details/${id}`);
-  };
+ 
 
   return (
     <div className="p-4 lg:p-8">
       <SelectDevice
-        handleChange={handleChange}
-        selectedDeviceId={selectedDeviceId}
       />
 
       <div className="flex gap-3 flex-nowrap w-full">
         <div className="bg-white rounded-lg shadow p-5 flex flex-col flex-1">
-          <DeviceNavigate selectedDeviceId={selectedDeviceId} />
+          <DeviceNavigate />
 
           <div className="p-4 lg:p-8">
             <div className="bg-white rounded-lg shadow p-6">
