@@ -65,7 +65,7 @@ type MonthData = {
 }
 
 type Row = {
-	type: 'Готівка' | 'Безготівка' | 'Дохід'
+	type: 'Готівка' | 'Безготівка' | 'Дохід' | 'Витрати' | 'Чистий дохід'
 } & MonthData
 
 type TableItem = {
