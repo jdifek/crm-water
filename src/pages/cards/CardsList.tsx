@@ -3,49 +3,9 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FiCheck, FiChevronDown, FiChevronUp, FiPlus } from 'react-icons/fi'
 import { CardData } from '../../types'
+import { ru } from 'date-fns/locale'
 
-/* старые данные */
 
-// const CARD_DATA: CardData[] = [
-// 	{
-// 		id: 123,
-// 		date: '2025-01-28 15:57:35',
-// 		number: '0023112930',
-// 		code: '10',
-// 		type: 'Сервисная',
-// 		holder: 'Назва Технік',
-// 		active: true,
-// 		device: '№ 111781',
-// 		address: 'вул. Н, Кривий Ріг, Дніпропетровська о...',
-// 		registered: true,
-// 	},
-// 	{
-// 		id: 120,
-// 		date: '2025-01-20 15:57:35',
-// 		number: '12930',
-// 		code: '8',
-// 		type: 'Сервия',
-// 		holder: 'Назва бред',
-// 		active: true,
-// 		device: '№ 231781',
-// 		address: 'вул. Н, харьков, Дніпропетровська о...',
-// 		registered: true,
-// 	},
-// 	{
-// 		id: 124,
-// 		date: '2025-01-27 14:30:22',
-// 		number: '0023112945',
-// 		code: '12',
-// 		type: 'Обычная',
-// 		holder: 'Інженер А',
-// 		active: false,
-// 		device: '№ 111782',
-// 		address: 'вул. Г, Київ',
-// 		registered: false,
-// 	},
-// ]
-
-/* новые данные */
 const CARD_DATA: CardData[] = [
 	{
 		id: 123,
@@ -258,6 +218,7 @@ const TableComponent = () => {
 				</select>
 				<div className='border-b border-gray-300 pb-2 w-56'>
 					<DatePicker
+          locale={ru} 
 						selectsRange
 						startDate={startDate}
 						endDate={endDate}

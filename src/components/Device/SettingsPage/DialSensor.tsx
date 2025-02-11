@@ -34,20 +34,6 @@ export const DialSensor = ({ isOn, setIsOn }: DialSensorProps) => {
           <p>Рассчитать автоматически из:</p>
         </div>
 
-        <div className="flex items-center">
-          <label className="block text-sm font-medium text-blue-300 mr-2">
-            1л
-          </label>
-          <div className="mt-1 flex ">
-            <input
-              type="number"
-              className="block w-full rounded-md border-gray-300 shadow-sm"
-              defaultValue="25"
-            />
-            <span className="inline-flex items-center px-3 ">импульсов</span>
-          </div>
-        </div>
-
         {[0.5, 1.0, 1.5, 2.0, 5.0, 6.0, 10.0, 12.0, 19.0].map((el, index) => (
           <div key={index} className="flex items-center">
             <label className="block text-sm font-medium text-blue-300 mr-2">

@@ -1,5 +1,6 @@
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { ru } from 'date-fns/locale'
 
 interface StatisticsFilterProps {
 	startDate: Date | null
@@ -20,6 +21,7 @@ const StatisticsFilter = ({
 					selectsRange
 					startDate={startDate}
 					endDate={endDate}
+          locale={ru} 
 					onChange={update =>
 						setDateRange(update as [Date | null, Date | null])
 					}

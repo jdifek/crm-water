@@ -12,6 +12,7 @@ import {
 	YAxis,
 } from 'recharts'
 import DeviceStatsTableSection from '../../components/statistics/DeviceStatsTableSection'
+import { ru } from 'date-fns/locale'
 
 const DATA = [
 	{ date: '01.01', devices: '111756', sessions: 20, liters: 400, income: 5000 },
@@ -68,6 +69,8 @@ const DeviceStats = () => {
 					selectsRange
 					startDate={startDate}
 					endDate={endDate}
+          locale={ru} 
+
 					onChange={update =>
 						setDateRange(update as [Date | null, Date | null])
 					}

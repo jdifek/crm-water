@@ -3,6 +3,8 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import CollectionTableSection from '../../components/statistics/CollectionTableSection'
 import { CollectionTableData } from '../../types'
+import { ru } from 'date-fns/locale'
+
 
 const TABLE_DATA: CollectionTableData[] = [
 	{
@@ -125,6 +127,8 @@ const Collection = () => {
 			<div className='flex justify-between items-center'>
 				<div className='flex items-center gap-2 border-b border-gray-300 pb-2'>
 					<DatePicker
+          locale={ru} 
+
 						selectsRange
 						startDate={startDate}
 						endDate={endDate}

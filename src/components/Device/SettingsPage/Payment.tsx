@@ -1,5 +1,4 @@
 import { ButtonSave } from "../../ui/Button";
-import PaymentMethodsList from "../PaymentMethodsList";
 
 export const Payment = () => {
   return (
@@ -34,7 +33,7 @@ export const Payment = () => {
           />
         </div>
 
-        <PaymentMethodsList />
+        {/* <PaymentMethodsList /> */}
         <ButtonSave />
       </div>
     </div>

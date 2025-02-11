@@ -2,6 +2,7 @@ import { SelectDevice } from "../../components/Device/SelectDevice";
 import { DeviceNavigate } from "../../components/Device/Navigate";
 import { DeviceSidebar } from "../../components/Device/DeviceSidebar";
 import { ButtonSave } from "../../components/ui/Button";
+import { BillAcceptorModels, CoinAcceptorModels } from "../../data/model";
 
 export const DeviceTarif = () => {
   return (
@@ -20,11 +21,16 @@ export const DeviceTarif = () => {
                     Модель купюроприемника
                   </label>
                   <div className="mt-1 flex rounded-md shadow-sm">
-                    <input
-                      type="text"
+                    <select
                       className="block w-full rounded-md border-gray-300 shadow-sm"
-                      defaultValue="FSKJSD"
-                    />
+                      defaultValue={BillAcceptorModels.FSKJSD} // Значение по умолчанию
+                    >
+                      {Object.values(BillAcceptorModels).map((model) => (
+                        <option key={model} value={model}>
+                          {model}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -33,11 +39,16 @@ export const DeviceTarif = () => {
                     Модель монетоприемника
                   </label>
                   <div className="mt-1 flex rounded-md shadow-sm">
-                    <input
-                      type="text"
+                    <select
                       className="block w-full rounded-md border-gray-300 shadow-sm"
-                      defaultValue="MICROCOIN SP"
-                    />
+                      defaultValue={CoinAcceptorModels.MICROCOIN_SP} // Значение по умолчанию
+                    >
+                      {Object.values(CoinAcceptorModels).map((model) => (
+                        <option key={model} value={model}>
+                          {model}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 

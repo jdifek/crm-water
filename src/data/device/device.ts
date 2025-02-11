@@ -17,11 +17,11 @@ export const devices = [
     },
     statistics: {
       totalWaterSold: "004,000 л",
-      totalRevenue: "33,00 B",
+      totalRevenue: "33,00 ₴",
       coinCount: "68 шт",
-      coinAmount: "777,10 B",
+      coinAmount: "777,10 ₴",
       banknoteCount: "220 шт",
-      banknoteAmount: "777,10 B",
+      banknoteAmount: "777,10 ₴",
       lastActivityDate: "2025-01-29 23:28:16",
     },
     connectivity: {
@@ -29,11 +29,11 @@ export const devices = [
       simNumber: "1",
       operator: "Kyivstar",
       signalLevel: "-75dBm",
-      simBalance: "777,10 B",
+      simBalance: "777,10 ₴",
       connectivityLastActivity: "2025-01-29 23:28:16",
     },
     products: {
-      cleanWaterPrice: "1,00 B/л",
+      cleanWaterPrice: "1,00 ₴/л",
     },
     software: {
       firmwareVersionMainController: "GSU:GD:6:1",
@@ -60,11 +60,11 @@ export const devices = [
     },
     statistics: {
       totalWaterSold: "005,000 л",
-      totalRevenue: "40,00 B",
+      totalRevenue: "40,00 ₴",
       coinCount: "75 шт",
-      coinAmount: "800,00 B",
+      coinAmount: "800,00 ₴",
       banknoteCount: "230 шт",
-      banknoteAmount: "800,00 B",
+      banknoteAmount: "800,00 ₴",
       lastActivityDate: "2025-01-30 12:00:00",
     },
     connectivity: {
@@ -72,11 +72,11 @@ export const devices = [
       simNumber: "2",
       operator: "Vodafone",
       signalLevel: "-65dBm",
-      simBalance: "800,00 B",
+      simBalance: "800,00 ₴",
       connectivityLastActivity: "2025-01-30 12:00:00",
     },
     products: {
-      cleanWaterPrice: "1,20 B/л",
+      cleanWaterPrice: "1,20 ₴/л",
     },
     software: {
       firmwareVersionMainController: "GSU:GD:6:2",
@@ -103,11 +103,11 @@ export const devices = [
     },
     statistics: {
       totalWaterSold: "003,500 л",
-      totalRevenue: "30,00 B",
+      totalRevenue: "30,00 ₴",
       coinCount: "65 шт",
-      coinAmount: "750,00 B",
+      coinAmount: "750,00 ₴",
       banknoteCount: "210 шт",
-      banknoteAmount: "750,00 B",
+      banknoteAmount: "750,00 ₴",
       lastActivityDate: "2025-01-28 20:30:00",
     },
     connectivity: {
@@ -115,11 +115,11 @@ export const devices = [
       simNumber: "3",
       operator: "Beeline",
       signalLevel: "-80dBm",
-      simBalance: "750,00 B",
+      simBalance: "750,00 ₴",
       connectivityLastActivity: "2025-01-28 20:30:00",
     },
     products: {
-      cleanWaterPrice: "0,90 B/л",
+      cleanWaterPrice: "0,90 ₴/л",
     },
     software: {
       firmwareVersionMainController: "GSU:GD:6:0",

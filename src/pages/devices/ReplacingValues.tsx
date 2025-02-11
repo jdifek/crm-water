@@ -58,7 +58,7 @@ export const ReplacingValues = () => {
                       defaultValue="14"
                     />
                     <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500">
-                      B
+                      ₴
                     </span>
                   </div>
                 </div>

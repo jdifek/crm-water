@@ -15,15 +15,6 @@ export const Interface = () => {
             <option>English</option>
           </select>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Список продуктов
-          </label>
-          <input
-            type="text"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-          />
-        </div>
         <ButtonSave />
       </div>
     </div>

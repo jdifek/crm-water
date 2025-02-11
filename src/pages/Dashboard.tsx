@@ -2,9 +2,9 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { ShoppingCart, Droplets, DollarSign } from 'lucide-react';
 
 const data = [
-  { date: '01.01', income: 6000, expenses: 1000 },
-  { date: '02.01', income: 8000, expenses: 1000 },
-  { date: '03.01', income: 9000, expenses: 1000 },
+  { date: '01.01', '₴': 6000, expenses: 1000 },
+  { date: '02.01', '₴': 8000, expenses: 1000 },
+  { date: '03.01', '₴': 9000, expenses: 1000 },
   // Add more data points...
 ];
 
@@ -59,8 +59,7 @@ const Dashboard = () => {
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
-              <Line type="monotone" dataKey="income" stroke="#22c55e" strokeWidth={2} />
-              <Line type="monotone" dataKey="expenses" stroke="#f59e0b" strokeWidth={2} />
+              <Line type="monotone" dataKey="₴" stroke="#22c55e" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
         </div>

@@ -2,6 +2,8 @@ import { motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { ru } from 'date-fns/locale'
+
 import {
 	Bar,
 	BarChart,
@@ -58,6 +60,8 @@ const LiterStats = () => {
 				<div className='flex items-center gap-2 border-b border-gray-300 pb-2'>
 					<DatePicker
 						selectsRange
+          locale={ru} 
+
 						startDate={startDate}
 						endDate={endDate}
 						onChange={update =>

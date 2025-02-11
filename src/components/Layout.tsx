@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import { Menu } from "lucide-react";
 import ModalLogin from "./ui/ModalLogin";
@@ -11,8 +11,12 @@ interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
+  const routeHome = () => {
+    navigate("/");
+  };
 
   const getPageTitle = () => {
     const path = location.pathname;
@@ -48,17 +52,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         />
       )}
 
-      {/* Sidebar */}
-      <div
-        className={`
-        fixed lg:static inset-y-0 left-0 transform 
-        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0 transition-transform duration-200 ease-in-out
-        z-30 lg:z-0
-      `}
-      >
-        <Sidebar onClose={() => setIsSidebarOpen(false)} />
-      </div>
+      {!location.pathname.startsWith("/stats/yearly") && (
+        // Sidebar
+        <div
+          className={`
+     fixed lg:static inset-y-0 left-0 transform 
+     ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+     lg:translate-x-0 transition-transform duration-200 ease-in-out
+     z-30 lg:z-0
+   `}
+        >
+          <Sidebar onClose={() => setIsSidebarOpen(false)} />
+        </div>
+      )}
 
       {/* Main content */}
       <main className="flex-1 w-full">
@@ -70,7 +76,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               <Menu size={24} />
             </button>
-            <button className="mr-4">←</button>
+            <button className="mr-4" onClick={() => routeHome()}>
+              ←
+            </button>
             <h1 className="text-lg">{getPageTitle()}</h1>
           </div>
           <div className="flex items-center space-x-4">
