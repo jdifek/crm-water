@@ -17,10 +17,9 @@ export interface IUser {
 
 // Users List Response
 export interface IUsersListResponse {
-	count: number
-	next?: string
-	previous?: string
-	results: IUser[]
+	data: { count: number; next?: string; previous?: string; results: IUser[] }
+	errors: []
+	status: string
 }
 
 // User Token Request

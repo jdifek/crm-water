@@ -7,18 +7,17 @@ import {
 
 export default class PosDevicesService {
 	static async getDevices(): Promise<IPosDevicesListResponse> {
-		return (await $api.get<IPosDevicesListResponse>('/api/pos/devices/')).data
+		return (await $api.get<IPosDevicesListResponse>('pos/devices/')).data
 	}
 
 	static async getDeviceById(id: number): Promise<IPosDevice> {
-		return (await $api.get<IPosDevice>(`/api/pos/devices/${id}/`)).data
+		return (await $api.get<IPosDevice>(`pos/devices/${id}/`)).data
 	}
 
 	static async updateDevice(
 		id: number,
 		params: IPosDeviceUpdateParams
 	): Promise<IPosDevice> {
-		return (await $api.patch<IPosDevice>(`/api/pos/devices/${id}/`, params))
-			.data
+		return (await $api.patch<IPosDevice>(`pos/devices/${id}/`, params)).data
 	}
 }

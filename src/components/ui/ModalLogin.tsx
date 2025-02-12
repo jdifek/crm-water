@@ -7,7 +7,7 @@ interface ModalLoginProps {
 }
 
 export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
-	const [username, setUsername] = useState('user1')
+	const [username, setUsername] = useState<string>('')
 	const [password, setPassword] = useState<string>('')
 	const [error, setError] = useState<string | null>(null)
 	const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -26,7 +26,7 @@ export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
 			onClose(false)
 		} catch (error) {
 			console.error('Login error:', error)
-			setError('Неправильний логін або пароль')
+			setError('Неверный логин или пароль')
 		} finally {
 			setIsLoading(false)
 		}
@@ -60,7 +60,7 @@ export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
 							</div>
 							<div className='relative'>
 								<input
-									type='text'
+									type='password'
 									value={password}
 									onChange={e => setPassword(e.target.value)}
 									placeholder='●●●●●●●●'

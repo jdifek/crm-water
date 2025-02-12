@@ -15,10 +15,14 @@ export interface IPosDevice {
 
 // POS Devices List Response
 export interface IPosDevicesListResponse {
-	count: number
-	next?: string
-	previous?: string
-	results: IPosDevice[]
+	data: {
+		count: number
+		next?: string
+		previous?: string
+		results: IPosDevice[]
+	}
+	errors: []
+	status: string
 }
 
 // POS Device Update Request
