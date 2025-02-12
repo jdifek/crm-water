@@ -1,0 +1,36 @@
+import $api from '../http'
+import { IAuthTokenResponse, IRefreshToken } from '../Token/TokenTypes'
+import {
+	IRefreshTokenResponse,
+	IUser,
+	IUsersListResponse,
+	IUserTokenParams,
+} from './UsersTypes'
+
+export default class UsersService {
+	static async getUsers(): Promise<IUsersListResponse> {
+		return (await $api.get<IUsersListResponse>('/api/users/')).data
+	}
+
+	static async getUserById(id: number): Promise<IUser> {
+		return (await $api.get<IUser>(`/api/users/${id}/`)).data
+	}
+
+	static async getUserToken(
+		params: IUserTokenParams
+	): Promise<IAuthTokenResponse> {
+		return (await $api.post<IAuthTokenResponse>('/api/users/token/', params))
+			.data
+	}
+
+	static async refreshUserToken(
+		params: IRefreshToken
+	): Promise<IRefreshTokenResponse> {
+		return (
+			await $api.post<IRefreshTokenResponse>(
+				'/api/users/token/refresh/',
+				params
+			)
+		).data
+	}
+}

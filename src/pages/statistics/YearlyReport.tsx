@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FiDownload } from 'react-icons/fi'
 import * as XLSX from 'xlsx'
+import PosDevicesService from '../../api/PosDevices/PosDevicesService'
 import { YearlyReportTableData } from '../../types'
 
 const TABLE_DATA: YearlyReportTableData = {
@@ -60,38 +61,6 @@ const TABLE_DATA: YearlyReportTableData = {
 					december: '0,00',
 					total: '8,00',
 				},
-				{
-					type: 'Витрати',
-					january: '123 123,00',
-					february: '0,00',
-					march: '0,00',
-					april: '0,00',
-					may: '0,00',
-					june: '0,00',
-					july: '0,00',
-					august: '0,00',
-					september: '0,00',
-					october: '0,00',
-					november: '0,00',
-					december: '0,00',
-					total: '8,00',
-				},
-				{
-					type: 'Чистий дохід',
-					january: '123 123,00',
-					february: '0,00',
-					march: '0,00',
-					april: '0,00',
-					may: '0,00',
-					june: '0,00',
-					july: '0,00',
-					august: '0,00',
-					september: '0,00',
-					october: '0,00',
-					november: '0,00',
-					december: '0,00',
-					total: '8,00',
-				},
 			],
 		},
 		{
@@ -133,38 +102,6 @@ const TABLE_DATA: YearlyReportTableData = {
 				},
 				{
 					type: 'Дохід',
-					january: '321 321,32',
-					february: '0,00',
-					march: '0,00',
-					april: '0,00',
-					may: '0,00',
-					june: '0,00',
-					july: '0,00',
-					august: '0,00',
-					september: '0,00',
-					october: '0,00',
-					november: '0,00',
-					december: '0,00',
-					total: '762,00',
-				},
-				{
-					type: 'Витрати',
-					january: '321 321,32',
-					february: '0,00',
-					march: '0,00',
-					april: '0,00',
-					may: '0,00',
-					june: '0,00',
-					july: '0,00',
-					august: '0,00',
-					september: '0,00',
-					october: '0,00',
-					november: '0,00',
-					december: '0,00',
-					total: '762,00',
-				},
-				{
-					type: 'Чистий дохід',
 					january: '321 321,32',
 					february: '0,00',
 					march: '0,00',
@@ -236,38 +173,6 @@ const TABLE_DATA: YearlyReportTableData = {
 					december: '0,00',
 					total: '8,00',
 				},
-				{
-					type: 'Витрати',
-					january: '123 123,00',
-					february: '0,00',
-					march: '0,00',
-					april: '0,00',
-					may: '0,00',
-					june: '0,00',
-					july: '0,00',
-					august: '0,00',
-					september: '0,00',
-					october: '0,00',
-					november: '0,00',
-					december: '0,00',
-					total: '8,00',
-				},
-				{
-					type: 'Чистий дохід',
-					january: '123 123,00',
-					february: '0,00',
-					march: '0,00',
-					april: '0,00',
-					may: '0,00',
-					june: '0,00',
-					july: '0,00',
-					august: '0,00',
-					september: '0,00',
-					october: '0,00',
-					november: '0,00',
-					december: '0,00',
-					total: '8,00',
-				},
 			],
 		},
 		{
@@ -309,38 +214,6 @@ const TABLE_DATA: YearlyReportTableData = {
 				},
 				{
 					type: 'Дохід',
-					january: '321 321,32',
-					february: '0,00',
-					march: '0,00',
-					april: '0,00',
-					may: '0,00',
-					june: '0,00',
-					july: '0,00',
-					august: '0,00',
-					september: '0,00',
-					october: '0,00',
-					november: '0,00',
-					december: '0,00',
-					total: '762,00',
-				},
-				{
-					type: 'Витрати',
-					january: '321 321,32',
-					february: '0,00',
-					march: '0,00',
-					april: '0,00',
-					may: '0,00',
-					june: '0,00',
-					july: '0,00',
-					august: '0,00',
-					september: '0,00',
-					october: '0,00',
-					november: '0,00',
-					december: '0,00',
-					total: '762,00',
-				},
-				{
-					type: 'Чистий дохід',
 					january: '321 321,32',
 					february: '0,00',
 					march: '0,00',
@@ -412,38 +285,6 @@ const TABLE_DATA: YearlyReportTableData = {
 					december: '0,00',
 					total: '8,00',
 				},
-				{
-					type: 'Витрати',
-					january: '123 123,00',
-					february: '0,00',
-					march: '0,00',
-					april: '0,00',
-					may: '0,00',
-					june: '0,00',
-					july: '0,00',
-					august: '0,00',
-					september: '0,00',
-					october: '0,00',
-					november: '0,00',
-					december: '0,00',
-					total: '8,00',
-				},
-				{
-					type: 'Чистий дохід',
-					january: '123 123,00',
-					february: '0,00',
-					march: '0,00',
-					april: '0,00',
-					may: '0,00',
-					june: '0,00',
-					july: '0,00',
-					august: '0,00',
-					september: '0,00',
-					october: '0,00',
-					november: '0,00',
-					december: '0,00',
-					total: '8,00',
-				},
 			],
 		},
 		{
@@ -499,38 +340,6 @@ const TABLE_DATA: YearlyReportTableData = {
 					december: '0,00',
 					total: '762,00',
 				},
-				{
-					type: 'Витрати',
-					january: '321 321,32',
-					february: '0,00',
-					march: '0,00',
-					april: '0,00',
-					may: '0,00',
-					june: '0,00',
-					july: '0,00',
-					august: '0,00',
-					september: '0,00',
-					october: '0,00',
-					november: '0,00',
-					december: '0,00',
-					total: '762,00',
-				},
-				{
-					type: 'Чистий дохід',
-					january: '321 321,32',
-					february: '0,00',
-					march: '0,00',
-					april: '0,00',
-					may: '0,00',
-					june: '0,00',
-					july: '0,00',
-					august: '0,00',
-					september: '0,00',
-					october: '0,00',
-					november: '0,00',
-					december: '0,00',
-					total: '762,00',
-				},
 			],
 		},
 	],
@@ -539,6 +348,16 @@ const TABLE_DATA: YearlyReportTableData = {
 const YearlyReport = () => {
 	const [selectedYear, setSelectedYear] = useState(2025)
 	const data = TABLE_DATA[selectedYear]
+
+	useEffect(() => {
+		PosDevicesService.getDevices()
+			.then(response => {
+				console.log('Devices:', response)
+			})
+			.catch(error => {
+				console.error('Error fetching devices:', error)
+			})
+	}, [])
 
 	const handleExportToExcel = () => {
 		const flatData = data.flatMap(item =>
@@ -600,16 +419,16 @@ const YearlyReport = () => {
 					<table className='w-full border-collapse text-sm'>
 						<thead className='relative'>
 							<tr className='bg-gray-100'>
-								<th className='border px-4 py-2 text-left sticky left-0 bg-gray-100 z-20'>
+								<th className='border px-4 py-2 text-left sticky -left-1 bg-gray-100 z-20'>
 									ID
 								</th>
-								<th className='border px-4 py-2 text-left sticky left-[56px] bg-gray-100 z-20'>
+								<th className='border px-4 py-2 text-left sticky md:left-[50px] left-0 bg-gray-100 z-20'>
 									Торгова точка
 								</th>
-								<th className='border px-4 py-2 text-left sticky left-[195px] bg-gray-100 z-20'>
+								<th className='border px-4 py-2 text-left sticky md:left-[188px] left-0 bg-gray-100 z-20'>
 									Серійний номер
 								</th>
-								<th className='border px-4 py-2 sticky left-[291px] bg-gray-100 z-20'>
+								<th className='border px-4 py-2 sticky md:left-[284px] left-0 bg-gray-100 z-20'>
 									Тип
 								</th>
 								<th className='border px-4 py-2'>Январь</th>
@@ -634,26 +453,26 @@ const YearlyReport = () => {
 										{rowIndex === 0 && (
 											<>
 												<td
-													className='border px-4 py-2 sticky left-0 bg-white z-20'
-													rowSpan={5}
+													className='border px-4 py-2 sticky -left-1 bg-white z-20'
+													rowSpan={3}
 												>
 													{item.id}
 												</td>
 												<td
-													className='border px-4 py-2 sticky left-[56px] bg-white z-20'
-													rowSpan={5}
+													className='border px-4 py-2 sticky md:left-[50px] -left-2 bg-white z-20'
+													rowSpan={3}
 												>
 													{item.location}
 												</td>
 												<td
-													className='border px-4 py-2 sticky left-[195px] bg-white z-20'
-													rowSpan={5}
+													className='border px-4 py-2 sticky md:left-[188px] left-0 bg-white z-20'
+													rowSpan={3}
 												>
 													{item.serial}
 												</td>
 											</>
 										)}
-										<td className='border px-4 py-2 sticky left-[291px] bg-white z-20  whitespace-nowrap'>
+										<td className='border px-4 py-2 sticky md:left-[284px] left-0 bg-white z-20  whitespace-nowrap'>
 											{row.type}
 										</td>
 										{Object.entries(row)

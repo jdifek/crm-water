@@ -14,7 +14,7 @@ const TABLE_DATA = [
 	{ device: '110675', sessions: 27, liters: 700, income: 8500 },
 ]
 
-const ITEMS_PER_PAGE_OPTIONS = [3, 5, 10]
+const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 
 const DeviceStatsTableSection = () => {
 	const [itemsPerPage, setItemsPerPage] = useState(3)

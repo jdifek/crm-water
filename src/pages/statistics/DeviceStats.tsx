@@ -1,3 +1,4 @@
+import { ru } from 'date-fns/locale'
 import { motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import DatePicker from 'react-datepicker'
@@ -12,7 +13,6 @@ import {
 	YAxis,
 } from 'recharts'
 import DeviceStatsTableSection from '../../components/statistics/DeviceStatsTableSection'
-import { ru } from 'date-fns/locale'
 
 const DATA = [
 	{ date: '01.01', devices: '111756', sessions: 20, liters: 400, income: 5000 },
@@ -39,15 +39,33 @@ const DATA = [
 	{ date: '10.01', devices: '111443', sessions: 27, liters: 880, income: 9400 },
 ]
 
+const TABS = [
+	{ key: 'sessions', label: 'Сеансы' },
+	{ key: 'liters', label: 'Литры' },
+	{ key: 'income', label: 'Доход' },
+] as const
+
+const tabToKey = {
+	Сеансы: 'sessions',
+	Литры: 'liters',
+	Доход: 'income',
+} as const
+
+const keyToLabel = {
+	sessions: 'Сеансы',
+	liters: 'Литры',
+	income: 'Доход',
+} as const
+
 const formatDate = (date: Date | null) =>
 	date
 		? date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })
 		: ''
 
 const DeviceStats = () => {
-	const [selectedTab, setSelectedTab] = useState<
-		'sessions' | 'liters' | 'income'
-	>('liters')
+	const [selectedTab, setSelectedTab] = useState<'Сеансы' | 'Литры' | 'Доход'>(
+		'Литры'
+	)
 	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
 		new Date('2024-01-01'),
 		new Date('2024-01-10'),
@@ -69,8 +87,7 @@ const DeviceStats = () => {
 					selectsRange
 					startDate={startDate}
 					endDate={endDate}
-          locale={ru} 
-
+					locale={ru}
 					onChange={update =>
 						setDateRange(update as [Date | null, Date | null])
 					}
@@ -88,23 +105,19 @@ const DeviceStats = () => {
 			>
 				{/* Таб переключения */}
 				<div className='flex gap-4 mb-6 pb-2'>
-					{['sessions', 'liters', 'income'].map(tab => (
+					{TABS.map(({ key, label }) => (
 						<button
-							key={tab}
+							key={key}
 							onClick={() =>
-								setSelectedTab(tab as 'sessions' | 'liters' | 'income')
+								setSelectedTab(label as 'Сеансы' | 'Литры' | 'Доход')
 							}
 							className={`px-4 py-2 ${
-								selectedTab === tab
+								selectedTab === label
 									? 'text-white bg-blue-500 rounded-full shadow-md p-2'
 									: 'bg-gray-200 rounded-full shadow-md p-2'
 							}`}
 						>
-							{tab === 'sessions'
-								? 'Сеансы'
-								: tab === 'liters'
-								? 'Литры'
-								: 'Доход'}
+							{label}
 						</button>
 					))}
 				</div>
@@ -116,9 +129,15 @@ const DeviceStats = () => {
 							<CartesianGrid strokeDasharray='3 3' />
 							<XAxis type='number' />
 							<YAxis dataKey='devices' type='category' width={100} />
-							<Tooltip />
+							<Tooltip
+								formatter={value => [
+									`${value}`,
+									keyToLabel[tabToKey[selectedTab]],
+								]}
+							/>
 							<Bar
-								dataKey={selectedTab}
+								dataKey={tabToKey[selectedTab]}
+								name={selectedTab}
 								fill='#7c3aed'
 								label={{ position: 'insideRight', fill: 'white' }}
 								barSize={30}

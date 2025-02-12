@@ -1,8 +1,8 @@
+import { ru } from 'date-fns/locale'
 import { motion } from 'framer-motion'
 import { useMemo, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { ru } from 'date-fns/locale'
 
 import {
 	Bar,
@@ -30,15 +30,28 @@ const DATA: LiterStatsTableData[] = [
 	{ date: '10.01', sessions: 27, liters: 880, container: 0.5 },
 ]
 
+const TABS = [
+	{ key: 'sessions', label: 'Сеансы' },
+	{ key: 'liters', label: 'Литры' },
+] as const
+
+const tabToKey = {
+	Сеансы: 'sessions',
+	Литры: 'liters',
+} as const
+
+const keyToLabel = {
+	sessions: 'Сеансы',
+	liters: 'Литры',
+} as const
+
 const formatDate = (date: Date | null) =>
 	date
 		? date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })
 		: ''
 
 const LiterStats = () => {
-	const [selectedTab, setSelectedTab] = useState<'sessions' | 'liters'>(
-		'sessions'
-	)
+	const [selectedTab, setSelectedTab] = useState<'Сеансы' | 'Литры'>('Сеансы')
 	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
 		new Date('2024-01-01'),
 		new Date('2024-01-10'),
@@ -60,8 +73,7 @@ const LiterStats = () => {
 				<div className='flex items-center gap-2 border-b border-gray-300 pb-2'>
 					<DatePicker
 						selectsRange
-          locale={ru} 
-
+						locale={ru}
 						startDate={startDate}
 						endDate={endDate}
 						onChange={update =>
@@ -92,20 +104,21 @@ const LiterStats = () => {
 			>
 				{/* Таб переключения */}
 				<div className='flex gap-4 mb-6 pb-2'>
-					{['sessions', 'liters'].map(tab => (
+					{TABS.map(({ key, label }) => (
 						<button
-							key={tab}
-							onClick={() => setSelectedTab(tab as 'sessions' | 'liters')}
+							key={key}
+							onClick={() => setSelectedTab(label as 'Сеансы' | 'Литры')}
 							className={`px-4 py-2 ${
-								selectedTab === tab
+								selectedTab === label
 									? 'text-white bg-blue-500 rounded-full shadow-md p-2'
 									: 'bg-gray-200 rounded-full shadow-md p-2'
 							}`}
 						>
-							{tab === 'sessions' ? 'Сеансы' : tab === 'liters' && 'Литры'}
+							{label}
 						</button>
 					))}
 				</div>
+
 				{/* График */}
 				<div className='h-[400px]'>
 					<ResponsiveContainer width='100%' height='100%'>
@@ -113,10 +126,20 @@ const LiterStats = () => {
 							<CartesianGrid strokeDasharray='3 3' />
 							<XAxis dataKey='container' />
 							<YAxis domain={[0, 3000]} />
-							<Tooltip />
+							<Tooltip
+								formatter={value => [
+									`${value}`,
+									keyToLabel[tabToKey[selectedTab]],
+								]}
+							/>
 							<Legend />
 							{/* Столбцы графика */}
-							<Bar dataKey={selectedTab} fill='#7c3aed' barSize={30} />
+							<Bar
+								dataKey={tabToKey[selectedTab]}
+								name={selectedTab}
+								fill='#7c3aed'
+								barSize={30}
+							/>
 						</BarChart>
 					</ResponsiveContainer>
 				</div>

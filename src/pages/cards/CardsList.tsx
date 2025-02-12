@@ -1,10 +1,9 @@
+import { ru } from 'date-fns/locale'
 import { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FiCheck, FiChevronDown, FiChevronUp, FiPlus } from 'react-icons/fi'
 import { CardData } from '../../types'
-import { ru } from 'date-fns/locale'
-
 
 const CARD_DATA: CardData[] = [
 	{
@@ -129,7 +128,7 @@ const CARD_DATA: CardData[] = [
 	},
 ]
 
-const ITEMS_PER_PAGE_OPTIONS = [1, 3, 5]
+const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 
 const TableComponent = () => {
 	const [searchQuery, setSearchQuery] = useState('')
@@ -218,7 +217,7 @@ const TableComponent = () => {
 				</select>
 				<div className='border-b border-gray-300 pb-2 w-56'>
 					<DatePicker
-          locale={ru} 
+						locale={ru}
 						selectsRange
 						startDate={startDate}
 						endDate={endDate}

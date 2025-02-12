@@ -1,4 +1,5 @@
-import { DollarSign, Droplets, ShoppingCart } from 'lucide-react'
+import { Droplets, ShoppingCart } from 'lucide-react'
+import { FaHryvniaSign } from 'react-icons/fa6'
 import {
 	CartesianGrid,
 	Line,
@@ -17,9 +18,9 @@ const data = [
 ]
 
 const smallChartData = [
-	{ date: '01.01', '₴': 100 },
-	{ date: '02.01', '₴': 120 },
-	{ date: '03.01', '₴': 110 },
+	{ date: '01.01', '₴': 100, Сеансы: 200, Литры: 800 },
+	{ date: '02.01', '₴': 120, Сеансы: 150, Литры: 940 },
+	{ date: '03.01', '₴': 110, Сеансы: 320, Литры: 760 },
 	// Add more data points...
 ]
 
@@ -52,7 +53,7 @@ const Dashboard = () => {
 							<p className='text-gray-500'>Доход за сегодня</p>
 							<p className='text-2xl font-bold'>8 814,50</p>
 						</div>
-						<DollarSign className='text-blue-500' size={24} />
+						<FaHryvniaSign size={24} className='text-blue-500' />
 					</div>
 				</div>
 			</div>
@@ -60,7 +61,7 @@ const Dashboard = () => {
 			{/* Main Chart */}
 			<div className='bg-white rounded-lg shadow p-4 mb-8'>
 				<h2 className='text-lg font-semibold mb-4'>
-					Доход и затраты за последние 30 дней
+					Доход за последние 30 дней
 				</h2>
 				<div className='h-[300px]'>
 					<ResponsiveContainer width='100%' height='100%'>
@@ -91,7 +92,7 @@ const Dashboard = () => {
 							<LineChart data={smallChartData}>
 								<Line
 									type='monotone'
-									dataKey='₴'
+									dataKey='Литры'
 									stroke='#0ea5e9'
 									strokeWidth={2}
 								/>
@@ -111,7 +112,7 @@ const Dashboard = () => {
 							<LineChart data={smallChartData}>
 								<Line
 									type='monotone'
-									dataKey='₴'
+									dataKey='Сеансы'
 									stroke='#ec4899'
 									strokeWidth={2}
 								/>

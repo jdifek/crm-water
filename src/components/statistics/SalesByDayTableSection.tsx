@@ -9,7 +9,7 @@ interface SalesByDayTableProps {
 	tableData: SalesByDayTableData[]
 }
 
-const ITEMS_PER_PAGE_OPTIONS = [5, 10, 15]
+const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 
 const SalesByDayTableSection = ({ tableData }: SalesByDayTableProps) => {
 	const [itemsPerPage, setItemsPerPage] = useState(10)

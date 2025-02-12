@@ -9,7 +9,7 @@ interface CollectionTableSectionProps {
 	tableData: CollectionTableData[]
 }
 
-const ITEMS_PER_PAGE_OPTIONS = [3, 5, 10]
+const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 
 const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
 	const [itemsPerPage, setItemsPerPage] = useState(3)
