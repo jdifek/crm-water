@@ -1,6 +1,7 @@
 import $api from '../http'
 import {
 	IPosDevice,
+	IPosDeviceDetails,
 	IPosDevicesListResponse,
 	IPosDeviceUpdateParams,
 } from './PosDevicesTypes'
@@ -10,8 +11,8 @@ export default class PosDevicesService {
 		return (await $api.get<IPosDevicesListResponse>('pos/devices/')).data
 	}
 
-	static async getDeviceById(id: number): Promise<IPosDevice> {
-		return (await $api.get<IPosDevice>(`pos/devices/${id}/`)).data
+	static async getDeviceById(id: number): Promise<IPosDeviceDetails> {
+		return (await $api.get<IPosDeviceDetails>(`pos/devices/${id}/`)).data
 	}
 
 	static async updateDevice(

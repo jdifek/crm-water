@@ -19,12 +19,14 @@ export const Payment = () => {
 					<label htmlFor='useSMS'>Отправка SMS</label>
 				</div>
 				<div className='flex items-center'>
-					<button
-						className='text-blue-600 hover:underline'
-						onClick={() => setShowQR(!showQR)}
-					>
-						Оплата через QR-код
-					</button>
+					<input
+						type='checkbox'
+						id='useQR'
+						className='mr-2'
+						checked={showQR}
+						onChange={() => setShowQR(!showQR)}
+					/>
+					<label htmlFor='useQR'>Оплата QR-кодом (Приват24)</label>
 				</div>
 
 				{showQR && (
@@ -67,7 +69,6 @@ export const Payment = () => {
 					/>
 				</div>
 
-				{/* <PaymentMethodsList /> */}
 				<ButtonSave />
 			</div>
 		</div>

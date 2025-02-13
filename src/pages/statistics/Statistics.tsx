@@ -106,7 +106,7 @@ const SALES_DATA: SaleTableData[] = [
 	},
 ]
 
-const ITEMS_PER_PAGE_OPTIONS = [3, 5, 10]
+const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 
 const SalesPage = () => {
 	const [itemsPerPage, setItemsPerPage] = useState(3)

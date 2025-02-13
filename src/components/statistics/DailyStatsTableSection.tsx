@@ -13,12 +13,16 @@ const TABLE_DATA: DailyStatsTableData[] = [
 	{ time: '14:00', sessions: 15, liters: 300, income: 4000 },
 	{ time: '15:00', sessions: 22, liters: 450, income: 5500 },
 	{ time: '16:00', sessions: 27, liters: 700, income: 8500 },
+	{ time: '17:00', sessions: 21, liters: 400, income: 7500 },
+	{ time: '18:00', sessions: 17, liters: 350, income: 7000 },
+	{ time: '19:00', sessions: 15, liters: 320, income: 6500 },
+	{ time: '20:00', sessions: 10, liters: 250, income: 5000 },
+	{ time: '21:00', sessions: 5, liters: 150, income: 3000 },
+	{ time: '22:00', sessions: 1, liters: 70, income: 1000 },
+	{ time: '23:00', sessions: 1, liters: 70, income: 1000 },
 ]
 
-const ITEMS_PER_PAGE = 3
-
 const DailyStatsTableSection = () => {
-	const [currentPage, setCurrentPage] = useState(1)
 	const [sortState, setSortState] = useState<{
 		column: string | null
 		order: 'asc' | 'desc' | null
@@ -47,11 +51,6 @@ const DailyStatsTableSection = () => {
 		  })
 		: TABLE_DATA
 
-	const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE)
-	const paginatedData = sortedData.slice(
-		(currentPage - 1) * ITEMS_PER_PAGE,
-		currentPage * ITEMS_PER_PAGE
-	)
 	const totalSessions = TABLE_DATA.reduce((sum, item) => sum + item.sessions, 0)
 	const totalLiters = TABLE_DATA.reduce((sum, item) => sum + item.liters, 0)
 	const totalIncome = TABLE_DATA.reduce((sum, item) => sum + item.income, 0)
@@ -134,7 +133,7 @@ const DailyStatsTableSection = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{paginatedData.slice(0, ITEMS_PER_PAGE).map((row, index) => (
+						{sortedData.map((row, index) => (
 							<tr
 								key={index}
 								className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
@@ -149,61 +148,6 @@ const DailyStatsTableSection = () => {
 						))}
 					</tbody>
 				</table>
-			</div>
-
-			{/* Нижняя панель с записями и пагинацией */}
-			<div className='flex justify-between items-center mt-4'>
-				<p className='text-gray-600'>
-					Записи с{' '}
-					{Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, sortedData.length)}{' '}
-					до {Math.min(currentPage * ITEMS_PER_PAGE, sortedData.length)} из{' '}
-					{sortedData.length} записей
-				</p>
-
-				{/* Пагинация */}
-				<div className='flex gap-2'>
-					<button
-						onClick={() => setCurrentPage(1)}
-						disabled={currentPage === 1}
-						className='p-2 hover:bg-gray-300 disabled:opacity-50'
-					>
-						Первая
-					</button>
-					<button
-						onClick={() => setCurrentPage(currentPage - 1)}
-						disabled={currentPage === 1}
-						className='p-2 hover:bg-gray-300 disabled:opacity-50'
-					>
-						Предыдущая
-					</button>
-					{[...Array(totalPages)].map((_, i) => (
-						<button
-							key={i}
-							onClick={() => setCurrentPage(i + 1)}
-							className={`px-4 py-1 rounded-full text-[12px] ${
-								currentPage === i + 1
-									? 'bg-blue-500 text-white'
-									: 'bg-gray-200 hover:bg-gray-300'
-							}`}
-						>
-							{i + 1}
-						</button>
-					))}
-					<button
-						onClick={() => setCurrentPage(currentPage + 1)}
-						disabled={currentPage === totalPages}
-						className='p-2 hover:bg-gray-300 disabled:opacity-50'
-					>
-						Следующая
-					</button>
-					<button
-						onClick={() => setCurrentPage(totalPages)}
-						disabled={currentPage === totalPages}
-						className='p-2 hover:bg-gray-300 disabled:opacity-50'
-					>
-						Последняя
-					</button>
-				</div>
 			</div>
 		</motion.div>
 	)

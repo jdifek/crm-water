@@ -77,6 +77,13 @@ export const ReplacingValues = () => {
 									<div className='mt-1 flex rounded-md shadow-sm'>
 										<input
 											type='number'
+											step={1}
+											pattern='\d*'
+											onKeyDown={e => {
+												if (e.key === 'e' || e.key === '.' || e.key === ',') {
+													e.preventDefault()
+												}
+											}}
 											className='block w-full rounded-md border-gray-300 shadow-sm'
 											defaultValue='22'
 										/>

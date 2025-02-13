@@ -180,7 +180,7 @@ const DevicesList = () => {
 								</tr>
 							</thead>
 							<tbody className='bg-white divide-y divide-gray-200'>
-								{filteredDevices ? (
+								{filteredDevices && devices ? (
 									filteredDevices.map(device => (
 										<tr key={device.id} className='hover:bg-gray-50'>
 											<td className='px-4 py-2'>{device.id}</td>
@@ -202,9 +202,11 @@ const DevicesList = () => {
 										</tr>
 									))
 								) : (
-									<p className='text-gray-400 font-semibold text-lg'>
-										Устройства не найдены
-									</p>
+									<tr>
+										<td className='text-gray-400 font-semibold text-lg'>
+											Устройства не найдены
+										</td>
+									</tr>
 								)}
 							</tbody>
 							<tfoot className='bg-gray-100 font-bold'>
