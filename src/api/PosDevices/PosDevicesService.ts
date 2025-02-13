@@ -1,6 +1,5 @@
 import $api from '../http'
 import {
-	IPosDevice,
 	IPosDeviceDetails,
 	IPosDevicesListResponse,
 	IPosDeviceUpdateParams,
@@ -18,7 +17,8 @@ export default class PosDevicesService {
 	static async updateDevice(
 		id: number,
 		params: IPosDeviceUpdateParams
-	): Promise<IPosDevice> {
-		return (await $api.patch<IPosDevice>(`pos/devices/${id}/`, params)).data
+	): Promise<IPosDeviceDetails> {
+		return (await $api.patch<IPosDeviceDetails>(`pos/devices/${id}/`, params))
+			.data
 	}
 }
