@@ -21,5 +21,7 @@ export interface IRefreshToken {
 
 // Refresh Token Response
 export interface IRefreshTokenResponse {
-	access: string
+	data: { access: string }
+	errors: []
+	status: string
 }

@@ -56,7 +56,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 				try {
 					const device = await PosDevicesService.getDeviceById(selectedDeviceId)
 					console.log('device', device.data)
-					setSelectedDevice(device.data)
+					setSelectedDevice(device.data as unknown as IPosDeviceDetails)
 				} catch (error) {
 					console.log(error)
 					setError('Ошибка при загрузке устройства')

@@ -31,15 +31,22 @@ $api.interceptors.response.use(
 				const refreshToken = localStorage.getItem('refreshToken')
 				if (!refreshToken) throw new Error('No refresh token')
 
-				const { access } = await TokenService.refreshToken({
+				const response = await TokenService.refreshToken({
 					refresh: refreshToken,
 				})
+				console.log('Refresh token response:', response) // 👈 Логируем ответ
+				const newAccessToken = response.data.access
+
+				if (!newAccessToken) {
+					console.error('Failed to get new access token')
+					throw new Error('No access token received')
+				}
 
 				// Обновляем токены
-				localStorage.setItem('authToken', access)
+				localStorage.setItem('authToken', newAccessToken)
 
 				// Повторяем оригинальный запрос с новым токеном
-				originalRequest.headers.Authorization = `Bearer ${access}`
+				originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
 				return $api(originalRequest)
 			} catch (refreshError) {
 				console.error('Token refresh failed', refreshError)

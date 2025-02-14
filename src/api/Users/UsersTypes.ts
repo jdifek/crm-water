@@ -10,6 +10,8 @@ export interface IUser {
 	created_at: string
 	updated_at: string
 	username: string
+	role: string
+	access: string
 	email: string
 	full_name: string
 	phone_number: string

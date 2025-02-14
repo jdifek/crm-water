@@ -39,9 +39,14 @@ const DeviceSettings = () => {
 
 						<Other selectedDevice={selectedDevice} loading={loading} />
 
-						<DialSensor isOn={isOn} setIsOn={setIsOn} />
+						<DialSensor
+							selectedDevice={selectedDevice}
+							loading={loading}
+							isOn={isOn}
+							setIsOn={setIsOn}
+						/>
 
-						<DispenserMode />
+						<DispenserMode selectedDevice={selectedDevice} loading={loading} />
 					</div>
 				</div>
 
