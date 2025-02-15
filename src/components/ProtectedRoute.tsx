@@ -1,29 +1,29 @@
 /* тестовый, без ролей с сервера */
 
-import { useContext } from 'react'
-import { Navigate } from 'react-router-dom'
-import { AuthContext } from '../helpers/context/AuthContext'
+// import { useContext } from 'react'
+// import { Navigate } from 'react-router-dom'
+// import { AuthContext } from '../helpers/context/AuthContext'
 
-interface ProtectedRouteProps {
-	children: JSX.Element
-	allowedRoles: string[]
-}
+// interface ProtectedRouteProps {
+// 	children: JSX.Element
+// 	allowedRoles: string[]
+// }
 
-const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
-	const { user } = useContext(AuthContext)!
+// const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
+// 	const { user } = useContext(AuthContext)!
 
-	if (!user) {
-		return <Navigate to='/' />
-	}
+// 	if (!user) {
+// 		return <Navigate to='/' />
+// 	}
 
-	if (!allowedRoles.includes(user.role)) {
-		return <Navigate to='/' />
-	}
+// 	if (!allowedRoles.includes(user.role)) {
+// 		return <Navigate to='/' />
+// 	}
 
-	return children
-}
+// 	return children
+// }
 
-export default ProtectedRoute
+// export default ProtectedRoute
 
 // import { useContext } from 'react'
 // import { Navigate } from 'react-router-dom'
