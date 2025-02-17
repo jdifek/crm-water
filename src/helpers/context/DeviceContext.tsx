@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, {
+	createContext,
+	SetStateAction,
+	useContext,
+	useEffect,
+	useState,
+} from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import PosDevicesService from '../../api/PosDevices/PosDevicesService'
 import {
@@ -11,6 +17,7 @@ interface DeviceContextType {
 	setSelectedDeviceId: (id: number) => void
 	handleDeviceChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 	devices: IPosDevice[]
+	setDevices: React.Dispatch<SetStateAction<IPosDevice[]>>
 	selectedDevice?: IPosDeviceDetails
 	loading: boolean
 	error?: string
@@ -32,11 +39,11 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 
 	useEffect(() => {
 		const fetchDevices = async () => {
+			setLoading(true)
 			try {
 				const res = await PosDevicesService.getDevices()
 				setDevices(res.data.results)
 
-				console.log('res', res)
 				if (res.data.results.length > 0) {
 					setSelectedDeviceId(res.data.results[0].id)
 				}
@@ -47,8 +54,14 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 				setLoading(false)
 			}
 		}
-		fetchDevices()
-	}, [])
+
+		const token = localStorage.getItem('authToken')
+		if (token) {
+			fetchDevices()
+		} else {
+			setLoading(false)
+		}
+	}, [localStorage.getItem('authToken')])
 
 	useEffect(() => {
 		if (selectedDeviceId) {
@@ -85,6 +98,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 				setSelectedDeviceId,
 				handleDeviceChange,
 				devices,
+				setDevices,
 				selectedDevice,
 				loading,
 				error,

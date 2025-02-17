@@ -146,7 +146,9 @@
 // }
 
 import { useState } from 'react'
+import PosDevicesService from '../../api/PosDevices/PosDevicesService'
 import TokenService from '../../api/Token/TokenService'
+import { useDevice } from '../../helpers/context/DeviceContext'
 
 interface ModalLoginProps {
 	isOpen: boolean
@@ -158,6 +160,7 @@ export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
 	const [password, setPassword] = useState<string>('')
 	const [error, setError] = useState<string | null>(null)
 	const [isLoading, setIsLoading] = useState<boolean>(false)
+	const { setDevices } = useDevice()
 
 	if (!isOpen) return null
 
@@ -169,7 +172,11 @@ export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
 
 			localStorage.setItem('authToken', res.data.access)
 			localStorage.setItem('refreshToken', res.data.refresh)
-			console.log('Logged in successfully:', res)
+
+			await PosDevicesService.getDevices().then(response => {
+				setDevices(response.data.results)
+			})
+
 			onClose(false)
 		} catch (error) {
 			console.error('Login error:', error)

@@ -361,7 +361,7 @@ const DevicesList = () => {
 								</tr>
 							</thead>
 							<tbody className='bg-white divide-y divide-gray-200'>
-								{filteredDevices && devices ? (
+								{filteredDevices.length > 0 ? (
 									filteredDevices.map(device => (
 										<tr key={device.id} className='hover:bg-gray-50'>
 											<td className='px-4 py-2'>{device.id}</td>
@@ -392,7 +392,7 @@ const DevicesList = () => {
 									))
 								) : (
 									<tr>
-										<td className='text-gray-400 font-semibold text-lg'>
+										<td className='text-gray-700 font-semibold text-lg'>
 											Устройства не найдены
 										</td>
 									</tr>

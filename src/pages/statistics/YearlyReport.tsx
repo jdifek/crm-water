@@ -413,86 +413,103 @@ const YearlyReport = () => {
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5 }}
-				className='bg-white shadow-lg rounded-lg p-6 overflow-x-auto w-full sm:max-w-[640px] md:max-w-[796px] lg:max-w-[748px] xl:max-w-[1024px] 2xl:max-w-[1440px] mx-auto'
+				className='bg-white shadow-lg rounded-lg p-6 w-full mx-auto overflow-hidden sm:max-w-[640px] md:max-w-[796px] lg:max-w-[748px] xl:max-w-[1024px] 2xl:max-w-[1440px]'
 			>
-				<div className='w-full overflow-x-auto'>
-					<table className='w-full border-collapse text-sm'>
-						<thead className='relative'>
-							<tr className='bg-gray-100'>
-								<th className='border px-4 py-2 text-left sticky -left-1 bg-gray-100 z-20'>
-									ID
-								</th>
-								<th className='border px-4 py-2 text-left sticky md:left-[50px] left-0 bg-gray-100 z-20'>
-									Торгова точка
-								</th>
-								<th className='border px-4 py-2 text-left sticky md:left-[188px] left-0 bg-gray-100 z-20'>
-									Серійний номер
-								</th>
-								<th className='border px-4 py-2 sticky md:left-[284px] left-0 bg-gray-100 z-20'>
-									Тип
-								</th>
-								<th className='border px-4 py-2'>Январь</th>
-								<th className='border px-4 py-2'>Февраль</th>
-								<th className='border px-4 py-2'>Март</th>
-								<th className='border px-4 py-2'>Апрель</th>
-								<th className='border px-4 py-2'>Май</th>
-								<th className='border px-4 py-2'>Июнь</th>
-								<th className='border px-4 py-2'>Июль</th>
-								<th className='border px-4 py-2'>Август</th>
-								<th className='border px-4 py-2'>Сентябрь</th>
-								<th className='border px-4 py-2'>Октябрь</th>
-								<th className='border px-4 py-2'>Ноябрь</th>
-								<th className='border px-4 py-2'>Декабрь</th>
-								<th className='border px-4 py-2'>Сумма</th>
-							</tr>
-						</thead>
-						<tbody>
-							{data.map((item, itemIndex) =>
-								item.rows.map((row, rowIndex) => (
-									<tr key={`${itemIndex}-${rowIndex}`}>
-										{rowIndex === 0 && (
-											<>
-												<td
-													className='border px-4 py-2 sticky -left-1 bg-white z-20'
-													rowSpan={3}
-												>
-													{item.id}
-												</td>
-												<td
-													className='border px-4 py-2 sticky md:left-[50px] -left-2 bg-white z-20'
-													rowSpan={3}
-												>
-													{item.location}
-												</td>
-												<td
-													className='border px-4 py-2 sticky md:left-[188px] left-0 bg-white z-20'
-													rowSpan={3}
-												>
-													{item.serial}
-												</td>
-											</>
-										)}
-										<td className='border px-4 py-2 sticky md:left-[284px] left-0 bg-white z-20  whitespace-nowrap'>
-											{row.type}
-										</td>
-										{Object.entries(row)
-											.filter(([key]) => key !== 'type' && key !== 'total')
-											.map(([key, value]) => (
-												<td
-													key={key}
-													className='border px-4 py-2 text-right whitespace-nowrap'
-												>
-													{value}
-												</td>
-											))}
-										<td className='border px-4 py-2 text-right whitespace-nowrap'>
-											{row.total}
-										</td>
-									</tr>
-								))
-							)}
-						</tbody>
-					</table>
+				<div className='table-wrapper overflow-x-auto'>
+					<div className='table-container relative'>
+						<table className='w-full border-collapse text-sm table-fixed'>
+							{/* Заголовки */}
+							<thead className='relative'>
+								<tr className='bg-gray-100'>
+									<th className='border px-4 py-2 text-left sticky left-0 bg-gray-100 z-40 w-[51px] min-w-[51px] before:absolute before:inset-y-0 before:right-0 before:w-[1px] after:absolute after:inset-y-0 after:left-0 after:w-[1px] before:bg-gray-300 after:bg-gray-300'>
+										ID
+									</th>
+									<th className='border px-4 py-2 text-left sticky left-[50px] bg-gray-100 z-40 w-[139px] min-w-[139px] before:absolute before:inset-y-0 before:right-0 before:w-[1px] before:bg-gray-300'>
+										Торгова точка
+									</th>
+									<th className='border px-4 py-2 text-left sticky left-[188px] bg-gray-100 z-40 w-[97px] min-w-[97px] before:absolute before:inset-y-0 before:right-0 before:w-[1px] before:bg-gray-300'>
+										Серійний номер
+									</th>
+									<th className='border px-4 py-2 sticky left-[284px] bg-gray-100 z-40 w-[97px] min-w-[97px] before:absolute before:inset-y-0 before:right-0 before:w-[1px] before:bg-gray-300'>
+										Тип
+									</th>
+									{[
+										'Январь',
+										'Февраль',
+										'Март',
+										'Апрель',
+										'Май',
+										'Июнь',
+										'Июль',
+										'Август',
+										'Сентябрь',
+										'Октябрь',
+										'Ноябрь',
+										'Декабрь',
+										'Сумма',
+									].map(month => (
+										<th
+											key={month}
+											className='border px-4 py-2 w-[100px] min-w-[100px]'
+										>
+											{month}
+										</th>
+									))}
+								</tr>
+							</thead>
+
+							{/* Тело таблицы */}
+							<tbody>
+								{data.map((item, itemIndex) =>
+									item.rows.map((row, rowIndex) => (
+										<tr key={`${itemIndex}-${rowIndex}`}>
+											{/* Фиксированные колонки */}
+											{rowIndex === 0 && (
+												<>
+													<td
+														className='border px-4 py-2 sticky left-0 bg-white z-30 w-[50px] min-w-[50px] before:absolute before:inset-y-0 before:right-0 before:w-[1px] before:bg-gray-300 after:absolute after:inset-y-0 after:left-0 after:w-[1px] after:bg-gray-300'
+														rowSpan={3}
+													>
+														{item.id}
+													</td>
+													<td
+														className='border px-4 py-2 sticky left-[50px] bg-white z-30 w-[138px] min-w-[138px] before:absolute before:inset-y-0 before:right-0 before:w-[1px] before:bg-gray-300'
+														rowSpan={3}
+													>
+														{item.location}
+													</td>
+													<td
+														className='border px-4 py-2 sticky left-[188px] bg-white z-30 w-[96px] min-w-[96px] before:absolute before:inset-y-0 before:right-0 before:w-[1px] before:bg-gray-300'
+														rowSpan={3}
+													>
+														{item.serial}
+													</td>
+												</>
+											)}
+											<td className='border px-4 py-2 sticky left-[284px] bg-white z-30 w-[96px] min-w-[96px] before:absolute before:inset-y-0 before:right-0 before:w-[1px] before:bg-gray-300'>
+												{row.type}
+											</td>
+
+											{/* Динамические данные по месяцам */}
+											{Object.entries(row)
+												.filter(([key]) => key !== 'type' && key !== 'total')
+												.map(([key, value]) => (
+													<td
+														key={key}
+														className='border px-4 py-2 text-right whitespace-nowrap'
+													>
+														{value}
+													</td>
+												))}
+											<td className='border px-4 py-2 text-right whitespace-nowrap'>
+												{row.total}
+											</td>
+										</tr>
+									))
+								)}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			</motion.div>
 		</div>
