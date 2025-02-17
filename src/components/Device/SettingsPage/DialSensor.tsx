@@ -108,7 +108,7 @@ export const DialSensor = ({
 					</p>
 				</div>
 
-				{litersArray.slice(0, 2).map((el, index) => (
+				{litersArray.slice(0, 1).map((el, index) => (
 					<div key={index} className='flex items-center gap-2'>
 						<label className='block text-sm font-medium text-blue-300 mr-2'>
 							{el}л
@@ -128,7 +128,7 @@ export const DialSensor = ({
 				))}
 				<ButtonSave onClick={handleSave} />
 
-				{litersArray.slice(2).map((el, index) => (
+				{litersArray.slice(1).map((el, index) => (
 					<div key={index} className='flex items-center gap-2'>
 						<label className='block text-sm font-medium text-blue-300 mr-2'>
 							{el}л
