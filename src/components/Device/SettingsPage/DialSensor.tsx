@@ -16,13 +16,14 @@ export const DialSensor = ({
 	selectedDevice,
 	loading,
 }: DialSensorProps) => {
-	const litersArray = [1, 0.5, 1.0, 1.5, 2.0, 5.0, 6.0, 10.0, 12.0, 19.0]
+	const litersArray = [0.5, 1.0, 1.5, 2.0, 5.0, 6.0, 10.0, 12.0, 19.0]
 
 	const formatKey = (liters: number) =>
 		`sensor_impulses_${liters.toString().replace('.', '_')}l`
 
 	const [pulseValues, setPulseValues] = useState<{ [key: number]: number }>({})
 	const [isSaving, setIsSaving] = useState<boolean>(false)
+	const [value, setValue] = useState<number>()
 
 	useEffect(() => {
 		const initialValues: { [key: number]: number } = {}
@@ -36,22 +37,8 @@ export const DialSensor = ({
 	}, [selectedDevice])
 
 	const handleInputChange = (liters: number, value: string) => {
-		const newValue = parseInt(value, 10) || 0
-
-		setPulseValues(prev => {
-			const updatedValues = { ...prev, [liters]: newValue }
-
-			if (liters === 1) {
-				setIsOn(false)
-				litersArray.forEach(l => {
-					if (l !== 1) {
-						updatedValues[l] = Math.round((newValue / 1) * l)
-					}
-				})
-			}
-
-			return updatedValues
-		})
+		const newValue = parseFloat(value) || 0
+		setPulseValues(prev => ({ ...prev, [liters]: newValue }))
 	}
 
 	const handleSave = async () => {
@@ -108,27 +95,24 @@ export const DialSensor = ({
 					</p>
 				</div>
 
-				{litersArray.slice(0, 1).map((el, index) => (
-					<div key={index} className='flex items-center gap-2'>
-						<label className='block text-sm font-medium text-blue-300 mr-2'>
-							{el}л
-						</label>
-						<div className='mt-1 flex'>
-							<input
-								type='number'
-								className='block w-full rounded-md border-gray-300 shadow-sm'
-								value={pulseValues[el] || ''}
-								onChange={e => handleInputChange(el, e.target.value)}
-							/>
-						</div>
-						{index === 0 && (
-							<p className='text-gray-400 font-semibold text-sm'>импульсов</p>
-						)}
+				<div className='flex items-center gap-2 mb-2'>
+					<label className='block text-sm font-medium text-blue-300 mr-2'>
+						1л
+					</label>
+					<div className='mt-1 flex'>
+						<input
+							type='number'
+							className='block w-full rounded-md border-gray-300 shadow-sm'
+							value={value || ''}
+							onChange={e => setValue(e.target.value)}
+						/>
 					</div>
-				))}
+					<p className='text-gray-400 font-semibold text-sm'>импульсов</p>
+				</div>
+
 				<ButtonSave onClick={handleSave} />
 
-				{litersArray.slice(1).map((el, index) => (
+				{litersArray.map((el, index) => (
 					<div key={index} className='flex items-center gap-2'>
 						<label className='block text-sm font-medium text-blue-300 mr-2'>
 							{el}л
@@ -144,7 +128,7 @@ export const DialSensor = ({
 					</div>
 				))}
 
-				{/* Итоговая кнопка сохранить */}
+				{/* Вторая кнопка сохранить после всех инпутов */}
 				<ButtonSave onClick={handleSave} disabled={isSaving} />
 			</div>
 		</div>
