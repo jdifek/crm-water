@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FiDownload } from 'react-icons/fi'
 import * as XLSX from 'xlsx'
-import PosDevicesService from '../../api/PosDevices/PosDevicesService'
 import { YearlyReportTableData } from '../../types'
 
 const TABLE_DATA: YearlyReportTableData = {
@@ -370,16 +369,6 @@ const YearlyReport = () => {
 		}
 	}, [])
 
-	useEffect(() => {
-		PosDevicesService.getDevices()
-			.then(response => {
-				console.log('Devices:', response)
-			})
-			.catch(error => {
-				console.error('Error fetching devices:', error)
-			})
-	}, [])
-
 	const handleExportToExcel = () => {
 		const flatData = data.flatMap(item =>
 			item.rows.map(row => ({
@@ -409,18 +398,10 @@ const YearlyReport = () => {
 		XLSX.writeFile(wb, 'table-data.xlsx')
 	}
 
-	const stickyClass = (position: string, isHeader: boolean = false) =>
-		`
-    sticky ${position} 
-    ${isHeader ? 'z-30 bg-gray-100' : 'z-20 bg-white'}
-   after:absolute after:top-0 after:bottom-0 after:left-0 after:w-[1px] after:bg-gray-300
-   
-    ${
-			isScrolled
-				? 'shadow-[0_0_0_1px_rgba(0,0,0,0.1)]  after:absolute after:top-0 after:bottom-0 after:left-0 after:w-[1px] after:bg-gray-300'
-				: ''
-		}
-  `.trim()
+	const commonCellClasses = 'border px-4 py-2'
+	const fixedColumnClasses = `${commonCellClasses} bg-white`
+	const headerClasses = `${commonCellClasses} bg-gray-100 font-medium`
+	const scrollableColumnClasses = `${commonCellClasses} text-right whitespace-nowrap`
 
 	return (
 		<div className='p-4 space-y-6 w-full max-w-7xl mx-auto'>
@@ -447,131 +428,119 @@ const YearlyReport = () => {
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5 }}
-				className='bg-white shadow-lg rounded-lg p-6 w-full mx-auto overflow-hidden'
+				className='bg-white shadow-lg rounded-lg p-6 w-full mx-auto sm:max-w-[640px] md:max-w-[796px] lg:max-w-[748px] xl:max-w-[1024px] 2xl:max-w-[1440px]'
 			>
-				<div
-					ref={scrollContainerRef}
-					className='overflow-x-auto relative'
-					style={{
-						maxWidth: '100%',
-					}}
-				>
-					<table className='w-full border-collapse text-sm'>
-						<thead>
-							<tr>
-								<th
-									className={`${stickyClass(
-										'left-0',
-										true
-									)} border px-4 py-2 text-left w-[55px] min-w-[55px]`}
-								>
-									ID
-								</th>
-								<th
-									className={`${stickyClass(
-										'left-[55px]',
-										true
-									)} border px-4 py-2 text-left w-[140px] min-w-[140px]`}
-								>
-									Торгова точка
-								</th>
-								<th
-									className={`${stickyClass(
-										'left-[194px]',
-										true
-									)} border px-4 py-2 text-left w-[97px] min-w-[97px]`}
-								>
-									Серійний номер
-								</th>
-								<th
-									className={`${stickyClass(
-										'left-[290px]',
-										true
-									)} border px-4 py-2 text-left w-[99px] min-w-[99px]`}
-								>
-									Тип
-								</th>
-								{[
-									'Январь',
-									'Февраль',
-									'Март',
-									'Апрель',
-									'Май',
-									'Июнь',
-									'Июль',
-									'Август',
-									'Сентябрь',
-									'Октябрь',
-									'Ноябрь',
-									'Декабрь',
-									'Сумма',
-								].map(month => (
-									<th
-										key={month}
-										className='border px-4 py-2 w-[100px] min-w-[100px] bg-gray-100'
-									>
-										{month}
+				<div className='relative'>
+					{/* Fixed Columns Container */}
+					<div className='absolute left-0 top-0 z-30 bg-white'>
+						<table className='border-collapse text-sm'>
+							<thead>
+								<tr>
+									<th className={`${headerClasses} text-left w-[55px]`}>ID</th>
+									<th className={`${headerClasses} text-left w-[140px]`}>
+										Торгова точка
 									</th>
-								))}
-							</tr>
-						</thead>
-						<tbody>
-							{data.map((item, itemIndex) =>
-								item.rows.map((row, rowIndex) => (
-									<tr key={`${itemIndex}-${rowIndex}`}>
-										{rowIndex === 0 && (
-											<>
-												<td
-													className={`${stickyClass(
-														'left-0'
-													)} border px-4 py-2 w-[55px] min-w-[55px]`}
-													rowSpan={3}
-												>
-													{item.id}
-												</td>
-												<td
-													className={`${stickyClass(
-														'left-[55px]'
-													)} border px-4 py-2 w-[140px] min-w-[140px]`}
-													rowSpan={3}
-												>
-													{item.location}
-												</td>
-												<td
-													className={`${stickyClass(
-														'left-[194px]'
-													)} border px-4 py-2 w-[97px] min-w-[97px]`}
-													rowSpan={3}
-												>
-													{item.serial}
-												</td>
-											</>
-										)}
-										<td
-											className={`${stickyClass(
-												'left-[290px]'
-											)} border px-4 py-2 w-[99px] min-w-[99px]`}
-										>
-											{row.type}
-										</td>
-										{Object.entries(row)
-											.filter(([key]) => key !== 'type' && key !== 'total')
-											.map(([key, value]) => (
-												<td
-													key={key}
-													className='border px-4 py-2 text-right whitespace-nowrap'
-												>
-													{value}
-												</td>
-											))}
-										<td className='border px-4 py-2 text-right whitespace-nowrap'>
-											{row.total}
-										</td>
-									</tr>
-								))
-							)}
-						</tbody>
-					</table>
+									<th
+										className={`${headerClasses} text-left w-[97px] whitespace-nowrap`}
+									>
+										Серійний номер
+									</th>
+									<th className={`${headerClasses} text-left w-[99px]`}>Тип</th>
+								</tr>
+							</thead>
+							<tbody>
+								{data.map((item, itemIndex) =>
+									item.rows.map((row, rowIndex) => (
+										<tr key={`fixed-${itemIndex}-${rowIndex}`}>
+											{rowIndex === 0 && (
+												<>
+													<td
+														className={`${fixedColumnClasses} w-[55px]`}
+														rowSpan={3}
+													>
+														{item.id}
+													</td>
+													<td
+														className={`${fixedColumnClasses} w-[140px]`}
+														rowSpan={3}
+													>
+														{item.location}
+													</td>
+													<td
+														className={`${fixedColumnClasses} w-[97px]`}
+														rowSpan={3}
+													>
+														{item.serial}
+													</td>
+												</>
+											)}
+											<td className={`${fixedColumnClasses} w-[99px]`}>
+												{row.type}
+											</td>
+										</tr>
+									))
+								)}
+							</tbody>
+						</table>
+					</div>
+
+					{/* Scrollable Container */}
+					<div
+						ref={scrollContainerRef}
+						className='overflow-x-scroll scrollbar-hide'
+						style={{
+							marginLeft: '428px',
+						}}
+					>
+						<style>
+							{`
+			.scrollbar-hide::-webkit-scrollbar {
+				display: block;
+			}
+		`}
+						</style>
+						<table className='w-full border-collapse text-sm'>
+							<thead>
+								<tr>
+									{[
+										'Январь',
+										'Февраль',
+										'Март',
+										'Апрель',
+										'Май',
+										'Июнь',
+										'Июль',
+										'Август',
+										'Сентябрь',
+										'Октябрь',
+										'Ноябрь',
+										'Декабрь',
+										'Сумма',
+									].map(month => (
+										<th key={month} className={`${headerClasses} w-[100px]`}>
+											{month}
+										</th>
+									))}
+								</tr>
+							</thead>
+							<tbody>
+								{data.map((item, itemIndex) =>
+									item.rows.map((row, rowIndex) => (
+										<tr key={`scroll-${itemIndex}-${rowIndex}`}>
+											{Object.entries(row)
+												.filter(([key]) => key !== 'type' && key !== 'total')
+												.map(([key, value]) => (
+													<td key={key} className={scrollableColumnClasses}>
+														{value}
+													</td>
+												))}
+											<td className={scrollableColumnClasses}>{row.total}</td>
+										</tr>
+									))
+								)}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			</motion.div>
 		</div>
