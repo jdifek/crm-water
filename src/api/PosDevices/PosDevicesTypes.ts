@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // POS Device Response
 export interface IPosDevice {
 	id: number
@@ -124,4 +125,20 @@ export interface IPosDeviceUpdateParams {
 	name?: string
 	address?: string
 	is_active?: boolean
+}
+
+interface IProduct {
+  id: number;
+  name: string;
+}
+
+export interface IGetProductsNamesResponse {
+  data: {
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: IProduct[];
+  };
+  errors: any[];
+  status: string;
 }
