@@ -29,4 +29,8 @@ export default class UsersService {
 			await $api.post<IRefreshTokenResponse>('users/token/refresh/', params)
 		).data
 	}
+
+	static async getMe(): Promise<IUser> {
+		return (await $api.get<IUser>('users/me/')).data
+	}
 }
