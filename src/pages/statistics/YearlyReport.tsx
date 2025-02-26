@@ -401,7 +401,7 @@ const YearlyReport = () => {
 	const commonCellClasses = 'border px-4 py-2'
 	const fixedColumnClasses = `${commonCellClasses} bg-white`
 	const headerClasses = `${commonCellClasses} bg-gray-100 font-medium`
-	const scrollableColumnClasses = `${commonCellClasses} text-right whitespace-nowrap`
+	const scrollableColumnClasses = `${commonCellClasses} text-left whitespace-nowrap`
 
 	return (
 		<div className='p-4 space-y-6 w-full max-w-7xl mx-auto'>
@@ -489,7 +489,7 @@ const YearlyReport = () => {
 						ref={scrollContainerRef}
 						className='overflow-x-scroll scrollbar-hide'
 						style={{
-							marginLeft: '428px',
+							marginLeft: '432px',
 						}}
 					>
 						<style>
