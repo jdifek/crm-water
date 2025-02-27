@@ -101,11 +101,6 @@ const StatisticsFilter = ({
             ))
           )}
         </select>
-        <select className="border p-2 rounded w-full">
-          <option>Все типы оплаты</option>
-          <option>Наличные</option>
-          <option>Безналичные</option>
-        </select>
       </div>
     </div>
   );
