@@ -1,11 +1,5 @@
-import React, {
-	createContext,
-	SetStateAction,
-	useContext,
-	useEffect,
-	useState,
-} from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import PosDevicesService from '../../api/PosDevices/PosDevicesService'
 import {
 	IPosDevice,
@@ -17,10 +11,11 @@ interface DeviceContextType {
 	setSelectedDeviceId: (id: number) => void
 	handleDeviceChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 	devices: IPosDevice[]
-	setDevices: React.Dispatch<SetStateAction<IPosDevice[]>>
+	setDevices: React.Dispatch<React.SetStateAction<IPosDevice[]>>
 	selectedDevice?: IPosDeviceDetails
 	loading: boolean
 	error?: string
+	fetchDevices: (isActive?: boolean) => void
 }
 
 const DeviceContext = createContext<DeviceContextType | undefined>(undefined)
@@ -28,6 +23,7 @@ const DeviceContext = createContext<DeviceContextType | undefined>(undefined)
 export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 	const navigate = useNavigate()
 	const location = useLocation()
+	const { id } = useParams<{ id: string }>()
 
 	const [devices, setDevices] = useState<IPosDevice[]>([])
 	const [selectedDevice, setSelectedDevice] = useState<
@@ -37,55 +33,75 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 	const [loading, setLoading] = useState<boolean>(true)
 	const [error, setError] = useState<string | undefined>(undefined)
 
-	useEffect(() => {
-		const fetchDevices = async () => {
-			setLoading(true)
-			try {
-				const res = await PosDevicesService.getDevices()
-				setDevices(res.data.results)
-
-				if (res.data.results.length > 0) {
-					setSelectedDeviceId(res.data.results[0].id)
-				}
-			} catch (error) {
-				console.log(error)
-				setError('Ошибка при загрузке устройств')
-			} finally {
-				setLoading(false)
-			}
+	const fetchDevices = async (isActive?: boolean) => {
+		setLoading(true)
+		try {
+			const res = await PosDevicesService.getDevices(
+				isActive !== undefined ? { is_active: isActive } : {}
+			)
+			console.log('Devices fetched:', res.data.results) // Для отладки
+			setDevices(res.data.results)
+		} catch (error) {
+			console.log('Error fetching devices:', error)
+			setError('Ошибка при загрузке устройств')
+		} finally {
+			setLoading(false)
 		}
+	}
 
+	// Отслеживаем изменение токена и загружаем устройства
+	useEffect(() => {
 		const token = localStorage.getItem('authToken')
 		if (token) {
 			fetchDevices()
 		} else {
+			setDevices([])
+			setSelectedDeviceId(null)
+			setSelectedDevice(undefined)
 			setLoading(false)
 		}
-	}, [localStorage.getItem('authToken')])
+	}, []) // Оставляем пустую зависимость, но будем вызывать fetchDevices вручную после логина
 
+	// Синхронизируем selectedDeviceId с URL
+	useEffect(() => {
+		console.log('Current path:', location.pathname)
+		console.log('URL id:', id)
+		if (id) {
+			const deviceId = Number(id)
+			setSelectedDeviceId(deviceId)
+		} else if (
+			devices.length > 0 &&
+			selectedDeviceId === null &&
+			location.pathname.startsWith('/devices/details')
+		) {
+			setSelectedDeviceId(devices[0].id)
+			navigate(`/devices/details/${devices[0].id}`, { replace: true })
+		}
+	}, [id, devices, navigate, location.pathname])
+
+	// Загружаем данные устройства при изменении selectedDeviceId
 	useEffect(() => {
 		if (selectedDeviceId) {
 			const fetchDevice = async () => {
+				setLoading(true)
 				try {
 					const device = await PosDevicesService.getDeviceById(selectedDeviceId)
-					console.log('device', device.data)
-					setSelectedDevice(device.data as unknown as IPosDeviceDetails)
+					console.log('Fetched device:', device.data)
+					setSelectedDevice(device.data as IPosDeviceDetails)
 				} catch (error) {
-					console.log(error)
+					console.log('Error fetching device:', error)
 					setError('Ошибка при загрузке устройства')
+				} finally {
+					setLoading(false)
 				}
 			}
 			fetchDevice()
 		}
 	}, [selectedDeviceId])
 
-	console.log('selectedDevice', selectedDevice)
-
 	const handleDeviceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newId = Number(e.target.value)
 		setSelectedDeviceId(newId)
-
-		// Обновляем URL для выбранного устройства
 		const pathParts = location.pathname.split('/')
 		const currentTab = pathParts[2] || 'details'
 		navigate(`/devices/${currentTab}/${newId}`, { replace: true })
@@ -102,6 +118,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 				selectedDevice,
 				loading,
 				error,
+				fetchDevices,
 			}}
 		>
 			{children}

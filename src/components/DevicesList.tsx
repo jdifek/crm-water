@@ -243,6 +243,7 @@
 
 import { Check, X } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { IPosDevice } from '../api/PosDevices/PosDevicesTypes'
 import { useDevice } from '../helpers/context/DeviceContext'
 
@@ -280,7 +281,8 @@ const StatusIcon = ({ status }: { status: 'true' | 'false' }) => {
 
 const DevicesList = () => {
 	const [searchQuery, setSearchQuery] = useState('')
-	const { devices, error, loading } = useDevice()
+	const { devices, error, loading, fetchDevices, setSelectedDeviceId } =
+		useDevice()
 
 	const filteredDevices = devices.filter(device =>
 		device.id.toString().includes(searchQuery)
@@ -294,15 +296,33 @@ const DevicesList = () => {
 		}, 0)
 	}
 
+	const handleRefreshStats = () => {
+		fetchDevices()
+	}
+
+	const handleShowDeactivated = () => {
+		fetchDevices(false)
+	}
+
+	const handleDeviceClick = (id: number) => {
+		setSelectedDeviceId(id)
+	}
+
 	return (
 		<div className='p-4 lg:p-8'>
 			<div className='flex flex-col lg:flex-row justify-between items-center mb-6 space-y-4 lg:space-y-0'>
 				<h1 className='text-xl lg:text-2xl font-semibold'>Список аппаратов</h1>
 				<div className='flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto'>
-					<button className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm lg:text-base'>
+					<button
+						onClick={handleRefreshStats}
+						className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm lg:text-base'
+					>
 						Обновить статистику
 					</button>
-					<button className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm lg:text-base'>
+					<button
+						onClick={handleShowDeactivated}
+						className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm lg:text-base'
+					>
 						Деактивированные аппараты
 					</button>
 				</div>
@@ -364,7 +384,15 @@ const DevicesList = () => {
 								{filteredDevices.length > 0 ? (
 									filteredDevices.map(device => (
 										<tr key={device.id} className='hover:bg-gray-50'>
-											<td className='px-4 py-2'>{device.id}</td>
+											<td className='px-4 py-2'>
+												<Link
+													to={`/devices/details/${device.id}`}
+													onClick={() => handleDeviceClick(device.id)}
+													className='text-blue-500 hover:underline'
+												>
+													{device.id}
+												</Link>
+											</td>
 											<td className='px-4 py-2'>{device.name}</td>
 											<td className='px-4 py-2'>{device.address}</td>
 											<td className='px-4 py-2 text-center'>

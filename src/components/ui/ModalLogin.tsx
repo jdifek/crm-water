@@ -146,7 +146,7 @@
 // }
 
 import { useState } from 'react'
-import PosDevicesService from '../../api/PosDevices/PosDevicesService'
+import { useNavigate } from 'react-router-dom'
 import TokenService from '../../api/Token/TokenService'
 import { useDevice } from '../../helpers/context/DeviceContext'
 
@@ -160,7 +160,8 @@ export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
 	const [password, setPassword] = useState<string>('')
 	const [error, setError] = useState<string | null>(null)
 	const [isLoading, setIsLoading] = useState<boolean>(false)
-	const { setDevices } = useDevice()
+	const { fetchDevices } = useDevice() // Используем fetchDevices из контекста
+	const navigate = useNavigate()
 
 	if (!isOpen) return null
 
@@ -170,13 +171,15 @@ export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
 			setError(null)
 			const res = await TokenService.getToken({ username, password })
 
+			// Сохраняем токены
 			localStorage.setItem('authToken', res.data.access)
 			localStorage.setItem('refreshToken', res.data.refresh)
 
-			await PosDevicesService.getDevices().then(response => {
-				setDevices(response.data.results)
-			})
+			// Загружаем устройства
+			await fetchDevices()
 
+			// Перенаправляем на главную страницу
+			navigate('/') // Укажи нужный маршрут, если "/" не главная
 			onClose(false)
 		} catch (error) {
 			console.error('Login error:', error)

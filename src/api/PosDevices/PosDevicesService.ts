@@ -1,14 +1,16 @@
 import $api from '../http'
 import {
-  IGetProductsNamesResponse,
+	IGetProductsNamesResponse,
 	IPosDeviceDetails,
 	IPosDevicesListResponse,
 	IPosDeviceUpdateParams,
 } from './PosDevicesTypes'
 
 export default class PosDevicesService {
-	static async getDevices(): Promise<IGetProductsNamesResponse> {
-		return (await $api.get<IGetProductsNamesResponse>('pos/devices/')).data
+	static async getDevices(params = {}): Promise<IGetProductsNamesResponse> {
+		return (
+			await $api.get<IGetProductsNamesResponse>('pos/devices/', { params })
+		).data
 	}
 	static async getDevicesNames(): Promise<IPosDevicesListResponse> {
 		return (await $api.get<IPosDevicesListResponse>('pos/device-names/')).data

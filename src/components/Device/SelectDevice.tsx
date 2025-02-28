@@ -6,11 +6,14 @@ export const SelectDevice = () => {
 
 	if (loading) return <p>Загрузка устройств...</p>
 	if (error) return <p className='text-red-500'>{error}</p>
+	if (devices.length === 0) {
+		return <p>Устройства не найдены</p>
+	}
 
 	return (
 		<select
 			className='mb-3 border p-2 rounded'
-			value={selectedDeviceId}
+			value={selectedDeviceId || ''}
 			onChange={handleDeviceChange}
 		>
 			{devices.map(device => (
