@@ -1,110 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import OrdersService from '../../api/Order/orderService'
+import { IOrder } from '../../api/Order/orderTypes'
 import StatisticsFilter from '../../components/statistics/StatisticsFilter'
 import StatisticsTable from '../../components/statistics/StatisticsTable'
 import { SaleTableData } from '../../types'
-
-const SALES_DATA: SaleTableData[] = [
-	{
-		id: '32628883',
-		date: '2025-01-29 22:39:20',
-		cost: 83.5,
-		issued: 39.1,
-		ordered: 73.5,
-		product: 'Питьевая вода',
-		payment: 'Наличные',
-		store: '№111732',
-	},
-	{
-		id: '32628810',
-		date: '2025-01-28 22:32:58',
-		cost: 14.5,
-		issued: 14.5,
-		ordered: 14.5,
-		product: 'Питьевая вода',
-		payment: 'Банковская карта',
-		store: '№111733',
-	},
-	{
-		id: '32628811',
-		date: '2025-01-27 21:10:45',
-		cost: 27.0,
-		issued: 25.0,
-		ordered: 27.0,
-		product: 'Минеральная вода',
-		payment: 'Наличные',
-		store: '№111734',
-	},
-	{
-		id: '32628812',
-		date: '2025-01-26 20:55:30',
-		cost: 56.3,
-		issued: 50.0,
-		ordered: 55.5,
-		product: 'Газированная вода',
-		payment: 'Кредитная карта',
-		store: '№111735',
-	},
-	{
-		id: '32628813',
-		date: '2025-01-25 19:48:12',
-		cost: 19.9,
-		issued: 18.0,
-		ordered: 19.9,
-		product: 'Питьевая вода',
-		payment: 'Наличные',
-		store: '№111736',
-	},
-	{
-		id: '32628814',
-		date: '2025-01-24 18:35:25',
-		cost: 45.2,
-		issued: 40.0,
-		ordered: 45.0,
-		product: 'Газированная вода',
-		payment: 'Перевод',
-		store: '№111737',
-	},
-	{
-		id: '32628815',
-		date: '2025-01-23 17:29:50',
-		cost: 38.7,
-		issued: 36.5,
-		ordered: 38.7,
-		product: 'Питьевая вода',
-		payment: 'Наличные',
-		store: '№111738',
-	},
-	{
-		id: '32628816',
-		date: '2025-01-22 16:20:33',
-		cost: 61.4,
-		issued: 60.0,
-		ordered: 61.4,
-		product: 'Минеральная вода',
-		payment: 'Кредитная карта',
-		store: '№111739',
-	},
-	{
-		id: '32628817',
-		date: '2025-01-21 15:10:15',
-		cost: 22.5,
-		issued: 20.5,
-		ordered: 22.5,
-		product: 'Газированная вода',
-		payment: 'Банковская карта',
-		store: '№111740',
-	},
-	{
-		id: '32628818',
-		date: '2025-01-20 14:05:00',
-		cost: 31.8,
-		issued: 30.0,
-		ordered: 31.8,
-		product: 'Питьевая вода',
-		payment: 'Наличные',
-		store: '№111741',
-	},
-]
 
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 
@@ -117,12 +16,49 @@ const SalesPage = () => {
 		order: 'asc' | 'desc' | null
 	}>({ column: null, order: null })
 	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-		new Date('2025-01-20'),
-		new Date('2025-01-29'),
+		new Date('2025-02-27T00:00:00Z'),
+		new Date('2025-02-28T23:59:59Z'),
 	])
+	const [selectedStore, setSelectedStore] =
+		useState<string>('Все торговые точки')
+	const [selectedPayment, setSelectedPayment] = useState<string>('Все типы')
+	const [selectedProduct, setSelectedProduct] = useState<string>('Все товары')
+	const [salesData, setSalesData] = useState<SaleTableData[]>([])
+	const [loading, setLoading] = useState<boolean>(false)
 	const [startDate, endDate] = dateRange
 
-	const filteredByDate = SALES_DATA.filter(item => {
+	useEffect(() => {
+		const fetchOrders = async () => {
+			setLoading(true)
+			try {
+				const res = await OrdersService.getOrders()
+				const serverData: IOrder[] = res.data.results
+
+				// Преобразуем данные с сервера в нужный формат
+				const transformedData: SaleTableData[] = serverData.map(order => ({
+					id: order.id.toString(),
+					date: order.completed_at,
+					cost: parseFloat(order.total_price),
+					issued: parseFloat(order.product_quantity_delivered),
+					ordered: parseFloat(order.product_quantity_ordered),
+					product: order.product_name,
+					payment: order.payment_type === 'cache' ? 'Наличные' : 'Безналичные',
+					store: order.device_name,
+				}))
+
+				setSalesData(transformedData)
+			} catch (error) {
+				console.log('Ошибка при загрузке заказов:', error)
+				setSalesData([])
+			} finally {
+				setLoading(false)
+			}
+		}
+
+		fetchOrders()
+	}, [])
+
+	const filteredByDate = salesData.filter(item => {
 		const itemDate = new Date(item.date)
 		if (startDate && endDate) {
 			return itemDate >= startDate && itemDate <= endDate
@@ -130,7 +66,17 @@ const SalesPage = () => {
 		return true
 	})
 
-	const filteredData = filteredByDate.filter(item =>
+	const filteredByFilters = filteredByDate.filter(item => {
+		const storeMatch =
+			selectedStore === 'Все торговые точки' || item.store === selectedStore
+		const paymentMatch =
+			selectedPayment === 'Все типы' || item.payment === selectedPayment
+		const productMatch =
+			selectedProduct === 'Все товары' || item.product === selectedProduct
+		return storeMatch && paymentMatch && productMatch
+	})
+
+	const filteredData = filteredByFilters.filter(item =>
 		Object.values(item).some(value =>
 			value.toString().toLowerCase().includes(searchQuery.toLowerCase())
 		)
@@ -140,7 +86,6 @@ const SalesPage = () => {
 		? [...filteredData].sort((a, b) => {
 				const valueA = a[sortState.column as keyof typeof a]
 				const valueB = b[sortState.column as keyof typeof a]
-
 				if (typeof valueA === 'number' && typeof valueB === 'number') {
 					return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
 				} else if (typeof valueA === 'string' && typeof valueB === 'string') {
@@ -169,6 +114,9 @@ const SalesPage = () => {
 				startDate={startDate}
 				endDate={endDate}
 				setDateRange={setDateRange}
+				setSelectedStore={setSelectedStore}
+				setSelectedPayment={setSelectedPayment}
+				setSelectedProduct={setSelectedProduct}
 			/>
 
 			{/* Таблица */}
@@ -200,15 +148,19 @@ const SalesPage = () => {
 				</div>
 
 				{/* Таблица */}
-				<StatisticsTable
-					paginatedData={paginatedData}
-					totalCost={totalCost}
-					totalIssued={totalIssued}
-					totalOrdered={totalOrdered}
-					data={SALES_DATA}
-					sortState={sortState}
-					setSortState={setSortState}
-				/>
+				{loading ? (
+					<p className='text-center text-gray-500'>Загрузка данных...</p>
+				) : (
+					<StatisticsTable
+						paginatedData={paginatedData}
+						totalCost={totalCost}
+						totalIssued={totalIssued}
+						totalOrdered={totalOrdered}
+						data={salesData}
+						sortState={sortState}
+						setSortState={setSortState}
+					/>
+				)}
 
 				{/* Пагинация */}
 				<div className='flex justify-end gap-2'>

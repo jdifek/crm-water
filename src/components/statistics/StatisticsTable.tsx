@@ -1,5 +1,6 @@
 import 'react-datepicker/dist/react-datepicker.css'
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi'
+import { formatDate } from '../../helpers/function/formateDate'
 import { SaleTableData } from '../../types'
 
 interface StatisticsTableProps {
@@ -114,7 +115,7 @@ const StatisticsTable = ({
 								className='border-b hover:bg-gray-100 text-[12px]'
 							>
 								<td className='p-3'>{row.id}</td>
-								<td className='p-3'>{row.date}</td>
+								<td className='p-3'>{formatDate(row.date)}</td>
 								<td className='p-3'>{row.cost}</td>
 								<td className='p-3'>{row.issued}</td>
 								<td className='p-3'>{row.ordered}</td>
