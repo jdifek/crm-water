@@ -1,3 +1,89 @@
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import StatsService, {
+	CurrentDaySummary,
+	Last30DaysData,
+} from '../../api/Stats/StatsService.ts'
+
+interface AuthContextType {
+	isAuthenticated: boolean
+	setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>
+	currentDaySummary: CurrentDaySummary | null
+	setCurrentDaySummary: React.Dispatch<
+		React.SetStateAction<CurrentDaySummary | null>
+	>
+	last30DaysData: Last30DaysData[]
+	setLast30DaysData: React.Dispatch<React.SetStateAction<Last30DaysData[]>>
+	loading: boolean
+	fetchStats: () => Promise<void>
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
+		!!localStorage.getItem('authToken')
+	)
+	const [currentDaySummary, setCurrentDaySummary] =
+		useState<CurrentDaySummary | null>(null)
+	const [last30DaysData, setLast30DaysData] = useState<Last30DaysData[]>([])
+	const [loading, setLoading] = useState<boolean>(false)
+
+	const fetchStats = async () => {
+		setLoading(true)
+		try {
+			const [daySummaryRes, last30DaysRes] = await Promise.all([
+				StatsService.currentDaySummary(),
+				StatsService.currentLast(),
+			])
+			setCurrentDaySummary(daySummaryRes.data)
+			setLast30DaysData(last30DaysRes.data)
+		} catch (error) {
+			console.error('Error fetching stats:', error)
+			setCurrentDaySummary(null)
+			setLast30DaysData([])
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	// Отслеживаем изменение токена и загружаем статистику
+	useEffect(() => {
+		const token = localStorage.getItem('authToken')
+		if (token && isAuthenticated) {
+			fetchStats()
+		} else {
+			setCurrentDaySummary(null)
+			setLast30DaysData([])
+			setLoading(false)
+		}
+	}, [isAuthenticated])
+
+	return (
+		<AuthContext.Provider
+			value={{
+				isAuthenticated,
+				setIsAuthenticated,
+				currentDaySummary,
+				setCurrentDaySummary,
+				last30DaysData,
+				setLast30DaysData,
+				loading,
+				fetchStats,
+			}}
+		>
+			{children}
+		</AuthContext.Provider>
+	)
+}
+
+export const useAuth = () => {
+	const context = useContext(AuthContext)
+	if (context === undefined) {
+		throw new Error('useAuth must be used within an AuthProvider')
+	}
+	return context
+}
+
 // /* временно прописанные роли пользователей */
 
 // import { createContext, ReactNode, useEffect, useState } from 'react'

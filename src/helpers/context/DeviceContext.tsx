@@ -5,6 +5,7 @@ import {
 	IPosDevice,
 	IPosDeviceDetails,
 } from '../../api/PosDevices/PosDevicesTypes'
+import { useAuth } from '../context/AuthContext'
 
 interface DeviceContextType {
 	selectedDeviceId: number
@@ -24,13 +25,14 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 	const navigate = useNavigate()
 	const location = useLocation()
 	const { id } = useParams<{ id: string }>()
+	const { isAuthenticated } = useAuth()
 
 	const [devices, setDevices] = useState<IPosDevice[]>([])
 	const [selectedDevice, setSelectedDevice] = useState<
 		IPosDeviceDetails | undefined
 	>(undefined)
 	const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(null)
-	const [loading, setLoading] = useState<boolean>(true)
+	const [loading, setLoading] = useState<boolean>(false)
 	const [error, setError] = useState<string | undefined>(undefined)
 
 	const fetchDevices = async (isActive?: boolean) => {
@@ -39,7 +41,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 			const res = await PosDevicesService.getDevices(
 				isActive !== undefined ? { is_active: isActive } : {}
 			)
-			console.log('Devices fetched:', res.data.results) // Для отладки
+			console.log('Devices fetched:', res.data.results)
 			setDevices(res.data.results)
 		} catch (error) {
 			console.log('Error fetching devices:', error)
@@ -49,10 +51,9 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 	}
 
-	// Отслеживаем изменение токена и загружаем устройства
+	// Загружаем устройства при изменении состояния аутентификации
 	useEffect(() => {
-		const token = localStorage.getItem('authToken')
-		if (token) {
+		if (isAuthenticated) {
 			fetchDevices()
 		} else {
 			setDevices([])
@@ -60,12 +61,10 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 			setSelectedDevice(undefined)
 			setLoading(false)
 		}
-	}, []) // Оставляем пустую зависимость, но будем вызывать fetchDevices вручную после логина
+	}, [isAuthenticated])
 
 	// Синхронизируем selectedDeviceId с URL
 	useEffect(() => {
-		console.log('Current path:', location.pathname)
-		console.log('URL id:', id)
 		if (id) {
 			const deviceId = Number(id)
 			setSelectedDeviceId(deviceId)
@@ -81,7 +80,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 
 	// Загружаем данные устройства при изменении selectedDeviceId
 	useEffect(() => {
-		if (selectedDeviceId) {
+		if (selectedDeviceId && isAuthenticated) {
 			const fetchDevice = async () => {
 				setLoading(true)
 				try {
@@ -91,13 +90,14 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 				} catch (error) {
 					console.log('Error fetching device:', error)
 					setError('Ошибка при загрузке устройства')
+					setSelectedDevice(undefined) // Очищаем, если ошибка
 				} finally {
 					setLoading(false)
 				}
 			}
 			fetchDevice()
 		}
-	}, [selectedDeviceId])
+	}, [selectedDeviceId, isAuthenticated])
 
 	const handleDeviceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newId = Number(e.target.value)

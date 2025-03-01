@@ -1,5 +1,5 @@
 import { Droplets, ShoppingCart } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { FaHryvniaSign } from 'react-icons/fa6'
 import {
 	CartesianGrid,
@@ -10,20 +10,12 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts'
-import StatsService, {
-	CurrentDaySummary,
-	DailyStats,
-	Last30DaysData,
-} from '../api/Stats/StatsService'
+import { Last30DaysData } from '../api/Stats/StatsService'
+import { useAuth } from '../helpers/context/AuthContext'
 
 const Dashboard = () => {
-	// State for storing API data
-	const [currentDaySummary, setCurrentDaySummary] =
-		useState<CurrentDaySummary | null>(null)
-	const [last30DaysData, setLast30DaysData] = useState<Last30DaysData[]>([])
-	const [loading, setLoading] = useState(false)
+	const { currentDaySummary, last30DaysData, loading, fetchStats } = useAuth()
 
-	// Format the data for the chart
 	const formatLast30DaysForChart = (data: Last30DaysData[]) => {
 		if (!data || !data.length) return []
 
@@ -31,7 +23,11 @@ const Dashboard = () => {
 
 		return Object.entries(dateObject)
 			.map(([date, values]) => {
-				const stats = values as DailyStats // Явно указываем, что values — это DailyStats
+				const stats = values as {
+					income: number
+					litres: number
+					sessions: number
+				}
 				return {
 					date: date.substring(5), // Обрезаем до формата MM-DD
 					income: stats.income,
@@ -46,51 +42,20 @@ const Dashboard = () => {
 			})
 	}
 
-	const fetchDaySummary = async () => {
-		setLoading(true)
-		try {
-			const response = await StatsService.currentDaySummary()
-			// Check if the response has the expected structure
-			if (response && response.data) {
-				setCurrentDaySummary(response.data)
-			}
-		} catch (error) {
-			console.error('Error loading currentDaySummary', error)
-			setCurrentDaySummary(null)
-		} finally {
-			setLoading(false)
-		}
-	}
-
-	const fetchLast30Days = async () => {
-		setLoading(true)
-		try {
-			const response = await StatsService.currentLast()
-			// Check if the response has the expected structure
-			if (response && response.data) {
-				setLast30DaysData(response.data)
-			}
-		} catch (error) {
-			console.error('Error loading last 30 days data', error)
-			setLast30DaysData([])
-		} finally {
-			setLoading(false)
-		}
-	}
-
 	useEffect(() => {
-		fetchDaySummary()
-		fetchLast30Days()
-	}, [])
+		const token = localStorage.getItem('authToken')
+		if (token && !currentDaySummary && !last30DaysData.length) {
+			fetchStats()
+		}
+	}, [fetchStats, currentDaySummary, last30DaysData])
 
-	// Format numbers for display
-	const formatNumber = num => {
+	// Форматируем числа
+	const formatNumber = (num: number | undefined | null) => {
 		if (num === undefined || num === null) return '0'
 		return new Intl.NumberFormat('ru-RU').format(Number(num))
 	}
 
-	// Format currency
-	const formatCurrency = num => {
+	const formatCurrency = (num: number | undefined | null) => {
 		if (num === undefined || num === null) return '0,00'
 		return new Intl.NumberFormat('ru-RU', {
 			minimumFractionDigits: 2,
@@ -98,7 +63,6 @@ const Dashboard = () => {
 		}).format(Number(num))
 	}
 
-	// Prepare the chart data
 	const chartData = formatLast30DaysForChart(last30DaysData)
 
 	return (

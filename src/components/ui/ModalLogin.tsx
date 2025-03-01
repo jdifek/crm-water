@@ -148,6 +148,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TokenService from '../../api/Token/TokenService'
+import { useAuth } from '../../helpers/context/AuthContext'
 import { useDevice } from '../../helpers/context/DeviceContext'
 
 interface ModalLoginProps {
@@ -160,7 +161,8 @@ export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
 	const [password, setPassword] = useState<string>('')
 	const [error, setError] = useState<string | null>(null)
 	const [isLoading, setIsLoading] = useState<boolean>(false)
-	const { fetchDevices } = useDevice() // Используем fetchDevices из контекста
+	const { fetchDevices } = useDevice()
+	const { setIsAuthenticated, fetchStats } = useAuth()
 	const navigate = useNavigate()
 
 	if (!isOpen) return null
@@ -175,11 +177,9 @@ export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
 			localStorage.setItem('authToken', res.data.access)
 			localStorage.setItem('refreshToken', res.data.refresh)
 
-			// Загружаем устройства
-			await fetchDevices()
-
-			// Перенаправляем на главную страницу
-			navigate('/') // Укажи нужный маршрут, если "/" не главная
+			setIsAuthenticated(true)
+			await Promise.all([fetchDevices, fetchStats])
+			navigate('/')
 			onClose(false)
 		} catch (error) {
 			console.error('Login error:', error)
