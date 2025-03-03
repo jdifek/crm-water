@@ -19,14 +19,22 @@ export type SalesByDayTableData = {
 }
 
 // Statistics - Daily stats
-export type DailyStatsTableData = {
-	time: string
+export type DailyStatsRow = {
+	date: string
 	sessions: number
 	liters: number
 	income: number
 }
 
 export type DailyStatsSortDirection = 'asc' | 'desc'
+
+// Statistics - Daily stats
+export type DeviceStatsTableData = {
+	devices: string
+	sessions: number
+	liters: number
+	income: number
+}
 
 // Statistics - Collection
 export type CollectionTableData = {
@@ -41,8 +49,7 @@ export type CollectionTableData = {
 
 // Statistics - Liter stats
 export type LiterStatsTableData = {
-	date: string
-	container: number
+	container: string
 	sessions: number
 	liters: number
 }

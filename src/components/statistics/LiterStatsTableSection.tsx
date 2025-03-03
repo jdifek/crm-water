@@ -29,20 +29,21 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 		)
 	)
 
-	const sortedData = [...filteredData].sort((a, b) => {
-		if (!sortState.order) return 0
-		const valueA = a[sortState.column]
-		const valueB = b[sortState.column]
+	const sortedData = sortState.order
+		? [...filteredData].sort((a, b) => {
+				const valueA = a[sortState.column]
+				const valueB = b[sortState.column]
 
-		if (typeof valueA === 'number' && typeof valueB === 'number') {
-			return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
-		} else if (typeof valueA === 'string' && typeof valueB === 'string') {
-			return sortState.order === 'asc'
-				? valueA.localeCompare(valueB)
-				: valueB.localeCompare(valueA)
-		}
-		return 0
-	})
+				if (typeof valueA === 'number' && typeof valueB === 'number') {
+					return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
+				} else if (typeof valueA === 'string' && typeof valueB === 'string') {
+					return sortState.order === 'asc'
+						? valueA.localeCompare(valueB)
+						: valueB.localeCompare(valueA)
+				}
+				return 0
+		  })
+		: filteredData
 
 	const totalPages = Math.ceil(sortedData.length / itemsPerPage)
 	const paginatedData = sortedData.slice(
@@ -55,7 +56,7 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 	)
 	const totalLiters = filteredData.reduce((sum, item) => sum + item.liters, 0)
 
-	const handleSort = (column: keyof (typeof tableData)[0]) => {
+	const handleSort = (column: keyof LiterStatsTableData) => {
 		setSortState(prev => ({
 			column,
 			order: prev.column === column && prev.order === 'asc' ? 'desc' : 'asc',
@@ -65,8 +66,8 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 	const handleExportToExcel = () => {
 		const worksheet = XLSX.utils.json_to_sheet(tableData)
 		const workbook = XLSX.utils.book_new()
-		XLSX.utils.book_append_sheet(workbook, worksheet, 'Sales Data')
-		XLSX.writeFile(workbook, 'sales_data.xlsx')
+		XLSX.utils.book_append_sheet(workbook, worksheet, 'Volume Stats')
+		XLSX.writeFile(workbook, 'volume_stats.xlsx')
 	}
 
 	return (
@@ -86,7 +87,6 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 						<FiDownload size={18} /> Экспорт
 					</button>
 
-					{/* Селект количества записей */}
 					<div className='relative mt-4'>
 						<span>Показать </span>
 						<select
@@ -129,7 +129,7 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 							{['Тара', 'Сеансы', 'Литров'].map((header, index) => {
 								const key = ['container', 'sessions', 'liters'][
 									index
-								] as keyof (typeof tableData)[0]
+								] as keyof LiterStatsTableData
 								return (
 									<th
 										key={header}
@@ -213,7 +213,6 @@ const LiterStatsTableSection = ({ tableData }: LiterStatsTableSectionProps) => {
 					{sortedData.length} записей
 				</p>
 
-				{/* Пагинация */}
 				<div className='flex gap-2'>
 					<button
 						onClick={() => setCurrentPage(1)}

@@ -1,6 +1,6 @@
 import { ru } from 'date-fns/locale'
 import { motion } from 'framer-motion'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -14,21 +14,10 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts'
+import StatsService from '../../api/Stats/StatsService'
+import { CurrentByVolumeStats } from '../../api/Stats/StatsTypes'
 import LiterStatsTableSection from '../../components/statistics/LiterStatsTableSection'
-import { LiterStatsTableData } from '../../types'
-
-const DATA: LiterStatsTableData[] = [
-	{ date: '01.01', sessions: 20, liters: 400, container: 1 },
-	{ date: '02.01', sessions: 25, liters: 600, container: 1.5 },
-	{ date: '03.01', sessions: 18, liters: 500, container: 2 },
-	{ date: '04.01', sessions: 30, liters: 900, container: 2.5 },
-	{ date: '05.01', sessions: 22, liters: 1100, container: 3 },
-	{ date: '06.01', sessions: 28, liters: 750, container: 3.5 },
-	{ date: '07.01', sessions: 15, liters: 320, container: 4 },
-	{ date: '08.01', sessions: 35, liters: 1200, container: 4.5 },
-	{ date: '09.01', sessions: 12, liters: 380, container: 5 },
-	{ date: '10.01', sessions: 27, liters: 880, container: 0.5 },
-]
+import { useDevice } from '../../helpers/context/DeviceContext'
 
 const TABS = [
 	{ key: 'sessions', label: 'Сеансы' },
@@ -45,26 +34,73 @@ const keyToLabel = {
 	liters: 'Литры',
 } as const
 
-const formatDate = (date: Date | null) =>
-	date
-		? date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })
-		: ''
+const formatDateToServer = (date: Date | null): string => {
+	if (!date) return ''
+	const year = date.getFullYear()
+	const month = String(date.getMonth() + 1).padStart(2, '0')
+	const day = String(date.getDate()).padStart(2, '0')
+	return `${year}-${month}-${day}`
+}
 
 const LiterStats = () => {
 	const [selectedTab, setSelectedTab] = useState<'Сеансы' | 'Литры'>('Сеансы')
-	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-		new Date('2024-01-01'),
-		new Date('2024-01-10'),
-	])
-
+	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>(() => {
+		const endDate = new Date()
+		const startDate = new Date()
+		startDate.setDate(startDate.getDate() - 30)
+		return [startDate, endDate]
+	})
 	const [startDate, endDate] = dateRange
-	const [selectedDevice, setSelectedDevice] = useState('Усі апарати')
+	const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(null)
+	const [volumeStats, setVolumeStats] = useState<CurrentByVolumeStats[]>([])
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState<string | null>(null)
+	const { devices } = useDevice()
+
+	useEffect(() => {
+		const fetchVolumeStats = async () => {
+			setLoading(true)
+			try {
+				const dateSt = formatDateToServer(startDate)
+				const dateFn = formatDateToServer(endDate)
+				if (dateSt) {
+					console.log('Request params:', {
+						date_st: dateSt,
+						date_fn: dateFn,
+						device_id: selectedDeviceId,
+					})
+					const response = await StatsService.currentByVolume(
+						dateSt,
+						dateFn || undefined,
+						selectedDeviceId || undefined
+					)
+					setVolumeStats(response.data.results)
+					console.log('Volume stats fetched:', response.data.results)
+					if (response.data.results.length === 0) {
+						setError('Нет данных за указанный период')
+					} else {
+						setError(null)
+					}
+				}
+			} catch (err) {
+				console.error('Error fetching volume stats:', err)
+				setError('Ошибка при загрузке данных')
+				setVolumeStats([])
+			} finally {
+				setLoading(false)
+			}
+		}
+
+		fetchVolumeStats()
+	}, [startDate, endDate, selectedDeviceId])
 
 	const filteredData = useMemo(() => {
-		const start = formatDate(startDate)
-		const end = formatDate(endDate)
-		return DATA.filter(({ date }) => date >= start && date <= end)
-	}, [startDate, endDate])
+		return volumeStats.map(item => ({
+			container: item.volume,
+			sessions: item.sessions,
+			liters: Number(item.litres),
+		}))
+	}, [volumeStats])
 
 	return (
 		<div className='p-6 space-y-6'>
@@ -80,18 +116,26 @@ const LiterStats = () => {
 							setDateRange(update as [Date | null, Date | null])
 						}
 						isClearable
+						dateFormat='dd.MM.yyyy'
 						className='px-2 py-1 text-gray-700 bg-transparent w-56 outline-none focus:ring-0 focus:border-transparent'
 					/>
 				</div>
 
 				<select
-					value={selectedDevice}
-					onChange={e => setSelectedDevice(e.target.value)}
+					value={selectedDeviceId === null ? 'Усі апарати' : selectedDeviceId}
+					onChange={e =>
+						setSelectedDeviceId(
+							e.target.value === 'Усі апарати' ? null : Number(e.target.value)
+						)
+					}
 					className='border border-gray-300 rounded-lg w-48 py-2 pl-2 pr-4 outline-none text-gray-700'
 				>
-					<option>Усі апарати</option>
-					<option>Апарат 1</option>
-					<option>Апарат 2</option>
+					<option value='Усі апарати'>Усі апарати</option>
+					{devices.map(device => (
+						<option key={device.id} value={device.id}>
+							{device.name}
+						</option>
+					))}
 				</select>
 			</div>
 
@@ -120,29 +164,38 @@ const LiterStats = () => {
 				</div>
 
 				{/* График */}
-				<div className='h-[400px]'>
-					<ResponsiveContainer width='100%' height='100%'>
-						<BarChart data={filteredData}>
-							<CartesianGrid strokeDasharray='3 3' />
-							<XAxis dataKey='container' />
-							<YAxis domain={[0, 3000]} />
-							<Tooltip
-								formatter={value => [
-									`${value}`,
-									keyToLabel[tabToKey[selectedTab]],
-								]}
-							/>
-							<Legend />
-							{/* Столбцы графика */}
-							<Bar
-								dataKey={tabToKey[selectedTab]}
-								name={selectedTab}
-								fill='#7c3aed'
-								barSize={30}
-							/>
-						</BarChart>
-					</ResponsiveContainer>
-				</div>
+				{loading ? (
+					<div className='flex justify-center items-center h-[400px]'>
+						<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600'></div>
+						<p className='ml-2'>Загрузка...</p>
+					</div>
+				) : error ? (
+					<p className='text-center text-red-500 p-4'>{error}</p>
+				) : (
+					<div className='h-[400px]'>
+						<ResponsiveContainer width='100%' height='100%'>
+							<BarChart data={filteredData}>
+								<CartesianGrid strokeDasharray='3 3' />
+								<XAxis dataKey='container' />
+								<YAxis domain={[0, 3000]} />
+								<Tooltip
+									formatter={value => [
+										`${value}`,
+										keyToLabel[tabToKey[selectedTab]],
+									]}
+								/>
+								<Legend />
+								{/* Столбцы графика */}
+								<Bar
+									dataKey={tabToKey[selectedTab]}
+									name={selectedTab}
+									fill='#7c3aed'
+									barSize={30}
+								/>
+							</BarChart>
+						</ResponsiveContainer>
+					</div>
+				)}
 			</motion.div>
 
 			<LiterStatsTableSection tableData={filteredData} />

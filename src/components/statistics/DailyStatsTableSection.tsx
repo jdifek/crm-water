@@ -3,32 +3,21 @@ import { useState } from 'react'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FiChevronDown, FiChevronUp, FiDownload } from 'react-icons/fi'
 import * as XLSX from 'xlsx'
-import { DailyStatsTableData } from '../../types'
+import { DailyStatsRow } from '../../types'
 
-const TABLE_DATA: DailyStatsTableData[] = [
-	{ time: '10:00', sessions: 20, liters: 400, income: 5000 },
-	{ time: '11:00', sessions: 25, liters: 600, income: 7000 },
-	{ time: '12:00', sessions: 18, liters: 500, income: 6200 },
-	{ time: '13:00', sessions: 30, liters: 800, income: 10000 },
-	{ time: '14:00', sessions: 15, liters: 300, income: 4000 },
-	{ time: '15:00', sessions: 22, liters: 450, income: 5500 },
-	{ time: '16:00', sessions: 27, liters: 700, income: 8500 },
-	{ time: '17:00', sessions: 21, liters: 400, income: 7500 },
-	{ time: '18:00', sessions: 17, liters: 350, income: 7000 },
-	{ time: '19:00', sessions: 15, liters: 320, income: 6500 },
-	{ time: '20:00', sessions: 10, liters: 250, income: 5000 },
-	{ time: '21:00', sessions: 5, liters: 150, income: 3000 },
-	{ time: '22:00', sessions: 1, liters: 70, income: 1000 },
-	{ time: '23:00', sessions: 1, liters: 70, income: 1000 },
-]
+interface DailyStatsTableSectionProps {
+	hourlyStats: DailyStatsRow[]
+}
 
-const DailyStatsTableSection = () => {
+const DailyStatsTableSection = ({
+	hourlyStats,
+}: DailyStatsTableSectionProps) => {
 	const [sortState, setSortState] = useState<{
 		column: string | null
 		order: 'asc' | 'desc' | null
 	}>({ column: null, order: null })
 
-	const handleSort = (column: keyof (typeof TABLE_DATA)[0]) => {
+	const handleSort = (column: keyof DailyStatsRow) => {
 		setSortState(prev => ({
 			column,
 			order: prev.column === column && prev.order === 'asc' ? 'desc' : 'asc',
@@ -36,7 +25,7 @@ const DailyStatsTableSection = () => {
 	}
 
 	const sortedData = sortState.column
-		? [...TABLE_DATA].sort((a, b) => {
+		? [...hourlyStats].sort((a, b) => {
 				const valueA = a[sortState.column as keyof typeof a]
 				const valueB = b[sortState.column as keyof typeof a]
 
@@ -49,14 +38,17 @@ const DailyStatsTableSection = () => {
 				}
 				return 0
 		  })
-		: TABLE_DATA
+		: hourlyStats
 
-	const totalSessions = TABLE_DATA.reduce((sum, item) => sum + item.sessions, 0)
-	const totalLiters = TABLE_DATA.reduce((sum, item) => sum + item.liters, 0)
-	const totalIncome = TABLE_DATA.reduce((sum, item) => sum + item.income, 0)
+	const totalSessions = hourlyStats.reduce(
+		(sum, item) => sum + item.sessions,
+		0
+	)
+	const totalLiters = hourlyStats.reduce((sum, item) => sum + item.liters, 0)
+	const totalIncome = hourlyStats.reduce((sum, item) => sum + item.income, 0)
 
 	const handleExportToExcel = () => {
-		const worksheet = XLSX.utils.json_to_sheet(TABLE_DATA)
+		const worksheet = XLSX.utils.json_to_sheet(hourlyStats)
 		const workbook = XLSX.utils.book_new()
 		XLSX.utils.book_append_sheet(workbook, worksheet, 'Sales Data')
 		XLSX.writeFile(workbook, 'sales_data.xlsx')
@@ -88,27 +80,22 @@ const DailyStatsTableSection = () => {
 							<td className='p-3'>{totalSessions.toFixed(1)}</td>
 							<td className='p-3'>{totalLiters.toFixed(1)} л</td>
 							<td className='p-3'>{totalIncome.toFixed(1)} (₴)</td>
-							<td></td>
-							<td></td>
-							<td></td>
 						</tr>
 						<tr>
-							{['time', 'sessions', 'liters', 'income'].map(key => (
+							{['date', 'sessions', 'liters', 'income'].map(key => (
 								<th
 									key={key}
 									className='p-3 cursor-pointer'
-									onClick={() =>
-										handleSort(key as keyof (typeof TABLE_DATA)[0])
-									}
+									onClick={() => handleSort(key as keyof DailyStatsRow)}
 								>
 									<div className='flex items-center gap-2 text-base font-medium'>
-										{key === 'time'
+										{key === 'date'
 											? 'Время'
 											: key === 'sessions'
 											? 'Сеансы'
 											: key === 'liters'
 											? 'Литров'
-											: key === 'income' && 'Доход'}
+											: 'Доход'}
 										<div className='flex flex-col'>
 											<FiChevronUp
 												size={14}
@@ -133,19 +120,27 @@ const DailyStatsTableSection = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{sortedData.map((row, index) => (
-							<tr
-								key={index}
-								className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
-							>
-								<td className='p-3'>
-									<span>{row.time}</span>
+						{sortedData.length > 0 ? (
+							sortedData.map((row, index) => (
+								<tr
+									key={index}
+									className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
+								>
+									<td className='p-3'>
+										<span>{row.date}</span>
+									</td>
+									<td className='p-3'>{row.sessions}</td>
+									<td className='p-3'>{row.liters}</td>
+									<td className='p-3'>{row.income}</td>
+								</tr>
+							))
+						) : (
+							<tr>
+								<td colSpan={4} className='p-3 text-center text-gray-500'>
+									Нет данных
 								</td>
-								<td className='p-3'>{row.sessions}</td>
-								<td className='p-3'>{row.liters}</td>
-								<td className='p-3'>{row.income}</td>
 							</tr>
-						))}
+						)}
 					</tbody>
 				</table>
 			</div>

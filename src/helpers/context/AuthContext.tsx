@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import StatsService, {
+import StatsService from '../../api/Stats/StatsService'
+import {
+	CurrentDailyStats,
 	CurrentDaySummary,
-	Last30DaysData,
-} from '../../api/Stats/StatsService.ts'
+} from '../../api/Stats/StatsTypes'
 
 interface AuthContextType {
 	isAuthenticated: boolean
@@ -11,8 +12,10 @@ interface AuthContextType {
 	setCurrentDaySummary: React.Dispatch<
 		React.SetStateAction<CurrentDaySummary | null>
 	>
-	last30DaysData: Last30DaysData[]
-	setLast30DaysData: React.Dispatch<React.SetStateAction<Last30DaysData[]>>
+	currentDailyStats: CurrentDailyStats[]
+	setCurrentDailyStats: React.Dispatch<
+		React.SetStateAction<CurrentDailyStats[]>
+	>
 	loading: boolean
 	fetchStats: () => Promise<void>
 }
@@ -25,35 +28,45 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	)
 	const [currentDaySummary, setCurrentDaySummary] =
 		useState<CurrentDaySummary | null>(null)
-	const [last30DaysData, setLast30DaysData] = useState<Last30DaysData[]>([])
+	const [currentDailyStats, setCurrentDailyStats] = useState<
+		CurrentDailyStats[]
+	>([])
 	const [loading, setLoading] = useState<boolean>(false)
 
 	const fetchStats = async () => {
 		setLoading(true)
 		try {
-			const [daySummaryRes, last30DaysRes] = await Promise.all([
+			const dateFn = new Date().toISOString().split('T')[0]
+			const dateStDate = new Date()
+			dateStDate.setDate(dateStDate.getDate() - 30)
+			const dateSt = `${dateStDate.getFullYear()}-${String(
+				dateStDate.getMonth() + 1
+			).padStart(2, '0')}-${String(dateStDate.getDate()).padStart(2, '0')}`
+
+			const [daySummaryRes, currentDailyRes] = await Promise.all([
 				StatsService.currentDaySummary(),
-				StatsService.currentLast(),
+				StatsService.currentDaily(dateSt, dateFn),
 			])
 			setCurrentDaySummary(daySummaryRes.data)
-			setLast30DaysData(last30DaysRes.data)
+			setCurrentDailyStats(currentDailyRes.data.results)
+			console.log('Day summary:', daySummaryRes.data)
+			console.log('Daily stats:', currentDailyRes.data.results)
 		} catch (error) {
 			console.error('Error fetching stats:', error)
 			setCurrentDaySummary(null)
-			setLast30DaysData([])
+			setCurrentDailyStats([])
 		} finally {
 			setLoading(false)
 		}
 	}
 
-	// Отслеживаем изменение токена и загружаем статистику
 	useEffect(() => {
 		const token = localStorage.getItem('authToken')
 		if (token && isAuthenticated) {
 			fetchStats()
 		} else {
 			setCurrentDaySummary(null)
-			setLast30DaysData([])
+			setCurrentDailyStats([])
 			setLoading(false)
 		}
 	}, [isAuthenticated])
@@ -65,8 +78,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 				setIsAuthenticated,
 				currentDaySummary,
 				setCurrentDaySummary,
-				last30DaysData,
-				setLast30DaysData,
+				currentDailyStats,
+				setCurrentDailyStats,
 				loading,
 				fetchStats,
 			}}

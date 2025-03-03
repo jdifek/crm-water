@@ -1,6 +1,6 @@
 import { ru } from 'date-fns/locale'
 import { motion } from 'framer-motion'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import {
@@ -12,32 +12,9 @@ import {
 	XAxis,
 	YAxis,
 } from 'recharts'
+import StatsService from '../../api/Stats/StatsService'
+import { CurrentByDeviceStats } from '../../api/Stats/StatsTypes'
 import DeviceStatsTableSection from '../../components/statistics/DeviceStatsTableSection'
-
-const DATA = [
-	{ date: '01.01', devices: '111756', sessions: 20, liters: 400, income: 5000 },
-	{ date: '02.01', devices: '111757', sessions: 25, liters: 600, income: 7000 },
-	{ date: '03.01', devices: '111758', sessions: 18, liters: 500, income: 6200 },
-	{ date: '04.01', devices: '111709', sessions: 30, liters: 900, income: 9000 },
-	{
-		date: '05.01',
-		devices: '111579',
-		sessions: 22,
-		liters: 1100,
-		income: 8500,
-	},
-	{ date: '06.01', devices: '111782', sessions: 28, liters: 750, income: 7800 },
-	{ date: '07.01', devices: '110675', sessions: 15, liters: 320, income: 4300 },
-	{
-		date: '08.01',
-		devices: '101247',
-		sessions: 35,
-		liters: 1200,
-		income: 10500,
-	},
-	{ date: '09.01', devices: '101578', sessions: 12, liters: 380, income: 4900 },
-	{ date: '10.01', devices: '111443', sessions: 27, liters: 880, income: 9400 },
-]
 
 const TABS = [
 	{ key: 'sessions', label: 'Сеансы' },
@@ -57,27 +34,68 @@ const keyToLabel = {
 	income: 'Доход',
 } as const
 
-const formatDate = (date: Date | null) =>
-	date
-		? date.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })
-		: ''
+const formatDateToServer = (date: Date | null): string => {
+	if (!date) return ''
+	const year = date.getFullYear()
+	const month = String(date.getMonth() + 1).padStart(2, '0')
+	const day = String(date.getDate()).padStart(2, '0')
+	return `${year}-${month}-${day}`
+}
 
 const DeviceStats = () => {
 	const [selectedTab, setSelectedTab] = useState<'Сеансы' | 'Литры' | 'Доход'>(
 		'Литры'
 	)
-	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-		new Date('2024-01-01'),
-		new Date('2024-01-10'),
-	])
-
+	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>(() => {
+		const endDate = new Date()
+		const startDate = new Date()
+		startDate.setDate(startDate.getDate() - 30)
+		return [startDate, endDate]
+	})
 	const [startDate, endDate] = dateRange
+	const [deviceStats, setDeviceStats] = useState<CurrentByDeviceStats[]>([])
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState<string | null>(null)
+
+	useEffect(() => {
+		const fetchDeviceStats = async () => {
+			setLoading(true)
+			setError(null)
+			try {
+				const dateSt = formatDateToServer(startDate)
+				const dateFn = formatDateToServer(endDate)
+				if (dateSt) {
+					console.log('Request params:', { date_st: dateSt, date_fn: dateFn })
+					const response = await StatsService.currentByDevice(
+						dateSt,
+						dateFn || undefined
+					)
+					setDeviceStats(response.data.results)
+					console.log('Device stats fetched:', response.data.results)
+					if (response.data.results.length === 0) {
+						setError('Нет данных за указанный период')
+					}
+				}
+			} catch (err) {
+				console.error('Error fetching device stats:', err)
+				setError('Ошибка при загрузке данных')
+				setDeviceStats([])
+			} finally {
+				setLoading(false)
+			}
+		}
+
+		fetchDeviceStats()
+	}, [startDate, endDate])
 
 	const filteredData = useMemo(() => {
-		const start = formatDate(startDate)
-		const end = formatDate(endDate)
-		return DATA.filter(({ date }) => date >= start && date <= end)
-	}, [startDate, endDate])
+		return deviceStats.map(item => ({
+			devices: item.device_name,
+			sessions: item.sessions,
+			liters: Number(item.litres),
+			income: Number(item.income),
+		}))
+	}, [deviceStats])
 
 	return (
 		<div className='p-6 space-y-6'>
@@ -92,6 +110,7 @@ const DeviceStats = () => {
 						setDateRange(update as [Date | null, Date | null])
 					}
 					isClearable
+					dateFormat='dd.MM.yyyy'
 					className='px-2 py-1 text-gray-700 bg-transparent w-56 outline-none focus:ring-0 focus:border-transparent'
 				/>
 			</div>
@@ -103,7 +122,6 @@ const DeviceStats = () => {
 				transition={{ duration: 0.5 }}
 				className='bg-white shadow-lg rounded-lg p-6'
 			>
-				{/* Таб переключения */}
 				<div className='flex gap-4 mb-6 pb-2'>
 					{TABS.map(({ key, label }) => (
 						<button
@@ -122,32 +140,40 @@ const DeviceStats = () => {
 					))}
 				</div>
 
-				{/* График */}
-				<div className='h-[400px]'>
-					<ResponsiveContainer width='100%' height='100%'>
-						<BarChart data={filteredData} layout='vertical'>
-							<CartesianGrid strokeDasharray='3 3' />
-							<XAxis type='number' />
-							<YAxis dataKey='devices' type='category' width={100} />
-							<Tooltip
-								formatter={value => [
-									`${value}`,
-									keyToLabel[tabToKey[selectedTab]],
-								]}
-							/>
-							<Bar
-								dataKey={tabToKey[selectedTab]}
-								name={selectedTab}
-								fill='#7c3aed'
-								label={{ position: 'insideRight', fill: 'white' }}
-								barSize={30}
-							/>
-						</BarChart>
-					</ResponsiveContainer>
-				</div>
+				{loading ? (
+					<div className='flex justify-center items-center h-[400px]'>
+						<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600'></div>
+						<p className='ml-2'>Загрузка...</p>
+					</div>
+				) : error && filteredData.length === 0 ? (
+					<p className='text-center text-red-500 p-4'>{error}</p>
+				) : (
+					<div className='h-[400px]'>
+						<ResponsiveContainer width='100%' height='100%'>
+							<BarChart data={filteredData} layout='vertical'>
+								<CartesianGrid strokeDasharray='3 3' />
+								<XAxis type='number' />
+								<YAxis dataKey='devices' type='category' width={100} />
+								<Tooltip
+									formatter={value => [
+										`${value}`,
+										keyToLabel[tabToKey[selectedTab]],
+									]}
+								/>
+								<Bar
+									dataKey={tabToKey[selectedTab]}
+									name={selectedTab}
+									fill='#7c3aed'
+									label={{ position: 'insideRight', fill: 'white' }}
+									barSize={30}
+								/>
+							</BarChart>
+						</ResponsiveContainer>
+					</div>
+				)}
 			</motion.div>
 
-			<DeviceStatsTableSection />
+			<DeviceStatsTableSection tableData={filteredData} />
 		</div>
 	)
 }

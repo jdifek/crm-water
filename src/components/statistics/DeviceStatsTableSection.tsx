@@ -3,20 +3,17 @@ import { useState } from 'react'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FiChevronDown, FiChevronUp, FiDownload } from 'react-icons/fi'
 import * as XLSX from 'xlsx'
+import { DeviceStatsTableData } from '../../types'
 
-const TABLE_DATA = [
-	{ device: '111756', sessions: 20, liters: 400, income: 5000 },
-	{ device: '111757', sessions: 25, liters: 600, income: 7000 },
-	{ device: '111758', sessions: 18, liters: 500, income: 6200 },
-	{ device: '111709', sessions: 30, liters: 800, income: 10000 },
-	{ device: '111579', sessions: 15, liters: 300, income: 4000 },
-	{ device: '111782', sessions: 22, liters: 450, income: 5500 },
-	{ device: '110675', sessions: 27, liters: 700, income: 8500 },
-]
+interface DeviceStatsTableSectionProps {
+	tableData: DeviceStatsTableData[]
+}
 
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 
-const DeviceStatsTableSection = () => {
+const DeviceStatsTableSection = ({
+	tableData,
+}: DeviceStatsTableSectionProps) => {
 	const [itemsPerPage, setItemsPerPage] = useState(3)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [searchQuery, setSearchQuery] = useState('')
@@ -25,7 +22,7 @@ const DeviceStatsTableSection = () => {
 		order: 'asc' | 'desc' | null
 	}>({ column: null, order: null })
 
-	const filteredData = TABLE_DATA.filter(item =>
+	const filteredData = tableData.filter(item =>
 		Object.values(item).some(value =>
 			value.toString().toLowerCase().includes(searchQuery.toLowerCase())
 		)
@@ -33,8 +30,8 @@ const DeviceStatsTableSection = () => {
 
 	const sortedData = sortState.column
 		? [...filteredData].sort((a, b) => {
-				const valueA = a[sortState.column as keyof typeof a]
-				const valueB = b[sortState.column as keyof typeof a]
+				const valueA = a[sortState.column as keyof DeviceStatsTableData]
+				const valueB = b[sortState.column as keyof DeviceStatsTableData]
 
 				if (typeof valueA === 'number' && typeof valueB === 'number') {
 					return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
@@ -59,7 +56,7 @@ const DeviceStatsTableSection = () => {
 	const totalLiters = filteredData.reduce((sum, item) => sum + item.liters, 0)
 	const totalIncome = filteredData.reduce((sum, item) => sum + item.income, 0)
 
-	const handleSort = (column: keyof (typeof TABLE_DATA)[0]) => {
+	const handleSort = (column: keyof DeviceStatsTableData) => {
 		setSortState(prev => ({
 			column,
 			order: prev.column === column && prev.order === 'asc' ? 'desc' : 'asc',
@@ -69,8 +66,8 @@ const DeviceStatsTableSection = () => {
 	const handleExportToExcel = () => {
 		const worksheet = XLSX.utils.json_to_sheet(sortedData)
 		const workbook = XLSX.utils.book_new()
-		XLSX.utils.book_append_sheet(workbook, worksheet, 'Sales Data')
-		XLSX.writeFile(workbook, 'sales_data.xlsx')
+		XLSX.utils.book_append_sheet(workbook, worksheet, 'Device Stats')
+		XLSX.writeFile(workbook, 'device_stats.xlsx')
 	}
 
 	return (
@@ -90,7 +87,6 @@ const DeviceStatsTableSection = () => {
 						<FiDownload size={18} /> Экспорт
 					</button>
 
-					{/* Селект количества записей */}
 					<div className='relative mt-4'>
 						<span>Показать </span>
 						<select
@@ -132,9 +128,9 @@ const DeviceStatsTableSection = () => {
 						</tr>
 						<tr>
 							{['Аппарат', 'Сеансы', 'Литров', 'Доход'].map((header, index) => {
-								const key = ['device', 'sessions', 'liters', 'income'][
+								const key = ['devices', 'sessions', 'liters', 'income'][
 									index
-								] as keyof (typeof TABLE_DATA)[0]
+								] as keyof DeviceStatsTableData
 								return (
 									<th
 										key={header}
@@ -176,7 +172,7 @@ const DeviceStatsTableSection = () => {
 									key={index}
 									className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
 								>
-									<td className='p-3'>{row.device}</td>
+									<td className='p-3'>{row.devices}</td>
 									<td className='p-3'>{row.sessions}</td>
 									<td className='p-3'>{row.liters}</td>
 									<td className='p-3'>{row.income}</td>
@@ -202,7 +198,6 @@ const DeviceStatsTableSection = () => {
 					{sortedData.length} записей
 				</p>
 
-				{/* Пагинация */}
 				<div className='flex gap-2'>
 					<button
 						onClick={() => setCurrentPage(1)}
