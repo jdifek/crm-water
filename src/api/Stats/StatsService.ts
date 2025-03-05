@@ -5,6 +5,8 @@ import {
 	CurrentDailyResponse,
 	CurrentDaySummaryResponse,
 	CurrentHourlyResponse,
+	CurrentYearlyResponse,
+	CurrentYearlySummaryResponse,
 	Last30DaysResponse,
 } from './StatsTypes'
 
@@ -34,6 +36,7 @@ export default class StatsService {
 				params: {
 					date_st: dateSt,
 					date_fn: dateFn,
+					limit: 30,
 				},
 			})
 		).data
@@ -70,6 +73,30 @@ export default class StatsService {
 			await $api.get<CurrentByDeviceResponse>('stats/by-device/', {
 				params: { date_st: dateSt, date_fn: dateFn },
 			})
+		).data
+	}
+
+	static async currentYearly(
+		year: number,
+		limit?: number,
+		offset?: number
+	): Promise<CurrentYearlyResponse> {
+		console.log('Fetching yearly stats with params:', { year, limit, offset })
+		return (
+			await $api.get<CurrentYearlyResponse>('stats/yearly/', {
+				params: {
+					year,
+					limit,
+					offset,
+				},
+			})
+		).data
+	}
+
+	static async currentYearlySummary(): Promise<CurrentYearlySummaryResponse> {
+		console.log('Fetching yearly summary')
+		return (
+			await $api.get<CurrentYearlySummaryResponse>('stats/yearly-summary/')
 		).data
 	}
 }

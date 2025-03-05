@@ -55,7 +55,8 @@ export type LiterStatsTableData = {
 }
 
 // Statistics - Yearly report
-type MonthData = {
+export type YearlyReportRow = {
+	type: string
 	january: string
 	february: string
 	march: string
@@ -71,19 +72,11 @@ type MonthData = {
 	total: string
 }
 
-type Row = {
-	type: 'Готівка' | 'Безготівка' | 'Дохід' | 'Витрати' | 'Чистий дохід'
-} & MonthData
-
-type TableItem = {
+export type YearlyReportData = {
 	id: string
 	location: string
 	serial: string
-	rows: Row[]
-}
-
-export type YearlyReportTableData = {
-	[year: number]: TableItem[]
+	rows: YearlyReportRow[]
 }
 
 // Cards - Card list
