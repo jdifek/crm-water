@@ -51,7 +51,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 			{/* Mobile sidebar backdrop */}
 			{isSidebarOpen && (
 				<div
-					className='fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden'
+					className='fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden'
 					onClick={() => setIsSidebarOpen(false)}
 				/>
 			)}
@@ -68,7 +68,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 			</div>
 			{/* Main content */}
 			<main className='flex-1 w-full'>
-				<div className='bg-blue-500 text-white py-2 px-4 flex justify-between items-center sticky top-0 z-10'>
+				<div className='bg-blue-500 text-white py-2 px-4 flex justify-between items-center sticky top-0 z-40'>
 					<div className='flex items-center'>
 						<button
 							className='lg:hidden mr-4 hover:bg-blue-600 p-1 rounded'

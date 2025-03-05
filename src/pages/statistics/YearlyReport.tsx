@@ -432,7 +432,7 @@ const YearlyReport = () => {
 			>
 				<div className='relative'>
 					{/* Fixed Columns Container */}
-					<div className='absolute left-0 top-0 z-30 bg-white'>
+					<div className='absolute left-0 top-0 z-20 bg-white'>
 						<table className='border-collapse text-sm'>
 							<thead>
 								<tr>
