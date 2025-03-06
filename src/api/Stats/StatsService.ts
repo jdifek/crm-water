@@ -36,7 +36,7 @@ export default class StatsService {
 				params: {
 					date_st: dateSt,
 					date_fn: dateFn,
-					limit: 30,
+					limit: 31,
 				},
 			})
 		).data
@@ -49,7 +49,12 @@ export default class StatsService {
 	): Promise<CurrentHourlyResponse> {
 		return (
 			await $api.get<CurrentHourlyResponse>('stats/hourly/', {
-				params: { date_st: dateSt, date_fn: dateFn, device_id: deviceId },
+				params: {
+					date_st: dateSt,
+					date_fn: dateFn,
+					device_id: deviceId,
+					limit: 100,
+				},
 			})
 		).data
 	}
@@ -60,7 +65,12 @@ export default class StatsService {
 	): Promise<CurrentByVolumeResponse> {
 		return (
 			await $api.get<CurrentByVolumeResponse>('stats/by-volume/', {
-				params: { date_st: dateSt, date_fn: dateFn, device_id: deviceId },
+				params: {
+					date_st: dateSt,
+					date_fn: dateFn,
+					device_id: deviceId,
+					limit: 100,
+				},
 			})
 		).data
 	}
@@ -71,32 +81,38 @@ export default class StatsService {
 	): Promise<CurrentByDeviceResponse> {
 		return (
 			await $api.get<CurrentByDeviceResponse>('stats/by-device/', {
-				params: { date_st: dateSt, date_fn: dateFn },
+				params: { date_st: dateSt, date_fn: dateFn, limit: 100 },
 			})
 		).data
 	}
 
 	static async currentYearly(
 		year: number,
-		limit?: number,
 		offset?: number
 	): Promise<CurrentYearlyResponse> {
-		console.log('Fetching yearly stats with params:', { year, limit, offset })
 		return (
 			await $api.get<CurrentYearlyResponse>('stats/yearly/', {
 				params: {
 					year,
-					limit,
+					limit: 100,
 					offset,
 				},
 			})
 		).data
 	}
 
-	static async currentYearlySummary(): Promise<CurrentYearlySummaryResponse> {
-		console.log('Fetching yearly summary')
+	static async currentYearlySummary(
+		year: number,
+		offset?: number
+	): Promise<CurrentYearlySummaryResponse> {
 		return (
-			await $api.get<CurrentYearlySummaryResponse>('stats/yearly-summary/')
+			await $api.get<CurrentYearlySummaryResponse>('stats/yearly-summary/', {
+				params: {
+					year,
+					limit: 100,
+					offset,
+				},
+			})
 		).data
 	}
 }

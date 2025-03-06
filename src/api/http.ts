@@ -1,4 +1,5 @@
 import axios from 'axios'
+import axiosRetry from 'axios-retry'
 import TokenService from './Token/TokenService'
 
 export const API_URL = import.meta.env.VITE_API_URL
@@ -34,7 +35,7 @@ $api.interceptors.response.use(
 				const response = await TokenService.refreshToken({
 					refresh: refreshToken,
 				})
-				console.log('Refresh token response:', response) // 👈 Логируем ответ
+				console.log('Refresh token response:', response) // Логируем ответ
 				const newAccessToken = response.data.access
 
 				if (!newAccessToken) {
@@ -58,6 +59,17 @@ $api.interceptors.response.use(
 		return Promise.reject(error)
 	}
 )
+
+// Настройка axios-retry для повторных попыток при ошибках 5xx
+axiosRetry($api, {
+	retries: 3, // Количество попыток
+	retryDelay: retryCount => retryCount * 1000, // Задержка между попытками (1s, 2s, 3s)
+	shouldResetTimeout: true, // Сбрасываем тайм-аут перед каждой повторной попыткой
+	retryCondition: error => {
+		// Повторяем запрос только при ошибках 5xx
+		return error.response?.status >= 500 && error.response?.status <= 599
+	},
+})
 
 export default $api
 

@@ -43,7 +43,7 @@ const YearlyReport = () => {
 			try {
 				const [yearlyResponse, summaryResponse] = await Promise.all([
 					StatsService.currentYearly(selectedYear),
-					StatsService.currentYearlySummary(),
+					StatsService.currentYearlySummary(selectedYear),
 				])
 
 				const yearlyStats = yearlyResponse.data.results

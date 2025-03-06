@@ -1,6 +1,6 @@
 import { ru } from 'date-fns/locale'
 import { motion } from 'framer-motion'
-import { useEffect, useMemo, useState } from 'react'
+import { FunctionComponent, useEffect, useMemo, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -33,6 +33,26 @@ const keyToLabel = {
 	sessions: 'Сеансы',
 	liters: 'Литры',
 } as const
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CustomizedAxisTick: FunctionComponent<any> = (props: any) => {
+	const { x, y, payload } = props
+
+	return (
+		<g transform={`translate(${x},${y})`}>
+			<text
+				x={0}
+				y={0}
+				dy={16}
+				textAnchor='end'
+				fill='#666'
+				transform='rotate(-35)'
+			>
+				{payload.value}
+			</text>
+		</g>
+	)
+}
 
 const formatDateToServer = (date: Date | null): string => {
 	if (!date) return ''
@@ -176,7 +196,7 @@ const LiterStats = () => {
 						<ResponsiveContainer width='100%' height='100%'>
 							<BarChart data={filteredData}>
 								<CartesianGrid strokeDasharray='3 3' />
-								<XAxis dataKey='container' />
+								<XAxis dataKey='container' tick={<CustomizedAxisTick />} />
 								<YAxis domain={[0, 3000]} />
 								<Tooltip
 									formatter={value => [

@@ -7,48 +7,78 @@ import { SaleTableData } from '../../types'
 
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 
+const formatDateToServer = (date: Date | null): string => {
+	if (!date) return ''
+	const year = date.getFullYear()
+	const month = String(date.getMonth() + 1).padStart(2, '0')
+	const day = String(date.getDate()).padStart(2, '0')
+	return `${year}-${month}-${day}`
+}
+
 const SalesPage = () => {
-	const [itemsPerPage, setItemsPerPage] = useState(3)
+	const [itemsPerPage, setItemsPerPage] = useState(10)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [searchQuery, setSearchQuery] = useState('')
 	const [sortState, setSortState] = useState<{
 		column: string | null
 		order: 'asc' | 'desc' | null
 	}>({ column: null, order: null })
-	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-		new Date('2025-02-27T00:00:00Z'),
-		new Date('2025-02-28T23:59:59Z'),
-	])
+	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>(() => {
+		const endDate = new Date()
+		const startDate = new Date()
+		startDate.setDate(startDate.getDate() - 30)
+		return [startDate, endDate]
+	})
+	const [startDate, endDate] = dateRange
 	const [selectedStore, setSelectedStore] =
 		useState<string>('Все торговые точки')
 	const [selectedPayment, setSelectedPayment] = useState<string>('Все типы')
 	const [selectedProduct, setSelectedProduct] = useState<string>('Все товары')
 	const [salesData, setSalesData] = useState<SaleTableData[]>([])
 	const [loading, setLoading] = useState<boolean>(false)
-	const [startDate, endDate] = dateRange
+	const [error, setError] = useState<string | null>(null)
 
 	useEffect(() => {
 		const fetchOrders = async () => {
 			setLoading(true)
+			setError(null)
 			try {
-				const res = await OrdersService.getOrders()
-				const serverData: IOrder[] = res.data.results
+				const dateSt = formatDateToServer(startDate)
+				const dateFn = formatDateToServer(endDate)
+				if (dateSt) {
+					console.log('Request params:', {
+						date_st: dateSt,
+						date_fn: dateFn,
+					})
+					const res = await OrdersService.getOrders({
+						date_st: dateSt,
+						date_fn: dateFn,
+						limit: 100,
+					})
+					const serverData: IOrder[] = res.data.results
 
-				// Преобразуем данные с сервера в нужный формат
-				const transformedData: SaleTableData[] = serverData.map(order => ({
-					id: order.id.toString(),
-					date: order.completed_at,
-					cost: parseFloat(order.total_price),
-					issued: parseFloat(order.product_quantity_delivered),
-					ordered: parseFloat(order.product_quantity_ordered),
-					product: order.product_name,
-					payment: order.payment_type === 'cache' ? 'Наличные' : 'Безналичные',
-					store: order.device_name,
-				}))
+					// Преобразуем данные с сервера в нужный формат
+					const transformedData: SaleTableData[] = serverData.map(order => ({
+						id: order.id.toString(),
+						date: order.completed_at,
+						cost: parseFloat(order.total_price),
+						issued: parseFloat(order.product_quantity_delivered),
+						ordered: parseFloat(order.product_quantity_ordered),
+						product: order.product_name,
+						payment:
+							order.payment_type === 'cache' ? 'Наличные' : 'Безналичные',
+						store: order.device_name,
+					}))
 
-				setSalesData(transformedData)
+					setSalesData(transformedData)
+					console.log('Orders fetched:', transformedData)
+					if (transformedData.length === 0) {
+						setError('Нет данных за указанный период')
+					}
+				}
 			} catch (error) {
-				console.log('Ошибка при загрузке заказов:', error)
+				console.error('Ошибка при загрузке заказов:', error)
+				setError('Ошибка при загрузке данных')
 				setSalesData([])
 			} finally {
 				setLoading(false)
@@ -56,17 +86,9 @@ const SalesPage = () => {
 		}
 
 		fetchOrders()
-	}, [])
+	}, [startDate, endDate, itemsPerPage, currentPage])
 
-	const filteredByDate = salesData.filter(item => {
-		const itemDate = new Date(item.date)
-		if (startDate && endDate) {
-			return itemDate >= startDate && itemDate <= endDate
-		}
-		return true
-	})
-
-	const filteredByFilters = filteredByDate.filter(item => {
+	const filteredByFilters = salesData.filter(item => {
 		const storeMatch =
 			selectedStore === 'Все торговые точки' || item.store === selectedStore
 		const paymentMatch =
@@ -150,6 +172,8 @@ const SalesPage = () => {
 				{/* Таблица */}
 				{loading ? (
 					<p className='text-center text-gray-500'>Загрузка данных...</p>
+				) : error && filteredData.length === 0 ? (
+					<p className='text-center text-red-500 p-4'>{error}</p>
 				) : (
 					<StatisticsTable
 						paginatedData={paginatedData}

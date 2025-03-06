@@ -7,13 +7,19 @@ import {
 } from './PosDevicesTypes'
 
 export default class PosDevicesService {
-	static async getDevices(params = {}): Promise<IGetProductsNamesResponse> {
+	static async getDevices(): Promise<IGetProductsNamesResponse> {
 		return (
-			await $api.get<IGetProductsNamesResponse>('pos/devices/', { params })
+			await $api.get<IGetProductsNamesResponse>('pos/devices/', {
+				params: { limit: 100 },
+			})
 		).data
 	}
 	static async getDevicesNames(): Promise<IPosDevicesListResponse> {
-		return (await $api.get<IPosDevicesListResponse>('pos/device-names/')).data
+		return (
+			await $api.get<IPosDevicesListResponse>('pos/device-names/', {
+				params: { limit: 100 },
+			})
+		).data
 	}
 
 	static async getDeviceById(id: number): Promise<IPosDeviceDetails> {
