@@ -4,16 +4,10 @@ import { IOrder } from '../../api/Order/orderTypes'
 import StatisticsFilter from '../../components/statistics/StatisticsFilter'
 import StatisticsTable from '../../components/statistics/StatisticsTable'
 import { SaleTableData } from '../../types'
+import usePagination from '../../helpers/hooks/usePagination'
+import { formatDateToServer } from '../../helpers/function/formatDateToServer'
 
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
-
-const formatDateToServer = (date: Date | null): string => {
-	if (!date) return ''
-	const year = date.getFullYear()
-	const month = String(date.getMonth() + 1).padStart(2, '0')
-	const day = String(date.getDate()).padStart(2, '0')
-	return `${year}-${month}-${day}`
-}
 
 const SalesPage = () => {
 	const [itemsPerPage, setItemsPerPage] = useState(10)
@@ -53,7 +47,7 @@ const SalesPage = () => {
 					const res = await OrdersService.getOrders({
 						date_st: dateSt,
 						date_fn: dateFn,
-						limit: 100,
+						limit: 999999,
 					})
 					const serverData: IOrder[] = res.data.results
 
@@ -129,6 +123,8 @@ const SalesPage = () => {
 	const totalIssued = filteredData.reduce((sum, item) => sum + item.issued, 0)
 	const totalOrdered = filteredData.reduce((sum, item) => sum + item.ordered, 0)
 
+	const paginationRange = usePagination(totalPages, currentPage)
+
 	return (
 		<div className='p-4 bg-gray-100 min-h-screen'>
 			{/* Фильтры */}
@@ -171,7 +167,10 @@ const SalesPage = () => {
 
 				{/* Таблица */}
 				{loading ? (
-					<p className='text-center text-gray-500'>Загрузка данных...</p>
+					<div className='flex justify-center items-center h-[400px]'>
+						<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600'></div>
+						<p className='ml-2'>Загрузка...</p>
+					</div>
 				) : error && filteredData.length === 0 ? (
 					<p className='text-center text-red-500 p-4'>{error}</p>
 				) : (
@@ -202,19 +201,25 @@ const SalesPage = () => {
 					>
 						Предыдущая
 					</button>
-					{[...Array(totalPages)].map((_, i) => (
-						<button
-							key={i}
-							onClick={() => setCurrentPage(i + 1)}
-							className={`px-4 py-1 rounded-full text-[12px] ${
-								currentPage === i + 1
-									? 'bg-blue-500 text-white'
-									: 'bg-gray-200 hover:bg-gray-300'
-							}`}
-						>
-							{i + 1}
-						</button>
-					))}
+					{paginationRange.map((page, index) =>
+						typeof page === 'number' ? (
+							<button
+								key={index}
+								onClick={() => setCurrentPage(page)}
+								className={`px-4 py-1 rounded-full text-[12px] ${
+									currentPage === page
+										? 'bg-blue-500 text-white'
+										: 'bg-gray-200 hover:bg-gray-300'
+								}`}
+							>
+								{page}
+							</button>
+						) : (
+							<span key={index} className='px-4 py-1 text-[12px]'>
+								...
+							</span>
+						)
+					)}
 					<button
 						onClick={() => setCurrentPage(currentPage + 1)}
 						disabled={currentPage === totalPages}

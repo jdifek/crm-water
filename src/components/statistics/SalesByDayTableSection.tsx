@@ -4,6 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { FiChevronDown, FiChevronUp, FiDownload } from 'react-icons/fi'
 import * as XLSX from 'xlsx'
 import { SalesByDayTableData } from '../../types'
+import usePagination from '../../helpers/hooks/usePagination'
 
 interface SalesByDayTableProps {
 	tableData: SalesByDayTableData[]
@@ -47,6 +48,8 @@ const SalesByDayTableSection = ({ tableData }: SalesByDayTableProps) => {
 		(currentPage - 1) * itemsPerPage,
 		currentPage * itemsPerPage
 	)
+
+	const paginationRange = usePagination(totalPages, currentPage)
 
 	const handleSort = (column: keyof (typeof tableData)[0]) => {
 		setSortState(prev => ({
@@ -182,7 +185,7 @@ const SalesByDayTableSection = ({ tableData }: SalesByDayTableProps) => {
 				</p>
 
 				{/* Пагинация */}
-				<div className='flex gap-2'>
+				<div className='flex justify-end gap-2'>
 					<button
 						onClick={() => setCurrentPage(1)}
 						disabled={currentPage === 1}
@@ -197,19 +200,25 @@ const SalesByDayTableSection = ({ tableData }: SalesByDayTableProps) => {
 					>
 						Предыдущая
 					</button>
-					{[...Array(totalPages)].map((_, i) => (
-						<button
-							key={i}
-							onClick={() => setCurrentPage(i + 1)}
-							className={`px-4 py-1 rounded-full text-[12px] ${
-								currentPage === i + 1
-									? 'bg-blue-500 text-white'
-									: 'bg-gray-200 hover:bg-gray-300'
-							}`}
-						>
-							{i + 1}
-						</button>
-					))}
+					{paginationRange.map((page, index) =>
+						typeof page === 'number' ? (
+							<button
+								key={index}
+								onClick={() => setCurrentPage(page)}
+								className={`px-4 py-1 rounded-full text-[12px] ${
+									currentPage === page
+										? 'bg-blue-500 text-white'
+										: 'bg-gray-200 hover:bg-gray-300'
+								}`}
+							>
+								{page}
+							</button>
+						) : (
+							<span key={index} className='px-4 py-1 text-[12px]'>
+								...
+							</span>
+						)
+					)}
 					<button
 						onClick={() => setCurrentPage(currentPage + 1)}
 						disabled={currentPage === totalPages}

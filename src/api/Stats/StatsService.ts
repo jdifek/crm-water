@@ -25,18 +25,21 @@ export default class StatsService {
 
 	static async currentDaily(
 		dateSt: string,
-		dateFn: string
+		dateFn?: string,
+		deviceId?: number,
+		limit?: number
 	): Promise<CurrentDailyResponse> {
 		console.log('Fetching daily stats with params:', {
 			date_st: dateSt,
 			date_fn: dateFn,
+			deviceId: deviceId,
 		})
 		return (
 			await $api.get<CurrentDailyResponse>('stats/daily/', {
 				params: {
 					date_st: dateSt,
 					date_fn: dateFn,
-					limit: 31,
+					limit: limit || 31,
 				},
 			})
 		).data
@@ -45,7 +48,8 @@ export default class StatsService {
 	static async currentHourly(
 		dateSt: string,
 		dateFn?: string,
-		deviceId?: number
+		deviceId?: number,
+		limit?: number
 	): Promise<CurrentHourlyResponse> {
 		return (
 			await $api.get<CurrentHourlyResponse>('stats/hourly/', {
@@ -53,7 +57,7 @@ export default class StatsService {
 					date_st: dateSt,
 					date_fn: dateFn,
 					device_id: deviceId,
-					limit: 100,
+					limit: limit || 100,
 				},
 			})
 		).data
@@ -61,7 +65,8 @@ export default class StatsService {
 	static async currentByVolume(
 		dateSt: string,
 		dateFn?: string,
-		deviceId?: number
+		deviceId?: number,
+		limit?: number
 	): Promise<CurrentByVolumeResponse> {
 		return (
 			await $api.get<CurrentByVolumeResponse>('stats/by-volume/', {
@@ -69,7 +74,7 @@ export default class StatsService {
 					date_st: dateSt,
 					date_fn: dateFn,
 					device_id: deviceId,
-					limit: 100,
+					limit: limit || 9999,
 				},
 			})
 		).data
@@ -77,11 +82,12 @@ export default class StatsService {
 
 	static async currentByDevice(
 		dateSt: string,
-		dateFn?: string
+		dateFn?: string,
+		limit?: number
 	): Promise<CurrentByDeviceResponse> {
 		return (
 			await $api.get<CurrentByDeviceResponse>('stats/by-device/', {
-				params: { date_st: dateSt, date_fn: dateFn, limit: 100 },
+				params: { date_st: dateSt, date_fn: dateFn, limit: limit || 9999 },
 			})
 		).data
 	}

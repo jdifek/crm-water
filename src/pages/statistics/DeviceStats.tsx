@@ -15,6 +15,8 @@ import {
 import StatsService from '../../api/Stats/StatsService'
 import { CurrentByDeviceStats } from '../../api/Stats/StatsTypes'
 import DeviceStatsTableSection from '../../components/statistics/DeviceStatsTableSection'
+import { formatDateToServer } from '../../helpers/function/formatDateToServer'
+import { getDaysDifference } from '../../helpers/function/getDaysDifference'
 
 const TABS = [
 	{ key: 'sessions', label: 'Сеансы' },
@@ -33,14 +35,6 @@ const keyToLabel = {
 	liters: 'Литры',
 	income: 'Доход',
 } as const
-
-const formatDateToServer = (date: Date | null): string => {
-	if (!date) return ''
-	const year = date.getFullYear()
-	const month = String(date.getMonth() + 1).padStart(2, '0')
-	const day = String(date.getDate()).padStart(2, '0')
-	return `${year}-${month}-${day}`
-}
 
 const DeviceStats = () => {
 	const [selectedTab, setSelectedTab] = useState<'Сеансы' | 'Литры' | 'Доход'>(
@@ -64,11 +58,13 @@ const DeviceStats = () => {
 			try {
 				const dateSt = formatDateToServer(startDate)
 				const dateFn = formatDateToServer(endDate)
+				const limit = getDaysDifference(startDate, endDate)
 				if (dateSt) {
 					console.log('Request params:', { date_st: dateSt, date_fn: dateFn })
 					const response = await StatsService.currentByDevice(
 						dateSt,
-						dateFn || undefined
+						dateFn || undefined,
+						limit
 					)
 					setDeviceStats(response.data.results)
 					console.log('Device stats fetched:', response.data.results)
