@@ -12,7 +12,7 @@ interface CollectionTableSectionProps {
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 
 const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
-	const [itemsPerPage, setItemsPerPage] = useState(3)
+	const [itemsPerPage, setItemsPerPage] = useState(10)
 	const [currentPage, setCurrentPage] = useState(1)
 	const [searchQuery, setSearchQuery] = useState('')
 	const [sortState, setSortState] = useState<{

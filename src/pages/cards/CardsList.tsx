@@ -133,7 +133,7 @@ const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 const TableComponent = () => {
 	const [searchQuery, setSearchQuery] = useState('')
 	const [currentPage, setCurrentPage] = useState(1)
-	const [itemsPerPage, setItemsPerPage] = useState(3)
+	const [itemsPerPage, setItemsPerPage] = useState(10)
 	const [showRegistered, setShowRegistered] = useState(true)
 	const [sortState, setSortState] = useState<{
 		column: string | null

@@ -128,17 +128,65 @@ export interface IPosDeviceUpdateParams {
 }
 
 interface IProduct {
-  id: number;
-  name: string;
+	id: number
+	name: string
 }
 
 export interface IGetProductsNamesResponse {
-  data: {
-    count: number;
-    next: string | null;
-    previous: string | null;
-    results: IProduct[];
-  };
-  errors: any[];
-  status: string;
+	data: {
+		count: number
+		next: string | null
+		previous: string | null
+		results: IProduct[]
+	}
+	errors: any[]
+	status: string
+}
+
+// Нові типи для інкасації (/api/pos/cash-collections/)
+
+// Інтерфейс для об'єкта "хто провів інкасацію"
+export interface IWhoCollected {
+	id: number
+	full_name: string
+}
+
+// Інтерфейс для об'єкта "пристрій"
+export interface ICashCollectionDevice {
+	id: number
+	name: string
+}
+
+// Інтерфейс для об'єкта інкасації
+export interface ICashCollection {
+	id: number
+	collected_at: string
+	who_collected: IWhoCollected
+	device: ICashCollectionDevice
+	type: 'bills' | 'coins'
+	total_quantity: number
+	total_amount: string
+}
+
+// Інтерфейс для відповіді API
+// PosDevicesTypes.ts
+export interface ICashCollectionsResponse {
+	data: {
+		count: number
+		next: string | null
+		previous: string | null
+		results: ICashCollection[]
+	}
+	errors: any[]
+	status: string
+}
+// Інтерфейс для параметрів запиту
+export interface ICashCollectionsParams {
+	date_fn?: string
+	date_st?: string
+	device_id?: number
+	limit?: number
+	o?: string[] // Масив для сортування, наприклад, ["-collected_at"]
+	offset?: number
+	type?: 'bills' | 'coins'
 }

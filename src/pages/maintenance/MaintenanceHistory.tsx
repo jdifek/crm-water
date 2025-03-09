@@ -25,9 +25,6 @@ const MaintenanceHistory = () => {
           <h3 className="text-lg leading-6 font-medium text-gray-900">
             История обслуживания
           </h3>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            Добавить запись
-          </button>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
