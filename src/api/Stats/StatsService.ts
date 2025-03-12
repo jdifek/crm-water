@@ -27,19 +27,17 @@ export default class StatsService {
 		dateSt: string,
 		dateFn?: string,
 		deviceId?: number,
-		limit?: number
+		limit?: number,
+		offset?: number
 	): Promise<CurrentDailyResponse> {
-		console.log('Fetching daily stats with params:', {
-			date_st: dateSt,
-			date_fn: dateFn,
-			deviceId: deviceId,
-		})
 		return (
 			await $api.get<CurrentDailyResponse>('stats/daily/', {
 				params: {
 					date_st: dateSt,
 					date_fn: dateFn,
+					device_id: deviceId,
 					limit: limit || 31,
+					offset: offset || 0,
 				},
 			})
 		).data

@@ -92,3 +92,22 @@ export type CardData = {
 	address: string
 	registered: boolean
 }
+
+// Maintenance history
+export type MaintenanceRecord = {
+	id: number
+	assigned_to: {
+		id: number
+		full_name: string
+	}
+	device: {
+		id: number
+		name: string
+	}
+	created_at: string
+	deadline: string
+	planned_for: string
+	completed_at: string
+	type: string
+	status: 'scheduled' | 'completed'
+}

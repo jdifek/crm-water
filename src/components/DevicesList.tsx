@@ -281,6 +281,7 @@ const StatusIcon = ({ status }: { status: 'true' | 'false' }) => {
 
 const DevicesList = () => {
 	const [searchQuery, setSearchQuery] = useState('')
+	const [isActiveFilter, setIsActiveFilter] = useState<boolean>(true)
 	const { devices, error, loading, fetchDevices, setSelectedDeviceId } =
 		useDevice()
 
@@ -289,19 +290,23 @@ const DevicesList = () => {
 	)
 
 	const calculateTotal = (key: keyof IPosDevice) => {
-		return filteredDevices.reduce((sum, device) => {
-			const value = device[key]
-			const numericValue = !isNaN(Number(value)) ? Number(value) : 0
-			return sum + numericValue
-		}, 0)
+		return filteredDevices
+			.reduce((sum, device) => {
+				const value = device[key]
+				const numericValue = !isNaN(Number(value)) ? Number(value) : 0
+				return sum + numericValue
+			}, 0)
+			.toFixed(2)
 	}
 
 	const handleRefreshStats = () => {
 		fetchDevices()
 	}
 
-	const handleShowDeactivated = () => {
-		fetchDevices(false)
+	const handleToggleActive = () => {
+		const newFilter = !isActiveFilter
+		setIsActiveFilter(newFilter)
+		fetchDevices(newFilter)
 	}
 
 	const handleDeviceClick = (id: number) => {
@@ -320,7 +325,7 @@ const DevicesList = () => {
 						Обновить статистику
 					</button>
 					<button
-						onClick={handleShowDeactivated}
+						onClick={handleToggleActive}
 						className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm lg:text-base'
 					>
 						Деактивированные аппараты

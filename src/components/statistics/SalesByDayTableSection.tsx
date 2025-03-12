@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import 'react-datepicker/dist/react-datepicker.css'
 import { FiChevronDown, FiChevronUp, FiDownload } from 'react-icons/fi'
 import * as XLSX from 'xlsx'
 import { SalesByDayTableData } from '../../types'
@@ -8,13 +7,27 @@ import usePagination from '../../helpers/hooks/usePagination'
 
 interface SalesByDayTableProps {
 	tableData: SalesByDayTableData[]
+	totalCount: number
+	currentPage: number
+	itemsPerPage: number
+	setCurrentPage: (page: number) => void
+	setItemsPerPage: (items: number) => void
+	loading: boolean
+	error: string | null
 }
 
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 
-const SalesByDayTableSection = ({ tableData }: SalesByDayTableProps) => {
-	const [itemsPerPage, setItemsPerPage] = useState(10)
-	const [currentPage, setCurrentPage] = useState(1)
+const SalesByDayTableSection = ({
+	tableData,
+	totalCount,
+	currentPage,
+	itemsPerPage,
+	setCurrentPage,
+	setItemsPerPage,
+	loading,
+	error,
+}: SalesByDayTableProps) => {
 	const [searchQuery, setSearchQuery] = useState('')
 	const [sortState, setSortState] = useState<{
 		column: string | null
@@ -31,7 +44,6 @@ const SalesByDayTableSection = ({ tableData }: SalesByDayTableProps) => {
 		? [...filteredData].sort((a, b) => {
 				const valueA = a[sortState.column as keyof typeof a]
 				const valueB = b[sortState.column as keyof typeof a]
-
 				if (typeof valueA === 'number' && typeof valueB === 'number') {
 					return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
 				} else if (typeof valueA === 'string' && typeof valueB === 'string') {
@@ -43,15 +55,10 @@ const SalesByDayTableSection = ({ tableData }: SalesByDayTableProps) => {
 		  })
 		: filteredData
 
-	const totalPages = Math.ceil(sortedData.length / itemsPerPage)
-	const paginatedData = sortedData.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage
-	)
-
+	const totalPages = Math.ceil(totalCount / itemsPerPage)
 	const paginationRange = usePagination(totalPages, currentPage)
 
-	const handleSort = (column: keyof (typeof tableData)[0]) => {
+	const handleSort = (column: keyof SalesByDayTableData) => {
 		setSortState(prev => ({
 			column,
 			order: prev.column === column && prev.order === 'asc' ? 'desc' : 'asc',
@@ -87,7 +94,10 @@ const SalesByDayTableSection = ({ tableData }: SalesByDayTableProps) => {
 						<span>Показать </span>
 						<select
 							value={itemsPerPage}
-							onChange={e => setItemsPerPage(Number(e.target.value))}
+							onChange={e => {
+								setItemsPerPage(Number(e.target.value))
+								setCurrentPage(1)
+							}}
 							className='appearance-none border-b border-gray-400 pb-1 text-gray-700 focus:outline-none focus:border-blue-500'
 						>
 							{ITEMS_PER_PAGE_OPTIONS.map(option => (
@@ -110,78 +120,88 @@ const SalesByDayTableSection = ({ tableData }: SalesByDayTableProps) => {
 			</div>
 
 			{/* Таблица */}
-			<div className='overflow-x-auto'>
-				<table className='w-full border-collapse text-left'>
-					<thead>
-						<tr>
-							{['date', 'sessions', 'liters', 'income'].map(key => (
-								<th
-									key={key}
-									className='cursor-pointer'
-									onClick={() => handleSort(key as keyof (typeof tableData)[0])}
-								>
-									<div
-										className={`flex items-center gap-2 text-base font-medium ${
-											key === 'sessions'
-												? 'pl-2 bg-violet-300'
-												: key === 'liters' || key === 'income'
-												? 'pl-2 bg-blue-300'
-												: ''
-										}`}
+			{loading ? (
+				<div className='flex justify-center items-center h-[200px]'>
+					<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600'></div>
+					<p className='ml-2'>Загрузка...</p>
+				</div>
+			) : error && sortedData.length === 0 ? (
+				<p className='text-center text-red-500 p-4'>{error}</p>
+			) : (
+				<div className='overflow-x-auto'>
+					<table className='w-full border-collapse text-left'>
+						<thead>
+							<tr>
+								{['date', 'sessions', 'liters', 'income'].map(key => (
+									<th
+										key={key}
+										className='cursor-pointer'
+										onClick={() => handleSort(key as keyof SalesByDayTableData)}
 									>
-										{key === 'date'
-											? 'День'
-											: key === 'sessions'
-											? 'Сеансы'
-											: key === 'liters'
-											? 'Питьевая вода (л)'
-											: key === 'income' && 'Питьевая вода (₴)'}
-										<div className='flex flex-col'>
-											<FiChevronUp
-												size={14}
-												className={
-													sortState.column === key && sortState.order === 'asc'
-														? 'text-blue-600'
-														: 'text-gray-600'
-												}
-											/>
-											<FiChevronDown
-												size={14}
-												className={
-													sortState.column === key && sortState.order === 'desc'
-														? 'text-blue-600'
-														: 'text-gray-600'
-												}
-											/>
+										<div
+											className={`flex items-center gap-2 text-base font-medium ${
+												key === 'sessions'
+													? 'pl-2 bg-violet-300'
+													: key === 'liters' || key === 'income'
+													? 'pl-2 bg-blue-300'
+													: ''
+											}`}
+										>
+											{key === 'date'
+												? 'День'
+												: key === 'sessions'
+												? 'Сеансы'
+												: key === 'liters'
+												? 'Питьевая вода (л)'
+												: key === 'income' && 'Питьевая вода (₴)'}
+											<div className='flex flex-col'>
+												<FiChevronUp
+													size={14}
+													className={
+														sortState.column === key &&
+														sortState.order === 'asc'
+															? 'text-blue-600'
+															: 'text-gray-600'
+													}
+												/>
+												<FiChevronDown
+													size={14}
+													className={
+														sortState.column === key &&
+														sortState.order === 'desc'
+															? 'text-blue-600'
+															: 'text-gray-600'
+													}
+												/>
+											</div>
 										</div>
-									</div>
-								</th>
-							))}
-						</tr>
-					</thead>
-					<tbody>
-						{paginatedData.slice(0, itemsPerPage).map((row, index) => (
-							<tr
-								key={index}
-								className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
-							>
-								<td className='p-3'>{row.date}</td>
-								<td className='p-3'>{row.sessions}</td>
-								<td className='p-3'>{row.liters}</td>
-								<td className='p-3'>{row.income}</td>
+									</th>
+								))}
 							</tr>
-						))}
-					</tbody>
-				</table>
-			</div>
+						</thead>
+						<tbody>
+							{sortedData.map((row, index) => (
+								<tr
+									key={index}
+									className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
+								>
+									<td className='p-3'>{row.date}</td>
+									<td className='p-3'>{row.sessions}</td>
+									<td className='p-3'>{row.liters}</td>
+									<td className='p-3'>{row.income}</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
+			)}
 
 			{/* Нижняя панель с записями и пагинацией */}
 			<div className='flex justify-between items-center mt-4'>
 				<p className='text-gray-600'>
-					Записи с{' '}
-					{Math.min((currentPage - 1) * itemsPerPage + 1, sortedData.length)} до{' '}
-					{Math.min(currentPage * itemsPerPage, sortedData.length)} из{' '}
-					{sortedData.length} записей
+					Записи с {Math.min((currentPage - 1) * itemsPerPage + 1, totalCount)}{' '}
+					до {Math.min(currentPage * itemsPerPage, totalCount)} из {totalCount}{' '}
+					записей
 				</p>
 
 				{/* Пагинация */}

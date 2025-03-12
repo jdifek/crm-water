@@ -1,88 +1,168 @@
+import { useEffect, useState } from 'react'
+import { MaintenanceRecord } from '../../types'
+import { MaintenanceService } from '../../api/PosDevices/PosDevicesService'
+
 const MaintenanceHistory = () => {
-  const history = [
-    {
-      id: 1,
-      date: "2024-01-15",
-      device: "Аппарат №111902",
-      type: "Замена фильтров",
-      technician: "Андрей Техник",
-      status: "completed",
-    },
-    {
-      id: 2,
-      date: "2024-01-20",
-      device: "Аппарат №111737",
-      type: "Промывка системы",
-      technician: "Иван Мастер",
-      status: "pending",
-    },
-  ];
+	const [maintenanceHistory, setMaintenanceHistory] = useState<
+		MaintenanceRecord[]
+	>([])
+	const [statusFilter, setStatusFilter] = useState<'scheduled' | 'completed'>(
+		'scheduled'
+	)
+	const [loading, setLoading] = useState(false)
+	const [error, setError] = useState<string | null>(null)
 
-  return (
-    <div className="p-4 lg:p-8">
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            История обслуживания
-          </h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Дата
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Аппарат
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Тип обслуживания
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Техник
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Статус
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {history.map((record) => (
-                <tr key={record.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {record.date}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {record.device}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {record.type}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {record.technician}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        record.status === "completed"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {record.status === "completed"
-                        ? "Выполнено"
-                        : "В ожидании"}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-};
+	useEffect(() => {
+		const fetchMaintenanceHistory = async () => {
+			setLoading(true)
+			setError(null)
+			try {
+				const params = { status: statusFilter, limit: 9999 }
+				const res = await MaintenanceService.getMaintenanceHistory(params)
+				setMaintenanceHistory(res.data.results)
+				console.log(res.data.results)
+			} catch (error) {
+				console.error('Ошибка при загрузке истории обслуживания:', error)
+				setError('Не удалось загрузить данные')
+				setMaintenanceHistory([])
+			} finally {
+				setLoading(false)
+			}
+		}
 
-export default MaintenanceHistory;
+		fetchMaintenanceHistory()
+	}, [statusFilter])
+
+	return (
+		<div className='p-4 lg:p-8'>
+			<div className='bg-white shadow-lg rounded-lg w-full p-6 mx-auto sm:max-w-[640px] md:max-w-[796px] lg:max-w-[748px] xl:max-w-[960px] 2xl:max-w-[1440px]'>
+				<div className='mb-5 flex justify-between items-center'>
+					<h3 className='text-lg leading-6 font-medium text-gray-900'>
+						История обслуживания
+					</h3>
+					<div className='flex space-x-4'>
+						<button
+							onClick={() =>
+								setStatusFilter(prev =>
+									prev === 'scheduled' ? 'completed' : 'scheduled'
+								)
+							}
+							className='px-4 py-2 rounded bg-blue-500 text-white'
+						>
+							Статус
+						</button>
+					</div>
+				</div>
+				<div className='overflow-x-auto'>
+					{loading ? (
+						<div className='flex justify-center items-center h-[400px]'>
+							<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600'></div>
+							<p className='ml-2'>Загрузка...</p>
+						</div>
+					) : error ? (
+						<p className='text-center text-red-500'>{error}</p>
+					) : (
+						<table className='w-full border-collapse divide-y divide-gray-200'>
+							<thead className='bg-gray-50'>
+								<tr>
+									<th className='px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+										Создано
+									</th>
+									<th className='px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+										Дедлайн
+									</th>
+									<th className='px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+										Запланировано на
+									</th>
+									{(statusFilter === 'completed' && (
+										<th className='px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+											Выполнено
+										</th>
+									)) ||
+										(statusFilter === 'scheduled' && (
+											<th className='px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+												Остаток дней
+											</th>
+										))}
+
+									<th className='px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+										Аппарат
+									</th>
+									<th className='px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+										Тип обслуживания
+									</th>
+									<th className='px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+										Техник
+									</th>
+									<th className='px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+										Статус
+									</th>
+								</tr>
+							</thead>
+							<tbody className='bg-white divide-y divide-gray-200'>
+								{maintenanceHistory.map(record => {
+									const deadlineDate = new Date(record.deadline)
+									const today = new Date()
+									const daysLeft = Math.ceil(
+										(deadlineDate.getTime() - today.getTime()) /
+											(1000 * 3600 * 24)
+									)
+
+									return (
+										<tr key={record.id}>
+											<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+												{new Date(record.created_at).toLocaleString()}
+											</td>
+											<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+												{new Date(record.deadline).toLocaleString()}
+											</td>
+											<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+												{new Date(record.planned_for).toLocaleString()}
+											</td>
+											{(statusFilter === 'completed' && (
+												<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+													{record.completed_at
+														? new Date(record.completed_at).toLocaleString()
+														: '-'}
+												</td>
+											)) ||
+												(statusFilter === 'scheduled' && (
+													<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+														{daysLeft > 0 ? `${daysLeft} дн.` : 'Просрочено'}
+													</td>
+												))}
+											<td className='px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
+												{record.device.name}
+											</td>
+											<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+												{record.type}
+											</td>
+											<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+												{record.assigned_to.full_name}
+											</td>
+											<td className='px-3 py-4 whitespace-nowrap'>
+												<span
+													className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+														record.status === 'completed'
+															? 'bg-green-100 text-green-800'
+															: 'bg-yellow-100 text-yellow-800'
+													}`}
+												>
+													{record.status === 'completed'
+														? 'Выполнено'
+														: 'В ожидании'}
+												</span>
+											</td>
+										</tr>
+									)
+								})}
+							</tbody>
+						</table>
+					)}
+				</div>
+			</div>
+		</div>
+	)
+}
+
+export default MaintenanceHistory

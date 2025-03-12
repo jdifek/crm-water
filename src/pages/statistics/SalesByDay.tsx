@@ -3,7 +3,6 @@ import { motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-
 import {
 	Area,
 	AreaChart,
@@ -18,41 +17,6 @@ import { useDevice } from '../../helpers/context/DeviceContext'
 import { CurrentDailyStats } from '../../api/Stats/StatsTypes'
 import StatsService from '../../api/Stats/StatsService'
 import { formatDateToServer } from '../../helpers/function/formatDateToServer'
-import { getDaysDifference } from '../../helpers/function/getDaysDifference'
-
-// const DATA: SalesByDayTableData[] = [
-// 	{ date: '01.01', sessions: 20, liters: 400, income: 5000 },
-// 	{ date: '02.01', sessions: 25, liters: 600, income: 7000 },
-// 	{ date: '03.01', sessions: 18, liters: 500, income: 6200 },
-// 	{ date: '04.01', sessions: 30, liters: 900, income: 9000 },
-// 	{ date: '05.01', sessions: 22, liters: 1100, income: 8500 },
-// 	{ date: '06.01', sessions: 28, liters: 750, income: 7800 },
-// 	{ date: '07.01', sessions: 15, liters: 320, income: 4300 },
-// 	{ date: '08.01', sessions: 35, liters: 1200, income: 10500 },
-// 	{ date: '09.01', sessions: 12, liters: 380, income: 4900 },
-// 	{ date: '10.01', sessions: 27, liters: 880, income: 9400 },
-// 	{ date: '11.01', sessions: 21, liters: 670, income: 7300 },
-// 	{ date: '12.01', sessions: 30, liters: 900, income: 11500 },
-// 	{ date: '13.01', sessions: 14, liters: 400, income: 5200 },
-// 	{ date: '14.01', sessions: 25, liters: 980, income: 9200 },
-// 	{ date: '15.01', sessions: 33, liters: 1400, income: 13500 },
-// 	{ date: '16.01', sessions: 19, liters: 550, income: 6900 },
-// 	{ date: '17.01', sessions: 29, liters: 1100, income: 10700 },
-// 	{ date: '18.01', sessions: 31, liters: 1300, income: 12400 },
-// 	{ date: '19.01', sessions: 22, liters: 670, income: 7500 },
-// 	{ date: '20.01', sessions: 26, liters: 820, income: 8900 },
-// 	{ date: '21.01', sessions: 18, liters: 490, income: 6000 },
-// 	{ date: '22.01', sessions: 35, liters: 1400, income: 14000 },
-// 	{ date: '23.01', sessions: 17, liters: 430, income: 5800 },
-// 	{ date: '24.01', sessions: 28, liters: 900, income: 10000 },
-// 	{ date: '25.01', sessions: 15, liters: 380, income: 5100 },
-// 	{ date: '26.01', sessions: 30, liters: 1250, income: 12300 },
-// 	{ date: '27.01', sessions: 21, liters: 710, income: 7700 },
-// 	{ date: '28.01', sessions: 37, liters: 1500, income: 14500 },
-// 	{ date: '29.01', sessions: 23, liters: 620, income: 7200 },
-// 	{ date: '30.01', sessions: 19, liters: 510, income: 6500 },
-// 	{ date: '31.01', sessions: 40, liters: 1450, income: 15000 },
-// ]
 
 const TABS = [
 	{ key: 'sessions', label: 'Сеансы' },
@@ -87,6 +51,9 @@ const SalesByDay = () => {
 	const [salesByDayStats, setSalesByDayStats] = useState<CurrentDailyStats[]>(
 		[]
 	)
+	const [totalCount, setTotalCount] = useState(0)
+	const [currentPage, setCurrentPage] = useState(1)
+	const [itemsPerPage, setItemsPerPage] = useState(10)
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const { devices } = useDevice()
@@ -98,28 +65,32 @@ const SalesByDay = () => {
 			try {
 				const dateSt = formatDateToServer(startDate)
 				const dateFn = formatDateToServer(endDate)
-				const limit = getDaysDifference(startDate, endDate)
+				const offset = (currentPage - 1) * itemsPerPage
+
 				if (dateSt) {
 					console.log('Request params:', {
 						date_st: dateSt,
 						date_fn: dateFn,
 						device_id: selectedDeviceId,
-						limit: limit,
+						limit: itemsPerPage,
+						offset,
 					})
 					const response = await StatsService.currentDaily(
 						dateSt,
 						dateFn || undefined,
 						selectedDeviceId || undefined,
-						limit
+						itemsPerPage,
+						offset
 					)
 					setSalesByDayStats(response.data.results)
-					console.log('Hourly stats fetched:', response.data.results)
+					setTotalCount(response.data.count)
+					console.log('Daily stats fetched:', response.data.results)
 					if (response.data.results.length === 0) {
 						setError('Нет данных за указанный период')
 					}
 				}
 			} catch (err) {
-				console.error('Error fetching hourly stats:', err)
+				console.error('Error fetching daily stats:', err)
 				setError('Ошибка при загрузке данных')
 				setSalesByDayStats([])
 			} finally {
@@ -128,7 +99,7 @@ const SalesByDay = () => {
 		}
 
 		fetchSalesByDayStats()
-	}, [startDate, endDate, selectedDeviceId])
+	}, [startDate, endDate, selectedDeviceId, currentPage, itemsPerPage])
 
 	const filteredData = useMemo(() => {
 		return salesByDayStats.map(item => ({
@@ -243,7 +214,16 @@ const SalesByDay = () => {
 				)}
 			</motion.div>
 
-			<SalesByDayTableSection tableData={filteredData} />
+			<SalesByDayTableSection
+				tableData={filteredData}
+				totalCount={totalCount}
+				currentPage={currentPage}
+				itemsPerPage={itemsPerPage}
+				setCurrentPage={setCurrentPage}
+				setItemsPerPage={setItemsPerPage}
+				loading={loading}
+				error={error}
+			/>
 		</div>
 	)
 }

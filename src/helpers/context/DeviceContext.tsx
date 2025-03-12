@@ -41,10 +41,8 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 			const res = await PosDevicesService.getDevices(
 				isActive !== undefined ? { is_active: isActive } : {}
 			)
-			console.log('Devices fetched:', res.data.results)
 			setDevices(res.data.results)
 		} catch (error) {
-			console.log('Error fetching devices:', error)
 			setError('Ошибка при загрузке устройств')
 		} finally {
 			setLoading(false)
@@ -54,7 +52,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 	// Загружаем устройства при изменении состояния аутентификации
 	useEffect(() => {
 		if (isAuthenticated) {
-			fetchDevices()
+			fetchDevices(true)
 		} else {
 			setDevices([])
 			setSelectedDeviceId(null)

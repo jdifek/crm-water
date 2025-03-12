@@ -35,31 +35,27 @@ const StatisticsFilter = ({
 		setLoading(true)
 		try {
 			const response = await ProductsService.getProducts()
-			setProducts(response.data?.results || []) // Правильный путь к данным
+			setProducts(response.data?.results || [])
 		} catch (error) {
 			console.error('Ошибка при загрузке продуктов', error)
-			setProducts([]) // Гарантия, что не будет undefined
+			setProducts([])
 		} finally {
 			setLoading(false)
 		}
 	}
-
-	console.log(products)
 
 	const fetchDeviceNames = async () => {
 		setLoading(true)
 		try {
 			const response = await PosDevicesService.getDevicesNames()
-			setDeviceNames(response.data?.results || []) // Правильный путь к данным
+			setDeviceNames(response.data?.results || [])
 		} catch (error) {
 			console.error('Ошибка при загрузке getDevicesNames', error)
-			setProducts([]) // Гарантия, что не будет undefined
+			setDeviceNames([])
 		} finally {
 			setLoading(false)
 		}
 	}
-
-	console.log(deviceNames)
 
 	useEffect(() => {
 		fetchProducts()
@@ -69,7 +65,7 @@ const StatisticsFilter = ({
 	const handleStoreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const value = e.target.value
 		setLocalStore(value)
-		setSelectedStore(value)
+		setSelectedStore(value) // Теперь value может быть "Все торговые точки" или числом в виде строки
 	}
 
 	const handlePaymentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -112,7 +108,7 @@ const StatisticsFilter = ({
 						<option disabled>Загрузка...</option>
 					) : (
 						deviceNames.map(device => (
-							<option key={device.id} value={device.name}>
+							<option key={device.id} value={device.id.toString()}>
 								{device.name}
 							</option>
 						))

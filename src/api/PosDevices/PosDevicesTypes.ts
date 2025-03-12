@@ -190,3 +190,33 @@ export interface ICashCollectionsParams {
 	offset?: number
 	type?: 'bills' | 'coins'
 }
+
+// Pos Maintenance
+export interface MaintenanceRecord {
+	id: number
+	assigned_to: {
+		id: number
+		full_name: string
+	}
+	device: {
+		id: number
+		name: string
+	}
+	created_at: string
+	deadline: string
+	planned_for: string
+	completed_at: string
+	type: string
+	status: 'scheduled' | 'completed'
+}
+
+export interface MaintenanceResponse {
+	data: {
+		count: number
+		next: string | null
+		previous: string | null
+		results: MaintenanceRecord[]
+	}
+	errors: any[]
+	status: string
+}
