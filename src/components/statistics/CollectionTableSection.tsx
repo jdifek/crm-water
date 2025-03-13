@@ -4,19 +4,34 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { FiChevronDown, FiChevronUp, FiDownload } from 'react-icons/fi'
 import * as XLSX from 'xlsx'
 import { CollectionTableData } from '../../types'
+import usePagination from '../../helpers/hooks/usePagination'
 
 interface CollectionTableSectionProps {
 	tableData: CollectionTableData[]
+	totalCount: number
+	currentPage: number
+	itemsPerPage: number
+	setCurrentPage: (page: number) => void
+	setItemsPerPage: (items: number) => void
+	loading: boolean
+	error: string | null
 }
 
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 
-const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
-	const [itemsPerPage, setItemsPerPage] = useState(10)
-	const [currentPage, setCurrentPage] = useState(1)
+const CollectionTableSection = ({
+	tableData,
+	totalCount,
+	currentPage,
+	itemsPerPage,
+	setCurrentPage,
+	setItemsPerPage,
+	loading,
+	error,
+}: CollectionTableSectionProps) => {
 	const [searchQuery, setSearchQuery] = useState('')
 	const [sortState, setSortState] = useState<{
-		column: keyof (typeof tableData)[0]
+		column: keyof CollectionTableData
 		order: 'asc' | 'desc' | null
 	}>({
 		column: 'date',
@@ -36,28 +51,26 @@ const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
 		)
 	)
 
-	const sortedData = [...filteredData].sort((a, b) => {
-		if (!sortState.order) return 0
-		const valueA = a[sortState.column]
-		const valueB = b[sortState.column]
+	const sortedData = sortState.order
+		? [...filteredData].sort((a, b) => {
+				const valueA = a[sortState.column as keyof typeof a]
+				const valueB = b[sortState.column as keyof typeof b]
 
-		if (typeof valueA === 'number' && typeof valueB === 'number') {
-			return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
-		} else if (typeof valueA === 'string' && typeof valueB === 'string') {
-			return sortState.order === 'asc'
-				? valueA.localeCompare(valueB)
-				: valueB.localeCompare(valueA)
-		}
-		return 0
-	})
+				if (typeof valueA === 'number' && typeof valueB === 'number') {
+					return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
+				} else if (typeof valueA === 'string' && typeof valueB === 'string') {
+					return sortState.order === 'asc'
+						? valueA.localeCompare(valueB)
+						: valueB.localeCompare(valueA)
+				}
+				return 0
+		  })
+		: filteredData
 
-	const totalPages = Math.ceil(sortedData.length / itemsPerPage)
-	const paginatedData = sortedData.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage
-	)
+	const totalPages = Math.ceil(totalCount / itemsPerPage)
+	const paginationRange = usePagination(totalPages, currentPage)
 
-	const handleSort = (column: keyof (typeof tableData)[0]) => {
+	const handleSort = (column: keyof CollectionTableData) => {
 		setSortState(prev => ({
 			column,
 			order: prev.column === column && prev.order === 'asc' ? 'desc' : 'asc',
@@ -103,7 +116,10 @@ const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
 						<span>Показать </span>
 						<select
 							value={itemsPerPage}
-							onChange={e => setItemsPerPage(Number(e.target.value))}
+							onChange={e => {
+								setItemsPerPage(Number(e.target.value))
+								setCurrentPage(1)
+							}}
 							className='appearance-none border-b border-gray-400 pb-1 text-gray-700 focus:outline-none focus:border-blue-500'
 						>
 							{ITEMS_PER_PAGE_OPTIONS.map(option => (
@@ -129,103 +145,111 @@ const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
 			</div>
 
 			{/* Таблица */}
-			<div className='overflow-x-auto'>
-				<table className='w-full border-collapse text-left'>
-					<thead>
-						<tr className='text-gray-700 font-medium text-lg'>
-							{[
-								'№',
-								'Дата',
-								'Аппарат',
-								'Тип',
-								'Инкассатор',
-								'Количество',
-								'Сумма',
-							].map((header, index) => {
-								const key = [
-									'id',
-									'date',
-									'device',
-									'type',
-									'collector',
-									'quantity',
-									'amount',
-								][index] as keyof (typeof tableData)[0]
-								return (
-									<th
-										key={header}
-										className='p-3 cursor-pointer'
-										onClick={() => handleSort(key)}
-									>
-										<div className='flex items-center'>
-											{header}
-											<div className='ml-2'>
-												<FiChevronUp
-													size={14}
-													className={
-														sortState.column === key &&
-														sortState.order === 'asc'
-															? 'text-blue-500'
-															: 'text-gray-400'
-													}
-												/>
-												<FiChevronDown
-													size={14}
-													className={
-														sortState.column === key &&
-														sortState.order === 'desc'
-															? 'text-blue-500'
-															: 'text-gray-400'
-													}
-												/>
+			{loading ? (
+				<div className='flex justify-center items-center h-[200px]'>
+					<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600'></div>
+					<p className='ml-2'>Загрузка...</p>
+				</div>
+			) : error && sortedData.length === 0 ? (
+				<p className='text-center text-red-500 p-4'>{error}</p>
+			) : (
+				<div className='overflow-x-auto'>
+					<table className='w-full border-collapse text-left'>
+						<thead>
+							<tr className='text-gray-700 font-medium text-lg'>
+								{[
+									'№',
+									'Дата',
+									'Аппарат',
+									'Тип',
+									'Инкассатор',
+									'Количество',
+									'Сумма',
+								].map((header, index) => {
+									const key = [
+										'id',
+										'date',
+										'device',
+										'type',
+										'collector',
+										'quantity',
+										'amount',
+									][index] as keyof (typeof tableData)[0]
+									return (
+										<th
+											key={header}
+											className='p-3 cursor-pointer'
+											onClick={() => handleSort(key)}
+										>
+											<div className='flex items-center'>
+												{header}
+												<div className='ml-2'>
+													<FiChevronUp
+														size={14}
+														className={
+															sortState.column === key &&
+															sortState.order === 'asc'
+																? 'text-blue-500'
+																: 'text-gray-400'
+														}
+													/>
+													<FiChevronDown
+														size={14}
+														className={
+															sortState.column === key &&
+															sortState.order === 'desc'
+																? 'text-blue-500'
+																: 'text-gray-400'
+														}
+													/>
+												</div>
 											</div>
-										</div>
-									</th>
-								)
-							})}
-						</tr>
-					</thead>
-					<tbody>
-						{paginatedData.length > 0 ? (
-							paginatedData.map(row => (
-								<motion.tr
-									key={row.id}
-									className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
-									initial={{ opacity: 0 }}
-									animate={{ opacity: 1 }}
-									transition={{ duration: 0.3 }}
-								>
-									<td className='p-3'>{row.id}</td>
-									<td className='p-3'>{row.date}</td>
-									<td className='p-3'>{row.device}</td>
-									<td className='p-3'>{row.type}</td>
-									<td className='p-3'>{row.collector}</td>
-									<td className='p-3'>{row.quantity}</td>
-									<td className='p-3'>{row.amount}</td>
-								</motion.tr>
-							))
-						) : (
-							<tr>
-								<td colSpan={4} className='p-3 text-center text-gray-500'>
-									Ничего не найдено
-								</td>
+										</th>
+									)
+								})}
 							</tr>
-						)}
-					</tbody>
-				</table>
-			</div>
+						</thead>
+						<tbody>
+							{sortedData.length > 0 ? (
+								sortedData.map(row => (
+									<motion.tr
+										key={row.id}
+										className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
+										initial={{ opacity: 0 }}
+										animate={{ opacity: 1 }}
+										transition={{ duration: 0.3 }}
+									>
+										<td className='p-3'>{row.id}</td>
+										<td className='p-3'>{row.date}</td>
+										<td className='p-3'>{row.device}</td>
+										<td className='p-3'>{row.type}</td>
+										<td className='p-3'>{row.collector}</td>
+										<td className='p-3'>{row.quantity}</td>
+										<td className='p-3'>{row.amount}</td>
+									</motion.tr>
+								))
+							) : (
+								<tr>
+									<td colSpan={4} className='p-3 text-center text-gray-500'>
+										Ничего не найдено
+									</td>
+								</tr>
+							)}
+						</tbody>
+					</table>
+				</div>
+			)}
 
 			{/* Нижняя панель с записями и пагинацией */}
 			<div className='flex justify-between items-center mt-4'>
 				<p className='text-gray-600'>
-					Записи с{' '}
-					{Math.min((currentPage - 1) * itemsPerPage + 1, sortedData.length)} до{' '}
-					{Math.min(currentPage * itemsPerPage, sortedData.length)} из{' '}
-					{sortedData.length} записей
+					Записи с {Math.min((currentPage - 1) * itemsPerPage + 1, totalCount)}{' '}
+					до {Math.min(currentPage * itemsPerPage, totalCount)} из {totalCount}{' '}
+					записей
 				</p>
 
 				{/* Пагинация */}
-				<div className='flex gap-2'>
+				<div className='flex justify-end gap-2'>
 					<button
 						onClick={() => setCurrentPage(1)}
 						disabled={currentPage === 1}
@@ -240,19 +264,25 @@ const CollectionTableSection = ({ tableData }: CollectionTableSectionProps) => {
 					>
 						Предыдущая
 					</button>
-					{[...Array(totalPages)].map((_, i) => (
-						<button
-							key={i}
-							onClick={() => setCurrentPage(i + 1)}
-							className={`px-4 py-1 rounded-full text-[12px] ${
-								currentPage === i + 1
-									? 'bg-blue-500 text-white'
-									: 'bg-gray-200 hover:bg-gray-300'
-							}`}
-						>
-							{i + 1}
-						</button>
-					))}
+					{paginationRange.map((page, index) =>
+						typeof page === 'number' ? (
+							<button
+								key={index}
+								onClick={() => setCurrentPage(page)}
+								className={`px-4 py-1 rounded-full text-[12px] ${
+									currentPage === page
+										? 'bg-blue-500 text-white'
+										: 'bg-gray-200 hover:bg-gray-300'
+								}`}
+							>
+								{page}
+							</button>
+						) : (
+							<span key={index} className='px-4 py-1 text-[12px]'>
+								...
+							</span>
+						)
+					)}
 					<button
 						onClick={() => setCurrentPage(currentPage + 1)}
 						disabled={currentPage === totalPages}

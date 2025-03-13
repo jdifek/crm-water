@@ -1,46 +1,57 @@
-import { useMemo, useState, useEffect } from 'react'
+import { ru } from 'date-fns/locale'
+import { useEffect, useMemo, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import CollectionTableSection from '../../components/statistics/CollectionTableSection'
 import { CollectionTableData } from '../../types'
-import { ru } from 'date-fns/locale'
 import { CashCollectionsService } from '../../api/PosDevices/PosDevicesService'
-
-// Функція форматування дати для API
-const formatDateForApi = (date: Date | null): string => {
-	return date ? date.toISOString().split('T')[0] : ''
-}
+import { useDevice } from '../../helpers/context/DeviceContext'
+import { formatDateToServer } from '../../helpers/function/formatDateToServer'
 
 const Collection = () => {
-	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-		new Date('2025-02-01'), // Початок лютого 2025
-		new Date('2025-03-31'), // Кінець березня 2025
-	])
-	const [selectedDevice, setSelectedDevice] = useState('Усі апарати')
+	const [dateRange, setDateRange] = useState<[Date | null, Date | null]>(() => {
+		const endDate = new Date()
+		const startDate = new Date()
+		startDate.setDate(startDate.getDate() - 30)
+		return [startDate, endDate]
+	})
+	const [startDate, endDate] = dateRange
+	const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(null)
+	const { devices } = useDevice()
+
 	const [tableData, setTableData] = useState<CollectionTableData[]>([])
+	const [totalCount, setTotalCount] = useState(0)
+	const [currentPage, setCurrentPage] = useState(1)
+	const [itemsPerPage, setItemsPerPage] = useState(10)
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 
-	const [startDate, endDate] = dateRange
-
-	// Завантаження даних із API
 	useEffect(() => {
 		const fetchCollections = async () => {
 			setLoading(true)
 			setError(null)
 			try {
+				const dateSt = formatDateToServer(startDate)
+				const dateFn = formatDateToServer(endDate)
+				const offset = (currentPage - 1) * itemsPerPage
+
+				console.log('Request params:', {
+					date_st: dateSt,
+					date_fn: dateFn,
+					device_id: selectedDeviceId,
+					limit: itemsPerPage,
+					offset,
+				})
+
 				const response = await CashCollectionsService.getCashCollections({
-					date_st: formatDateForApi(startDate),
-					date_fn: formatDateForApi(endDate),
-					limit: 100,
-					device_id:
-						selectedDevice !== 'Усі апарати'
-							? Number(selectedDevice)
-							: undefined,
+					date_st: dateSt,
+					date_fn: dateFn || undefined,
+					device_id: selectedDeviceId || undefined,
+					limit: itemsPerPage,
+					offset,
 					type: undefined,
 				})
 
-				// Мапінг даних із API у формат CollectionTableData
 				const mappedData: CollectionTableData[] = response.results.map(
 					item => ({
 						id: item.id,
@@ -56,39 +67,35 @@ const Collection = () => {
 					})
 				)
 
-				console.log('Mapped Data:', mappedData)
 				setTableData(mappedData)
-				console.log('Updated tableData:', tableData)
+				setTotalCount(response.count)
+				console.log('Fetched collections:', mappedData)
+				if (response.results.length === 0) {
+					setError('Нет данных за указанный период')
+				}
 			} catch (err) {
-				setError('Помилка при завантаженні даних')
-				console.error(err)
+				setError('Ошибка при загрузке данных')
+				console.error('Error fetching collections:', err)
+				setTableData([])
 			} finally {
 				setLoading(false)
 			}
 		}
 
 		fetchCollections()
-	}, [startDate, endDate, selectedDevice])
+	}, [startDate, endDate, selectedDeviceId, currentPage, itemsPerPage])
 
 	const filteredData = useMemo(() => {
-		const start = startDate ? new Date(startDate) : null
-		const end = endDate ? new Date(endDate) : null
-		const filtered = tableData.filter(({ date }) => {
-			const [day, month] = date.split('.')
-			const itemDate = new Date(2025, Number(month) - 1, Number(day)) // Припускаємо 2025 рік
-			return (!start || itemDate >= start) && (!end || itemDate <= end)
-		})
-		console.log('Start:', start, 'End:', end, 'Filtered Data:', filtered)
-		return filtered
-	}, [tableData, startDate, endDate])
+		return tableData
+	}, [tableData])
 
 	return (
 		<div className='p-6 space-y-6'>
 			<div className='flex justify-between items-center'>
 				<div className='flex items-center gap-2 border-b border-gray-300 pb-2'>
 					<DatePicker
-						locale={ru}
 						selectsRange
+						locale={ru}
 						startDate={startDate}
 						endDate={endDate}
 						onChange={update =>
@@ -101,21 +108,33 @@ const Collection = () => {
 				</div>
 
 				<select
-					value={selectedDevice}
-					onChange={e => setSelectedDevice(e.target.value)}
+					value={selectedDeviceId === null ? 'Усі апарати' : selectedDeviceId}
+					onChange={e =>
+						setSelectedDeviceId(
+							e.target.value === 'Усі апарати' ? null : Number(e.target.value)
+						)
+					}
 					className='border border-gray-300 rounded-lg w-48 py-2 pl-2 pr-4 outline-none text-gray-700'
 				>
-					<option>Усі апарати</option>
-					<option value='37'>Device-2 (37)</option>
-					{/* Додайте більше апаратів із API /pos/devices/ */}
+					<option value='Усі апарати'>Усі апарати</option>
+					{devices.map(device => (
+						<option key={device.id} value={device.id}>
+							{device.name}
+						</option>
+					))}
 				</select>
 			</div>
 
-			{loading && <p>Завантаження...</p>}
-			{error && <p className='text-red-500'>{error}</p>}
-			{!loading && !error && (
-				<CollectionTableSection tableData={filteredData} />
-			)}
+			<CollectionTableSection
+				tableData={filteredData}
+				totalCount={totalCount}
+				currentPage={currentPage}
+				itemsPerPage={itemsPerPage}
+				setCurrentPage={setCurrentPage}
+				setItemsPerPage={setItemsPerPage}
+				loading={loading}
+				error={error}
+			/>
 		</div>
 	)
 }
