@@ -64,7 +64,8 @@ export default class StatsService {
 		dateSt: string,
 		dateFn?: string,
 		deviceId?: number,
-		limit?: number
+		limit?: number,
+		offset?: number
 	): Promise<CurrentByVolumeResponse> {
 		return (
 			await $api.get<CurrentByVolumeResponse>('stats/by-volume/', {
@@ -72,7 +73,8 @@ export default class StatsService {
 					date_st: dateSt,
 					date_fn: dateFn,
 					device_id: deviceId,
-					limit: limit || 9999,
+					limit,
+					offset,
 				},
 			})
 		).data
@@ -81,11 +83,17 @@ export default class StatsService {
 	static async currentByDevice(
 		dateSt: string,
 		dateFn?: string,
-		limit?: number
+		limit?: number,
+		offset?: number
 	): Promise<CurrentByDeviceResponse> {
 		return (
 			await $api.get<CurrentByDeviceResponse>('stats/by-device/', {
-				params: { date_st: dateSt, date_fn: dateFn, limit: limit || 9999 },
+				params: {
+					date_st: dateSt,
+					date_fn: dateFn,
+					limit: limit || 9999,
+					offset: offset || 0,
+				},
 			})
 		).data
 	}

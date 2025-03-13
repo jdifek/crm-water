@@ -19,7 +19,6 @@ import { CurrentByVolumeStats } from '../../api/Stats/StatsTypes'
 import LiterStatsTableSection from '../../components/statistics/LiterStatsTableSection'
 import { useDevice } from '../../helpers/context/DeviceContext'
 import { formatDateToServer } from '../../helpers/function/formatDateToServer'
-import { getDaysDifference } from '../../helpers/function/getDaysDifference'
 
 const TABS = [
 	{ key: 'sessions', label: 'Сеансы' },
@@ -67,6 +66,9 @@ const LiterStats = () => {
 	const [startDate, endDate] = dateRange
 	const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(null)
 	const [volumeStats, setVolumeStats] = useState<CurrentByVolumeStats[]>([])
+	const [totalCount, setTotalCount] = useState(0)
+	const [currentPage, setCurrentPage] = useState(1)
+	const [itemsPerPage, setItemsPerPage] = useState(10)
 	const [loading, setLoading] = useState(false)
 	const [error, setError] = useState<string | null>(null)
 	const { devices } = useDevice()
@@ -77,21 +79,24 @@ const LiterStats = () => {
 			try {
 				const dateSt = formatDateToServer(startDate)
 				const dateFn = formatDateToServer(endDate)
-				const limit = getDaysDifference(startDate, endDate)
+				const offset = (currentPage - 1) * itemsPerPage
 				if (dateSt) {
 					console.log('Request params:', {
 						date_st: dateSt,
 						date_fn: dateFn,
 						device_id: selectedDeviceId,
-						limit: limit,
+						limit: itemsPerPage,
+						offset,
 					})
 					const response = await StatsService.currentByVolume(
 						dateSt,
 						dateFn || undefined,
 						selectedDeviceId || undefined,
-						limit
+						itemsPerPage,
+						offset
 					)
 					setVolumeStats(response.data.results)
+					setTotalCount(response.data.count)
 					console.log('Volume stats fetched:', response.data.results)
 					if (response.data.results.length === 0) {
 						setError('Нет данных за указанный период')
@@ -109,7 +114,7 @@ const LiterStats = () => {
 		}
 
 		fetchVolumeStats()
-	}, [startDate, endDate, selectedDeviceId])
+	}, [startDate, endDate, selectedDeviceId, currentPage, itemsPerPage])
 
 	const filteredData = useMemo(() => {
 		return volumeStats.map(item => ({
@@ -186,7 +191,7 @@ const LiterStats = () => {
 						<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600'></div>
 						<p className='ml-2'>Загрузка...</p>
 					</div>
-				) : error ? (
+				) : error && filteredData.length === 0 ? (
 					<p className='text-center text-red-500 p-4'>{error}</p>
 				) : (
 					<div className='h-[400px]'>
@@ -215,7 +220,16 @@ const LiterStats = () => {
 				)}
 			</motion.div>
 
-			<LiterStatsTableSection tableData={filteredData} />
+			<LiterStatsTableSection
+				tableData={filteredData}
+				totalCount={totalCount}
+				currentPage={currentPage}
+				itemsPerPage={itemsPerPage}
+				setCurrentPage={setCurrentPage}
+				setItemsPerPage={setItemsPerPage}
+				loading={loading}
+				error={error}
+			/>
 		</div>
 	)
 }

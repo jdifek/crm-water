@@ -124,6 +124,7 @@ const SalesByDay = () => {
 							setDateRange(update as [Date | null, Date | null])
 						}
 						isClearable
+						dateFormat='dd.MM.yyyy'
 						className='px-2 py-1 text-gray-700 bg-transparent w-56 outline-none focus:ring-0 focus:border-transparent'
 					/>
 				</div>

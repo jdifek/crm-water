@@ -65,7 +65,7 @@ const StatisticsFilter = ({
 	const handleStoreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const value = e.target.value
 		setLocalStore(value)
-		setSelectedStore(value) // Теперь value может быть "Все торговые точки" или числом в виде строки
+		setSelectedStore(value)
 	}
 
 	const handlePaymentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

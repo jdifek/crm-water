@@ -8,15 +8,27 @@ import usePagination from '../../helpers/hooks/usePagination'
 
 interface DeviceStatsTableSectionProps {
 	tableData: DeviceStatsTableData[]
+	totalCount: number
+	currentPage: number
+	itemsPerPage: number
+	setCurrentPage: (page: number) => void
+	setItemsPerPage: (items: number) => void
+	loading: boolean
+	error: string | null
 }
 
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50]
 
 const DeviceStatsTableSection = ({
 	tableData,
+	totalCount,
+	currentPage,
+	itemsPerPage,
+	setCurrentPage,
+	setItemsPerPage,
+	loading,
+	error,
 }: DeviceStatsTableSectionProps) => {
-	const [itemsPerPage, setItemsPerPage] = useState(10)
-	const [currentPage, setCurrentPage] = useState(1)
 	const [searchQuery, setSearchQuery] = useState('')
 	const [sortState, setSortState] = useState<{
 		column: string | null
@@ -31,8 +43,8 @@ const DeviceStatsTableSection = ({
 
 	const sortedData = sortState.column
 		? [...filteredData].sort((a, b) => {
-				const valueA = a[sortState.column as keyof DeviceStatsTableData]
-				const valueB = b[sortState.column as keyof DeviceStatsTableData]
+				const valueA = a[sortState.column as keyof typeof a]
+				const valueB = b[sortState.column as keyof typeof b]
 
 				if (typeof valueA === 'number' && typeof valueB === 'number') {
 					return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
@@ -45,19 +57,15 @@ const DeviceStatsTableSection = ({
 		  })
 		: filteredData
 
-	const totalPages = Math.ceil(sortedData.length / itemsPerPage)
-	const paginatedData = sortedData.slice(
-		(currentPage - 1) * itemsPerPage,
-		currentPage * itemsPerPage
-	)
+	const totalPages = Math.ceil(totalCount / itemsPerPage)
+	const paginationRange = usePagination(totalPages, currentPage)
+
 	const totalSessions = filteredData.reduce(
 		(sum, item) => sum + item.sessions,
 		0
 	)
 	const totalLiters = filteredData.reduce((sum, item) => sum + item.liters, 0)
 	const totalIncome = filteredData.reduce((sum, item) => sum + item.income, 0)
-
-	const paginationRange = usePagination(totalPages, currentPage)
 
 	const handleSort = (column: keyof DeviceStatsTableData) => {
 		setSortState(prev => ({
@@ -94,7 +102,10 @@ const DeviceStatsTableSection = ({
 						<span>Показать </span>
 						<select
 							value={itemsPerPage}
-							onChange={e => setItemsPerPage(Number(e.target.value))}
+							onChange={e => {
+								setItemsPerPage(Number(e.target.value))
+								setCurrentPage(1)
+							}}
 							className='appearance-none border-b border-gray-400 pb-1 text-gray-700 focus:outline-none focus:border-blue-500'
 						>
 							{ITEMS_PER_PAGE_OPTIONS.map(option => (
@@ -120,85 +131,95 @@ const DeviceStatsTableSection = ({
 			</div>
 
 			{/* Таблица */}
-			<div className='overflow-x-auto'>
-				<table className='w-full border-collapse text-left'>
-					<thead>
-						<tr className='font-medium text-lg'>
-							<td></td>
-							<td className='p-3'>{totalSessions.toFixed(1)}</td>
-							<td className='p-3'>{totalLiters.toFixed(1)} л</td>
-							<td className='p-3'>{totalIncome.toFixed(1)} (₴)</td>
-						</tr>
-						<tr>
-							{['Аппарат', 'Сеансы', 'Литров', 'Доход'].map((header, index) => {
-								const key = ['devices', 'sessions', 'liters', 'income'][
-									index
-								] as keyof DeviceStatsTableData
-								return (
-									<th
-										key={header}
-										className='p-3 cursor-pointer'
-										onClick={() => handleSort(key)}
-									>
-										<div className='flex items-center gap-2 font-medium text-base'>
-											{header}
-											<div className='ml-2'>
-												<FiChevronUp
-													size={14}
-													className={
-														sortState.column === key &&
-														sortState.order === 'asc'
-															? 'text-blue-500'
-															: 'text-gray-400'
-													}
-												/>
-												<FiChevronDown
-													size={14}
-													className={
-														sortState.column === key &&
-														sortState.order === 'desc'
-															? 'text-blue-500'
-															: 'text-gray-400'
-													}
-												/>
-											</div>
-										</div>
-									</th>
-								)
-							})}
-						</tr>
-					</thead>
-					<tbody>
-						{paginatedData.length > 0 ? (
-							paginatedData.map((row, index) => (
-								<tr
-									key={index}
-									className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
-								>
-									<td className='p-3'>{row.devices}</td>
-									<td className='p-3'>{row.sessions}</td>
-									<td className='p-3'>{row.liters}</td>
-									<td className='p-3'>{row.income}</td>
-								</tr>
-							))
-						) : (
-							<tr>
-								<td colSpan={4} className='p-3 text-center text-gray-500'>
-									Ничего не найдено
-								</td>
+			{loading ? (
+				<div className='flex justify-center items-center h-[200px]'>
+					<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600'></div>
+					<p className='ml-2'>Загрузка...</p>
+				</div>
+			) : error && sortedData.length === 0 ? (
+				<p className='text-center text-red-500 p-4'>{error}</p>
+			) : (
+				<div className='overflow-x-auto'>
+					<table className='w-full border-collapse text-left'>
+						<thead>
+							<tr className='font-medium text-lg'>
+								<td></td>
+								<td className='p-3'>{totalSessions.toFixed(1)}</td>
+								<td className='p-3'>{totalLiters.toFixed(1)} л</td>
+								<td className='p-3'>{totalIncome.toFixed(1)} (₴)</td>
 							</tr>
-						)}
-					</tbody>
-				</table>
-			</div>
+							<tr>
+								{['Аппарат', 'Сеансы', 'Литров', 'Доход'].map(
+									(header, index) => {
+										const key = ['devices', 'sessions', 'liters', 'income'][
+											index
+										] as keyof DeviceStatsTableData
+										return (
+											<th
+												key={header}
+												className='p-3 cursor-pointer'
+												onClick={() => handleSort(key)}
+											>
+												<div className='flex items-center gap-2 font-medium text-base'>
+													{header}
+													<div className='ml-2'>
+														<FiChevronUp
+															size={14}
+															className={
+																sortState.column === key &&
+																sortState.order === 'asc'
+																	? 'text-blue-500'
+																	: 'text-gray-400'
+															}
+														/>
+														<FiChevronDown
+															size={14}
+															className={
+																sortState.column === key &&
+																sortState.order === 'desc'
+																	? 'text-blue-500'
+																	: 'text-gray-400'
+															}
+														/>
+													</div>
+												</div>
+											</th>
+										)
+									}
+								)}
+							</tr>
+						</thead>
+						<tbody>
+							{sortedData.length > 0 ? (
+								sortedData.map((row, index) => (
+									<tr
+										key={index}
+										className='border-b border-gray-200 hover:bg-gray-100 text-[14px]'
+									>
+										<td className='p-3'>{row.devices}</td>
+										<td className='p-3'>{row.sessions}</td>
+										<td className='p-3'>{row.liters}</td>
+										<td className='p-3'>{row.income}</td>
+									</tr>
+								))
+							) : (
+								<tr>
+									<td colSpan={4} className='p-3 text-center text-gray-500'>
+										Ничего не найдено
+									</td>
+								</tr>
+							)}
+						</tbody>
+					</table>
+				</div>
+			)}
 
 			{/* Нижняя панель с записями и пагинацией */}
 			<div className='flex justify-between items-center mt-4'>
 				<p className='text-gray-600'>
-					Записи с{' '}
-					{Math.min((currentPage - 1) * itemsPerPage + 1, sortedData.length)} до{' '}
-					{Math.min(currentPage * itemsPerPage, sortedData.length)} из{' '}
-					{sortedData.length} записей
+					Записи с {Math.min((currentPage - 1) * itemsPerPage + 1, totalCount)}{' '}
+					до {Math.min(currentPage * itemsPerPage, totalCount)} из {totalCount}{' '}
+					записей
 				</p>
 
 				<div className='flex gap-2'>
