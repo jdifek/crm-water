@@ -6,15 +6,13 @@ interface AuthContextType {
   isAuthenticated: boolean;
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
   currentDaySummary: CurrentDaySummary | null;
-  setCurrentDaySummary: React.Dispatch<
-    React.SetStateAction<CurrentDaySummary | null>
-  >;
+  setCurrentDaySummary: React.Dispatch<React.SetStateAction<CurrentDaySummary | null>>;
   currentDailyStats: CurrentDailyStats[];
-  setCurrentDailyStats: React.Dispatch<
-    React.SetStateAction<CurrentDailyStats[]>
-  >;
+  setCurrentDailyStats: React.Dispatch<React.SetStateAction<CurrentDailyStats[]>>;
   loading: boolean;
   fetchStats: () => Promise<void>;
+  isLoginModalOpen: boolean; // Добавляем состояние модалки
+  setIsLoginModalOpen: React.Dispatch<React.SetStateAction<boolean>>; // Setter для модалки
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,12 +21,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
     !!localStorage.getItem("authToken")
   );
-  const [currentDaySummary, setCurrentDaySummary] =
-    useState<CurrentDaySummary | null>(null);
-  const [currentDailyStats, setCurrentDailyStats] = useState<
-    CurrentDailyStats[]
-  >([]);
+  const [currentDaySummary, setCurrentDaySummary] = useState<CurrentDaySummary | null>(null);
+  const [currentDailyStats, setCurrentDailyStats] = useState<CurrentDailyStats[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false); // Состояние модалки
 
   const fetchStats = async () => {
     setLoading(true);
@@ -36,25 +32,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const dateFn = new Date().toISOString().split("T")[0];
       const dateStDate = new Date();
       dateStDate.setDate(dateStDate.getDate() - 30);
-      const dateSt = `${dateStDate.getFullYear()}-${String(
-        dateStDate.getMonth() + 1
-      ).padStart(2, "0")}-${String(dateStDate.getDate()).padStart(2, "0")}`;
-
+      const dateSt = `${dateStDate.getFullYear()}-${String(dateStDate.getMonth() + 1).padStart(2, "0")}-${String(dateStDate.getDate()).padStart(2, "0")}`;
+  
       const [daySummaryRes, currentDailyRes] = await Promise.all([
         StatsService.currentDaySummary(),
         StatsService.currentDaily(dateSt, dateFn),
       ]);
       setCurrentDaySummary(daySummaryRes.data);
       setCurrentDailyStats(currentDailyRes.data.results);
-      console.log("Day summary:", daySummaryRes.data);
-      console.log("Daily stats:", currentDailyRes.data.results);
     } catch (error) {
-      console.error("Error fetching stats:", error);
-      setCurrentDaySummary(null);
-      setCurrentDailyStats([]);
-      // Проверяем, есть ли токены, и обновляем isAuthenticated
-      if (!localStorage.getItem("authToken")) {
+      console.log("Fetch stats failed with error:", error);
+      console.log("Error status:", error.response?.status);
+      console.log("Error data:", error.response?.data);
+      if (error.response?.status === 401) {
         setIsAuthenticated(false);
+        setIsLoginModalOpen(true);
+        if (window.location.pathname !== "/") {
+          window.location.href = "/";
+        }
       }
     } finally {
       setLoading(false);
@@ -69,7 +64,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setCurrentDaySummary(null);
       setCurrentDailyStats([]);
       setLoading(false);
-      setIsAuthenticated(false); // Устанавливаем false, если токена нет
+      setIsAuthenticated(false);
     }
   }, [isAuthenticated]);
 
@@ -84,6 +79,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setCurrentDailyStats,
         loading,
         fetchStats,
+        isLoginModalOpen,
+        setIsLoginModalOpen,
       }}
     >
       {children}

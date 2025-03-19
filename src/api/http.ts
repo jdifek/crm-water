@@ -10,12 +10,6 @@ const $api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Отдельный экземпляр axios для обновления токена (без перехватчиков)
-const $refreshApi = axios.create({
-  baseURL: API_URL,
-  headers: { "Content-Type": "application/json" },
-});
-
 // Флаг для отслеживания процесса обновления токена
 let isRefreshing = false;
 let failedQueue = [];
@@ -31,27 +25,30 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Перехват запросов – подставляем токен
+// 🔹 **Перехват запросов** – подставляем токен
 $api.interceptors.request.use((config) => {
   const token = localStorage.getItem("authToken");
+  console.log("🔹 Attaching authToken to request:", token);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Перехват ответов – обновляем токен
+// 🔹 **Перехват ответов** – обновляем токен при 401
 $api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
+    // Если получили 401 и это не повторная попытка
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      originalRequest.url !== `${API_URL}/api/token/refresh/`
+      originalRequest.url !== `${API_URL}/token/refresh/`
     ) {
       originalRequest._retry = true;
+      console.log("🔴 401 detected, attempting token refresh...");
 
       if (isRefreshing) {
         // Если уже идет обновление токена, ставим запрос в очередь
@@ -69,20 +66,30 @@ $api.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem("refreshToken");
+        console.log("🔹 Current refreshToken:", refreshToken);
+
         if (!refreshToken) {
-          throw new Error("No refresh token available");
+          throw new Error("🔴 No refresh token available");
         }
 
-        // Используем отдельный экземпляр axios для обновления
-        const response = await $refreshApi.post("/api/token/refresh/", {
+        console.log("🔄 Trying to refresh token...");
+        const response = await TokenService.refreshToken({
           refresh: refreshToken,
         });
+        console.log("✅ Refresh token response:", response);
 
-        const newAccessToken = response.data.access;
+        const newAccessToken = response.data?.access;
         if (!newAccessToken) {
-          throw new Error("No access token received from refresh");
+          console.log("⚠️ No access token received! Logging out...");
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("refreshToken");
+          window.location.href = "/"; // Теперь точно редирект
+          return Promise.reject(
+            new Error("🔴 No access token received from refresh")
+          );
         }
 
+        // Сохраняем новый токен
         localStorage.setItem("authToken", newAccessToken);
 
         // Разрешаем все запросы в очереди с новым токеном
@@ -91,17 +98,26 @@ $api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return $api(originalRequest);
       } catch (refreshError) {
-        console.error("Token refresh failed:", refreshError);
+        console.error("❌ Token refresh failed:", refreshError);
+        console.log("🔴 Status:", refreshError.response?.status);
+        console.log("🔴 Response:", refreshError.response);
 
-        // Очищаем токены и отклоняем все запросы в очереди
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("refreshToken");
+        // Обрабатываем случай отсутствия refreshToken или 401 от сервера
+        if (
+          refreshError.message === "🔴 No refresh token available" ||
+          refreshError.response?.status === 401
+        ) {
+          console.log("🔴 Processing auth failure...");
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("refreshToken");
 
-        processQueue(refreshError);
+          processQueue(refreshError);
 
-        // Редирект только если не на странице логина
-        if (window.location.pathname !== "/") {
-          window.location.href = "/";
+          // Вызываем глобальное событие для открытия модалки
+          console.log("⚡ Dispatching auth failure event...");
+          window.dispatchEvent(new Event("auth-failure"));
+        } else {
+          processQueue(refreshError);
         }
 
         return Promise.reject(refreshError);
@@ -114,7 +130,7 @@ $api.interceptors.response.use(
   }
 );
 
-// Настройка axios-retry для ошибок 5xx
+// 🔄 **Настройка axios-retry** для ошибок 5xx
 axiosRetry($api, {
   retries: 3,
   retryDelay: (retryCount) => retryCount * 1000,
@@ -124,7 +140,16 @@ axiosRetry($api, {
   },
 });
 
+// 🔥 **Глобальный обработчик ошибок**
+window.addEventListener("error", (event) => {
+  console.error("🌍 Global error caught:", event.error);
+});
+window.addEventListener("unhandledrejection", (event) => {
+  console.error("🌍 Unhandled Promise rejection:", event.reason);
+});
+
 export default $api;
+
 /* вариант без автоматического обновления accessToken */
 // import axios from 'axios'
 
