@@ -141,8 +141,8 @@
 // export default Users
 
 import { useEffect, useState } from 'react'
-import UsersService from '../../api/Users/UsersService'
 import { IUser } from '../../api/Users/UsersTypes'
+import UsersService from '../../api/Users/UsersService'
 
 const Users = () => {
 	const [users, setUsers] = useState<IUser[]>([])

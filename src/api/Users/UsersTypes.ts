@@ -3,18 +3,31 @@ export interface IRefreshTokenResponse {
 	access: string
 }
 
-// User Data
 export interface IUser {
 	id: number
 	last_login: string
 	created_at: string
 	updated_at: string
 	username: string
-	role: string
+	role:
+		| 'super_admin'
+		| 'admin'
+		| 'operator'
+		| 'driver'
+		| 'technician'
+		| 'collector'
+		| 'accountant'
 	access: string
 	email: string
 	full_name: string
 	phone_number: string
+}
+
+// UserMe Response
+export interface IUserMeResponse {
+	data: IUser
+	errors: []
+	status: string
 }
 
 // Users List Response

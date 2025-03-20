@@ -3,6 +3,7 @@ import { IAuthTokenResponse, IRefreshToken } from '../Token/TokenTypes'
 import {
 	IRefreshTokenResponse,
 	IUser,
+	IUserMeResponse,
 	IUsersListResponse,
 	IUserTokenParams,
 } from './UsersTypes'
@@ -30,7 +31,7 @@ export default class UsersService {
 		).data
 	}
 
-	static async getMe(): Promise<IUser> {
-		return (await $api.get<IUser>('users/me/')).data
+	static async getMe(): Promise<IUserMeResponse> {
+		return (await $api.get<IUserMeResponse>('users/me/')).data
 	}
 }

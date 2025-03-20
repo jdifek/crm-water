@@ -26,16 +26,35 @@ const DailyStatsTableSection = ({
 
 	const sortedData = sortState.column
 		? [...hourlyStats].sort((a, b) => {
-				const valueA = a[sortState.column as keyof typeof a]
-				const valueB = b[sortState.column as keyof typeof a]
+				const valueA = a[sortState.column as keyof DailyStatsRow]
+				const valueB = b[sortState.column as keyof DailyStatsRow]
 
+				if (sortState.column === 'date') {
+					// Сортировка времени в формате "HH:MM" по порядку суток
+					const timeA = valueA as string
+					const timeB = valueB as string
+					const [hoursA, minutesA] = timeA.split(':').map(Number)
+					const [hoursB, minutesB] = timeB.split(':').map(Number)
+					const totalMinutesA = hoursA * 60 + minutesA
+					const totalMinutesB = hoursB * 60 + minutesB
+
+					return sortState.order === 'asc'
+						? totalMinutesA - totalMinutesB
+						: totalMinutesB - totalMinutesA
+				}
+
+				// Обычная сортировка для числовых полей
 				if (typeof valueA === 'number' && typeof valueB === 'number') {
 					return sortState.order === 'asc' ? valueA - valueB : valueB - valueA
-				} else if (typeof valueA === 'string' && typeof valueB === 'string') {
+				}
+
+				// Сортировка строк (если вдруг другие поля станут строками)
+				if (typeof valueA === 'string' && typeof valueB === 'string') {
 					return sortState.order === 'asc'
 						? valueA.localeCompare(valueB)
 						: valueB.localeCompare(valueA)
 				}
+
 				return 0
 		  })
 		: hourlyStats
@@ -48,7 +67,7 @@ const DailyStatsTableSection = ({
 	const totalIncome = hourlyStats.reduce((sum, item) => sum + item.income, 0)
 
 	const handleExportToExcel = () => {
-		const worksheet = XLSX.utils.json_to_sheet(hourlyStats)
+		const worksheet = XLSX.utils.json_to_sheet(sortedData)
 		const workbook = XLSX.utils.book_new()
 		XLSX.utils.book_append_sheet(workbook, worksheet, 'Sales Data')
 		XLSX.writeFile(workbook, 'sales_data.xlsx')

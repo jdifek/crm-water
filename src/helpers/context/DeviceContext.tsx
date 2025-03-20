@@ -25,7 +25,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 	const navigate = useNavigate()
 	const location = useLocation()
 	const { id } = useParams<{ id: string }>()
-	const { isAuthenticated } = useAuth()
+	const { isAuthenticated, userRole } = useAuth()
 
 	const [devices, setDevices] = useState<IPosDevice[]>([])
 	const [selectedDevice, setSelectedDevice] = useState<
@@ -38,10 +38,22 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 	const fetchDevices = async (isActive?: boolean) => {
 		setLoading(true)
 		try {
-			const res = await PosDevicesService.getDevices(
-				isActive !== undefined ? { is_active: isActive } : {}
-			)
-			setDevices(res.data.results)
+			if (userRole === 'driver') {
+				const res = await PosDevicesService.getDriverDevices(
+					isActive !== undefined ? { is_active: isActive } : {}
+				)
+				setDevices(res.data.results)
+			} else if (userRole === 'technician') {
+				const res = await PosDevicesService.getTechnicianDevices(
+					isActive !== undefined ? { is_active: isActive } : {}
+				)
+				setDevices(res.data.results)
+			} else {
+				const res = await PosDevicesService.getDevices(
+					isActive !== undefined ? { is_active: isActive } : {}
+				)
+				setDevices(res.data.results)
+			}
 		} catch (error) {
 			setError('Ошибка при загрузке устройств')
 		} finally {
@@ -59,7 +71,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 			setSelectedDevice(undefined)
 			setLoading(false)
 		}
-	}, [isAuthenticated])
+	}, [isAuthenticated, userRole])
 
 	// Синхронизируем selectedDeviceId с URL
 	useEffect(() => {
@@ -82,9 +94,19 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 			const fetchDevice = async () => {
 				setLoading(true)
 				try {
-					const device = await PosDevicesService.getDeviceById(selectedDeviceId)
-					console.log('Fetched device:', device.data)
-					setSelectedDevice(device.data as IPosDeviceDetails)
+					if (userRole === 'technician') {
+						const device = await PosDevicesService.getTechnicianDeviceById(
+							selectedDeviceId
+						)
+						console.log('Fetched device:', device.data)
+						setSelectedDevice(device.data as IPosDeviceDetails)
+					} else {
+						const device = await PosDevicesService.getDeviceById(
+							selectedDeviceId
+						)
+						console.log('Fetched device:', device.data)
+						setSelectedDevice(device.data as IPosDeviceDetails)
+					}
 				} catch (error) {
 					console.log('Error fetching device:', error)
 					setError('Ошибка при загрузке устройства')
@@ -95,7 +117,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 			}
 			fetchDevice()
 		}
-	}, [selectedDeviceId, isAuthenticated])
+	}, [selectedDeviceId, isAuthenticated, userRole])
 
 	const handleDeviceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newId = Number(e.target.value)
@@ -131,57 +153,3 @@ export const useDevice = () => {
 	}
 	return context
 }
-
-// import React, { createContext, useContext, useState } from 'react'
-// import { useLocation, useNavigate } from 'react-router-dom'
-// import { devices } from '../../data/device/device'
-
-// interface DeviceContextType {
-// 	selectedDeviceId: number
-// 	setSelectedDeviceId: (id: number) => void
-// 	handleDeviceChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
-// }
-
-// const DeviceContext = createContext<DeviceContextType | undefined>(undefined)
-
-// export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
-// 	const navigate = useNavigate()
-// 	const location = useLocation()
-// 	const [selectedDeviceId, setSelectedDeviceId] = useState<number>(
-// 		devices[0].id
-// 	)
-
-// 	const handleDeviceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-// 		const newId = Number(e.target.value)
-// 		const pathParts = location.pathname.split('/')
-// 		const currentTab = pathParts[2] || 'details'
-
-// 		// Изменяем только состояние устройства, а потом навигируем
-// 		if (newId !== selectedDeviceId) {
-// 			setSelectedDeviceId(newId)
-// 		}
-
-// 		// Навигация после изменения состояния
-// 		navigate(`/devices/${currentTab}/${newId}`, { replace: true })
-// 	}
-
-// 	return (
-// 		<DeviceContext.Provider
-// 			value={{
-// 				selectedDeviceId,
-// 				setSelectedDeviceId,
-// 				handleDeviceChange,
-// 			}}
-// 		>
-// 			{children}
-// 		</DeviceContext.Provider>
-// 	)
-// }
-
-// export const useDevice = () => {
-// 	const context = useContext(DeviceContext)
-// 	if (context === undefined) {
-// 		throw new Error('useDevice must be used within a DeviceProvider')
-// 	}
-// 	return context
-// }

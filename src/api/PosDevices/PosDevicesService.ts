@@ -7,6 +7,9 @@ import {
 	ICashCollectionsResponse,
 	ICashCollectionsParams,
 	MaintenanceResponse,
+	IPosDriverDevicesListResponse,
+	IPosTechnicianDevicesListResponse,
+	IPosTechnicianDeviceDetails,
 } from './PosDevicesTypes'
 
 export default class PosDevicesService {
@@ -20,6 +23,29 @@ export default class PosDevicesService {
 		).data
 	}
 
+	static async getDriverDevices(params?: {
+		is_active: boolean
+	}): Promise<IPosDriverDevicesListResponse> {
+		return (
+			await $api.get<IPosDriverDevicesListResponse>('pos/driver/devices/', {
+				params: { limit: 100, ...params },
+			})
+		).data
+	}
+
+	static async getTechnicianDevices(params?: {
+		is_active: boolean
+	}): Promise<IPosTechnicianDevicesListResponse> {
+		return (
+			await $api.get<IPosTechnicianDevicesListResponse>(
+				'pos/technician/driver/devices/',
+				{
+					params: { limit: 100, ...params },
+				}
+			)
+		).data
+	}
+
 	static async getDevicesNames(): Promise<IPosDevicesListResponse> {
 		return (
 			await $api.get<IPosDevicesListResponse>('pos/device-names/', {
@@ -30,6 +56,16 @@ export default class PosDevicesService {
 
 	static async getDeviceById(id: number): Promise<IPosDeviceDetails> {
 		return (await $api.get<IPosDeviceDetails>(`pos/devices/${id}/`)).data
+	}
+
+	static async getTechnicianDeviceById(
+		id: number
+	): Promise<IPosTechnicianDeviceDetails> {
+		return (
+			await $api.get<IPosTechnicianDeviceDetails>(
+				`pos/technician/devices/${id}/`
+			)
+		).data
 	}
 
 	static async updateDevice(
