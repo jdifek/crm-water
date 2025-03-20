@@ -13,7 +13,7 @@ export const DeviceNavigate = () => {
 	]
 
 	return (
-		<ul className='flex gap-3 mb-4'>
+		<ul className='flex flex-wrap gap-2 mb-4'>
 			{menuItems.map(({ name, path }) => (
 				<li key={name} className='p-2 rounded-lg'>
 					<NavLink

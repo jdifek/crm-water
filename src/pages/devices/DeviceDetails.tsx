@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { DeviceSidebar } from '../../components/Device/DeviceSidebar'
 import { DeviceNavigate } from '../../components/Device/Navigate'
 import { SelectDevice } from '../../components/Device/SelectDevice'
 import { useDevice } from '../../helpers/context/DeviceContext'
+import { IoMenu } from 'react-icons/io5'
 
 const DeviceDetails = () => {
+	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
 	const { selectedDevice, loading, error } = useDevice()
 
 	if (loading) return <p>Загрузка устройства...</p>
@@ -161,19 +164,23 @@ const DeviceDetails = () => {
 		<div className='p-4 lg:p-8'>
 			<SelectDevice />
 
-			<div className='flex gap-3 flex-nowrap w-full'>
-				<div className='bg-white rounded-lg shadow p-5 flex flex-col flex-1'>
+			<div className='flex gap-3 flex-nowrap w-full p-6  lg:max-w-[748px] xl:max-w-[960px] 2xl:max-w-[1440px]'>
+				<div className='w-full bg-white rounded-lg shadow p-5 flex flex-col flex-1'>
 					<DeviceNavigate />
 
 					<div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
 						{infoSections.map((section, sectionIndex) => (
 							<div key={sectionIndex}>
-								<h2 className='text-xl font-semibold mb-6'>{section.title}</h2>
+								<h2 className='text-base md:text-xl font-semibold mb-6'>
+									{section.title}
+								</h2>
 								<div className='space-y-4'>
 									{section.items?.map((item, itemIndex) => (
 										<div key={itemIndex} className='grid grid-cols-2 gap-4'>
-											<div className='text-gray-600'>{item.label}</div>
-											<div>{item.value}</div>
+											<div className='text-gray-600 text-xs md:text-base'>
+												{item.label}
+											</div>
+											<div className='text-xs md:text-base'>{item.value}</div>
 										</div>
 									))}
 								</div>
@@ -182,7 +189,15 @@ const DeviceDetails = () => {
 					</div>
 				</div>
 
-				<DeviceSidebar />
+				<button
+					className='xl:hidden fixed top-4 right-4 z-50 p-2 bg-blue-500 text-white rounded-lg shadow-md'
+					onClick={() => setIsSidebarOpen(true)}
+				>
+					<IoMenu size={24} />
+				</button>
+
+				{/* Сайдбар */}
+				<DeviceSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 			</div>
 		</div>
 	)

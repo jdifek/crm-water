@@ -33,6 +33,22 @@ const MaintenanceHistory = () => {
 		fetchMaintenanceHistory()
 	}, [statusFilter])
 
+	const formatDate = (dateString: string) => {
+		return new Date(dateString).toLocaleDateString('ru-RU', {
+			day: '2-digit',
+			month: '2-digit',
+			year: 'numeric',
+		})
+	}
+
+	const calculateDaysLeft = (deadline: string) => {
+		const today = new Date()
+		const deadlineDate = new Date(deadline)
+		const diffInMs = today.getTime() - deadlineDate.getTime()
+		const daysLeft = Math.ceil(diffInMs / (1000 * 60 * 60 * 24))
+		return daysLeft >= 0 ? `${daysLeft} дн.` : 'Просрочено'
+	}
+
 	return (
 		<div className='p-4 lg:p-8'>
 			<div className='bg-white shadow-lg rounded-lg w-full p-6 mx-auto sm:max-w-[640px] md:max-w-[796px] lg:max-w-[748px] xl:max-w-[960px] 2xl:max-w-[1440px]'>
@@ -49,7 +65,7 @@ const MaintenanceHistory = () => {
 							}
 							className='px-4 py-2 rounded bg-blue-500 text-white'
 						>
-							Статус
+							{statusFilter === 'scheduled' ? 'Заплановані' : 'Виконані'}
 						</button>
 					</div>
 				</div>
@@ -84,7 +100,6 @@ const MaintenanceHistory = () => {
 												Остаток дней
 											</th>
 										))}
-
 									<th className='px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
 										Аппарат
 									</th>
@@ -100,62 +115,53 @@ const MaintenanceHistory = () => {
 								</tr>
 							</thead>
 							<tbody className='bg-white divide-y divide-gray-200'>
-								{maintenanceHistory.map(record => {
-									const deadlineDate = new Date(record.deadline)
-									const today = new Date()
-									const daysLeft = Math.ceil(
-										(deadlineDate.getTime() - today.getTime()) /
-											(1000 * 3600 * 24)
-									)
-
-									return (
-										<tr key={record.id}>
+								{maintenanceHistory.map(record => (
+									<tr key={record.id}>
+										<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+											{formatDate(record.created_at)}
+										</td>
+										<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+											{formatDate(record.deadline)}
+										</td>
+										<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+											{formatDate(record.planned_for)}
+										</td>
+										{(statusFilter === 'completed' && (
 											<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
-												{new Date(record.created_at).toLocaleString()}
+												{record.completed_at
+													? formatDate(record.completed_at)
+													: '-'}
 											</td>
-											<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
-												{new Date(record.deadline).toLocaleString()}
-											</td>
-											<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
-												{new Date(record.planned_for).toLocaleString()}
-											</td>
-											{(statusFilter === 'completed' && (
+										)) ||
+											(statusFilter === 'scheduled' && (
 												<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
-													{record.completed_at
-														? new Date(record.completed_at).toLocaleString()
-														: '-'}
+													{calculateDaysLeft(record.deadline)}
 												</td>
-											)) ||
-												(statusFilter === 'scheduled' && (
-													<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
-														{daysLeft > 0 ? `${daysLeft} дн.` : 'Просрочено'}
-													</td>
-												))}
-											<td className='px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
-												{record.device.name}
-											</td>
-											<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
-												{record.type}
-											</td>
-											<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
-												{record.assigned_to.full_name}
-											</td>
-											<td className='px-3 py-4 whitespace-nowrap'>
-												<span
-													className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-														record.status === 'completed'
-															? 'bg-green-100 text-green-800'
-															: 'bg-yellow-100 text-yellow-800'
-													}`}
-												>
-													{record.status === 'completed'
-														? 'Выполнено'
-														: 'В ожидании'}
-												</span>
-											</td>
-										</tr>
-									)
-								})}
+											))}
+										<td className='px-3 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
+											{record.device.name}
+										</td>
+										<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+											{record.type}
+										</td>
+										<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+											{record.assigned_to.full_name}
+										</td>
+										<td className='px-3 py-4 whitespace-nowrap'>
+											<span
+												className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+													record.status === 'completed'
+														? 'bg-green-100 text-green-800'
+														: 'bg-yellow-100 text-yellow-800'
+												}`}
+											>
+												{record.status === 'completed'
+													? 'Выполнено'
+													: 'В ожидании'}
+											</span>
+										</td>
+									</tr>
+								))}
 							</tbody>
 						</table>
 					)}
