@@ -39,7 +39,7 @@ const StatisticsTable = ({
 	}
 
 	return (
-		<div className='overflow-x-auto'>
+		<div className='overflow-x-auto mx-auto sm:max-w-[640px] md:max-w-[796px] lg:max-w-[748px] xl:max-w-[1024px] 2xl:max-w-[1440px]'>
 			<table className='w-full border-collapse text-left'>
 				<thead>
 					<tr>
