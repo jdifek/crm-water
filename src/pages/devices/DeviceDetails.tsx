@@ -4,7 +4,7 @@ import { DeviceNavigate } from '../../components/Device/Navigate'
 import { SelectDevice } from '../../components/Device/SelectDevice'
 import { useDevice } from '../../helpers/context/DeviceContext'
 import { useAuth } from '../../helpers/context/AuthContext'
-import { IoMenu, IoSettingsSharp } from 'react-icons/io5'
+import { IoSettingsSharp } from 'react-icons/io5'
 
 const DeviceDetails = () => {
 	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
@@ -20,6 +20,8 @@ const DeviceDetails = () => {
 			case 'super_admin':
 			case 'admin':
 			case 'operator':
+			case 'driver':
+			case 'collector':
 				return [
 					{
 						title: 'Аппарат',
@@ -158,24 +160,31 @@ const DeviceDetails = () => {
 						],
 					},
 				]
-			case 'driver':
-				return [
-					{
-						title: 'Аппарат',
-						items: [
-							{
-								label: 'Остаток продукта',
-								value: selectedDevice.product_balance,
-							},
-						],
-					},
-				]
 			case 'technician':
 				return [
 					{
 						title: 'Аппарат',
 						items: [
+							{ label: 'IMEI', value: selectedDevice.imei },
 							{ label: 'Серийный номер', value: selectedDevice.serial_number },
+							{ label: 'Модель аппарата', value: selectedDevice.device_model },
+							{
+								label: 'Модель купюроприемника',
+								value: selectedDevice.bill_acceptor_model,
+							},
+							{
+								label: 'Модель монетоприемника',
+								value: selectedDevice.coin_acceptor_model,
+							},
+							{
+								label: 'Интерфейс пользователя',
+								value: selectedDevice.user_interface,
+							},
+							{
+								label: 'Язык интерфейса',
+								value: selectedDevice.interface_language,
+							},
+							{ label: 'Дата создания', value: selectedDevice.creation_date },
 						],
 					},
 					{
@@ -184,6 +193,59 @@ const DeviceDetails = () => {
 							{ label: 'Температура', value: selectedDevice.temperature },
 							{ label: 'ТДС', value: selectedDevice.tds },
 						],
+					},
+					{
+						title: 'Счетчики',
+						items: [
+							{
+								label: 'Остаток продукта',
+								value: selectedDevice.product_balance,
+							},
+							{
+								label: 'Счетчик воды на входе',
+								value: selectedDevice.water_inlet_counter,
+							},
+							{
+								label: 'Счетчик электрической энергии',
+								value: selectedDevice.electricity_counter,
+							},
+						],
+					},
+					{
+						title: 'Связь',
+						items: [
+							{
+								label: 'Тип подключения',
+								value: selectedDevice.connection_type,
+							},
+							{
+								label: 'Номер SIM-карты',
+								value: selectedDevice.sim_card_number,
+							},
+							{
+								label: 'Оператор связи',
+								value: selectedDevice.telecom_operator,
+							},
+							{ label: 'Уровень сигнала', value: selectedDevice.signal_level },
+							{
+								label: 'Баланс SIM-карты',
+								value: selectedDevice.sim_card_balance,
+							},
+							{
+								label: 'Дата последней активности',
+								value: selectedDevice.date_of_last_activity,
+							},
+						],
+					},
+					{
+						title: 'Продукты',
+						items:
+							selectedDevice.products && selectedDevice.products.length
+								? selectedDevice.products.map(product => ({
+										label: `Цена "${product.name}"`,
+										value: product.price,
+								  }))
+								: [{ label: 'Продукты отсутствуют', value: '-' }],
 					},
 					{
 						title: 'Программное обеспечение',
@@ -204,34 +266,6 @@ const DeviceDetails = () => {
 							{
 								label: 'Дата прошивки главного контроллера',
 								value: selectedDevice.main_controller_firmware_date,
-							},
-						],
-					},
-				]
-			case 'collector':
-				return [
-					{
-						title: 'Статистика',
-						items: [
-							{
-								label: 'Количество монет за все время',
-								value: selectedDevice.total_coins_quantity,
-							},
-							{
-								label: 'Сумма монет за все время',
-								value: selectedDevice.total_coins_earned,
-							},
-							{
-								label: 'Количество купюр за все время',
-								value: selectedDevice.total_bills_quantity,
-							},
-							{
-								label: 'Сумма купюр за все время',
-								value: selectedDevice.total_bills_earned,
-							},
-							{
-								label: 'Всего выручено денег со дня запуска',
-								value: selectedDevice.total_money_earned,
 							},
 						],
 					},

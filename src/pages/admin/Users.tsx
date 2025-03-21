@@ -170,12 +170,12 @@ const Users = () => {
 
 	return (
 		<div className='p-4 lg:p-8'>
-			<div className='bg-white rounded-lg shadow'>
-				<div className='px-4 py-5 sm:px-6 flex justify-between items-center'>
+			<div className='bg-white shadow-lg rounded-lg w-full p-6 mx-auto sm:max-w-[640px] md:max-w-[796px] lg:max-w-[700px] xl:max-w-[960px] 2xl:max-w-[1440px]'>
+				<div className='px-4 py-5 sm:px-6 flex justify-between items-center max-sm:flex-wrap max-sm:gap-3'>
 					<h3 className='text-lg leading-6 font-medium text-gray-900'>
 						Пользователи
 					</h3>
-					<button className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600'>
+					<button className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm sm:text-base'>
 						Добавить пользователя
 					</button>
 				</div>

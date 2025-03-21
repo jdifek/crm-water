@@ -211,11 +211,11 @@ const TableComponent = () => {
 	return (
 		<div className='p-6 bg-gray-100 min-h-screen'>
 			<h2 className='text-xl font-semibold mb-8'>Выбор периода показа</h2>
-			<div className='flex items-center justify-between mb-6'>
+			<div className='flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:justify-between w-full sm:w-auto mb-6'>
 				<select className='border rounded-lg p-2 w-56'>
 					<option>Все аппараты</option>
 				</select>
-				<div className='border-b border-gray-300 pb-2 w-56'>
+				<div className='border-b border-gray-300 pb-2 w-full max-w-56'>
 					<DatePicker
 						locale={ru}
 						selectsRange
@@ -232,7 +232,7 @@ const TableComponent = () => {
 
 			<div className='bg-white shadow-lg rounded-lg p-4 pt-4'>
 				{/* Переключение между "Зарегистрированные карты" и "Неизвестные карты" */}
-				<div className='flex space-x-2 mb-4 border-b border-gray-200 pb-5 pl-5'>
+				<div className='flex max-sm:flex-wrap max-sm:gap-3 space-x-2 mb-4 border-b border-gray-200 pb-5 sm:pl-5'>
 					<button
 						className={`px-4 py-2 rounded-full text-[14px] ${
 							!showRegistered ? 'bg-blue-500 text-white' : 'bg-gray-300'
@@ -252,7 +252,7 @@ const TableComponent = () => {
 				</div>
 
 				{/* Верхний блок с селектом и поиском */}
-				<div className='flex justify-between items-center mb-3'>
+				<div className='flex justify-between items-center mb-3 text-sm md:text-base max-sm:gap-2'>
 					<div>
 						<span>Показать </span>
 						<select
@@ -273,105 +273,111 @@ const TableComponent = () => {
 						placeholder='Поиск...'
 						value={searchQuery}
 						onChange={e => setSearchQuery(e.target.value)}
-						className='border-b border-gray-400 py-1 text-gray-700 focus:outline-none focus:border-blue-500'
+						className='border-b border-gray-400 py-1 text-gray-700 focus:outline-none focus:border-blue-500 w-full max-sm:max-w-32 max-w-44'
 					/>
 				</div>
 
 				{/* Таблица */}
-				<table className='w-full border-collapse'>
-					<thead>
-						<tr>
-							{tableHeaders.map(({ key, label }) => (
-								<th
-									key={key}
-									onClick={
-										key !== 'active'
-											? () => handleSort(key as keyof (typeof CARD_DATA)[0])
-											: undefined
-									}
-									className={`cursor-pointer p-3 ${
-										showRegistered || key !== 'active' ? '' : 'text-right'
-									}`}
-								>
-									<div className='flex items-center gap-2'>
-										{label}
-										{key !== 'active' && (
-											<div className='flex flex-col'>
-												<FiChevronUp
-													size={14}
-													className={
-														sortState.column === key &&
-														sortState.order === 'asc'
-															? 'text-blue-500'
-															: 'text-gray-400'
-													}
-												/>
-												<FiChevronDown
-													size={14}
-													className={
-														sortState.column === key &&
-														sortState.order === 'desc'
-															? 'text-blue-500'
-															: 'text-gray-400'
-													}
-												/>
-											</div>
-										)}
-									</div>
-								</th>
-							))}
-						</tr>
-					</thead>
-					<tbody>
-						{paginatedData.length > 0 ? (
-							paginatedData.map(item => (
-								<tr key={item.id} className='border-b text-[14px]'>
-									{tableHeaders.map(({ key }) => (
-										<td
-											key={key}
-											className={`px-4 py-2 ${
-												key === 'active' && !showRegistered ? 'text-right' : ''
-											}`}
-										>
-											{typeof item[key as keyof CardData] === 'boolean' ? (
-												item[key as keyof CardData] ? (
-													<FiCheck className='text-blue-600' />
-												) : (
-													<FiPlus className='text-blue-600' />
-												)
-											) : (
-												item[key as keyof CardData]
-											)}
-										</td>
-									))}
-								</tr>
-							))
-						) : (
+				<div className='overflow-x-auto'>
+					<table className='w-full border-collapse'>
+						<thead>
 							<tr>
-								<td colSpan={8} className='p-3 text-center text-gray-500'>
-									Ничего не найдено
-								</td>
+								{tableHeaders.map(({ key, label }) => (
+									<th
+										key={key}
+										onClick={
+											key !== 'active'
+												? () => handleSort(key as keyof (typeof CARD_DATA)[0])
+												: undefined
+										}
+										className={`cursor-pointer p-3 ${
+											showRegistered || key !== 'active' ? '' : 'text-right'
+										}`}
+									>
+										<div className='flex items-center gap-2'>
+											{label}
+											{key !== 'active' && (
+												<div className='flex flex-col'>
+													<FiChevronUp
+														size={14}
+														className={
+															sortState.column === key &&
+															sortState.order === 'asc'
+																? 'text-blue-500'
+																: 'text-gray-400'
+														}
+													/>
+													<FiChevronDown
+														size={14}
+														className={
+															sortState.column === key &&
+															sortState.order === 'desc'
+																? 'text-blue-500'
+																: 'text-gray-400'
+														}
+													/>
+												</div>
+											)}
+										</div>
+									</th>
+								))}
 							</tr>
-						)}
-					</tbody>
-					<tfoot>
-						<tr>
-							{tableHeaders.map(({ key, label }) => (
-								<th
-									key={key}
-									onClick={() => handleSort(key as keyof (typeof CARD_DATA)[0])}
-									className='cursor-pointer p-3'
-								>
-									<div className='flex items-center gap-2'>{label}</div>
-								</th>
-							))}
-						</tr>
-					</tfoot>
-				</table>
+						</thead>
+						<tbody>
+							{paginatedData.length > 0 ? (
+								paginatedData.map(item => (
+									<tr key={item.id} className='border-b text-[14px]'>
+										{tableHeaders.map(({ key }) => (
+											<td
+												key={key}
+												className={`px-4 py-2 ${
+													key === 'active' && !showRegistered
+														? 'text-right'
+														: ''
+												}`}
+											>
+												{typeof item[key as keyof CardData] === 'boolean' ? (
+													item[key as keyof CardData] ? (
+														<FiCheck className='text-blue-600' />
+													) : (
+														<FiPlus className='text-blue-600' />
+													)
+												) : (
+													item[key as keyof CardData]
+												)}
+											</td>
+										))}
+									</tr>
+								))
+							) : (
+								<tr>
+									<td colSpan={8} className='p-3 text-center text-gray-500'>
+										Ничего не найдено
+									</td>
+								</tr>
+							)}
+						</tbody>
+						<tfoot>
+							<tr>
+								{tableHeaders.map(({ key, label }) => (
+									<th
+										key={key}
+										onClick={() =>
+											handleSort(key as keyof (typeof CARD_DATA)[0])
+										}
+										className='cursor-pointer p-3'
+									>
+										<div className='flex items-center gap-2'>{label}</div>
+									</th>
+								))}
+							</tr>
+						</tfoot>
+					</table>
+				</div>
 
 				{/* Нижняя панель с записями и пагинацией */}
 				<div className='flex justify-between items-center mt-4'>
-					<p className='text-gray-600'>
+					<p className='text-gray-600 text-sm md:text-base'>
 						Записи с{' '}
 						{Math.min((currentPage - 1) * itemsPerPage + 1, sortedData.length)}{' '}
 						до {Math.min(currentPage * itemsPerPage, sortedData.length)} из{' '}
@@ -379,18 +385,18 @@ const TableComponent = () => {
 					</p>
 
 					{/* Пагинация */}
-					<div className='flex gap-2'>
+					<div className='flex max-xl:flex-wrap justify-end gap-2'>
 						<button
 							onClick={() => setCurrentPage(1)}
 							disabled={currentPage === 1}
-							className='p-2 hover:bg-gray-300 disabled:opacity-50'
+							className='p-2 hover:bg-gray-300 disabled:opacity-50 text-sm sm:text-base'
 						>
 							Первая
 						</button>
 						<button
 							onClick={() => setCurrentPage(currentPage - 1)}
 							disabled={currentPage === 1}
-							className='p-2 hover:bg-gray-300 disabled:opacity-50'
+							className='p-2 hover:bg-gray-300 disabled:opacity-50 text-sm sm:text-base'
 						>
 							Предыдущая
 						</button>
@@ -410,14 +416,14 @@ const TableComponent = () => {
 						<button
 							onClick={() => setCurrentPage(currentPage + 1)}
 							disabled={currentPage === totalPages}
-							className='p-2 hover:bg-gray-300 disabled:opacity-50'
+							className='p-2 hover:bg-gray-300 disabled:opacity-50 text-sm sm:text-base'
 						>
 							Следующая
 						</button>
 						<button
 							onClick={() => setCurrentPage(totalPages)}
 							disabled={currentPage === totalPages}
-							className='p-2 hover:bg-gray-300 disabled:opacity-50'
+							className='p-2 hover:bg-gray-300 disabled:opacity-50 text-sm sm:text-base'
 						>
 							Последняя
 						</button>

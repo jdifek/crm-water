@@ -116,5 +116,3 @@ export const useAuth = () => {
 	}
 	return context
 }
-
-/* временно прописанные роли пользователей */

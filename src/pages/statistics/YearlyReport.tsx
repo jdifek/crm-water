@@ -313,7 +313,7 @@ const YearlyReport = () => {
 						<div
 							ref={scrollContainerRef}
 							className='overflow-x-scroll scrollbar-hide'
-							style={{ marginLeft: '432px' }}
+							style={{ marginLeft: '442px' }}
 						>
 							<style>
 								{`

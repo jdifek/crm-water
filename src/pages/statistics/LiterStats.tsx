@@ -124,11 +124,27 @@ const LiterStats = () => {
 		}))
 	}, [volumeStats])
 
+	const maxValue = useMemo(() => {
+		const values = filteredData.map(
+			item => item[tabToKey[selectedTab]] as number
+		)
+		return values.length > 0 ? Math.max(...values) : 0
+	}, [filteredData, selectedTab])
+
+	const yAxisMax =
+		maxValue > 20000
+			? maxValue + 3000
+			: maxValue <= 200
+			? maxValue + 20
+			: maxValue <= 1000
+			? maxValue + 50
+			: maxValue + 100
+
 	return (
 		<div className='p-6 space-y-6'>
 			{/* Фильтры */}
-			<div className='flex justify-between items-center'>
-				<div className='flex items-center gap-2 border-b border-gray-300 pb-2'>
+			<div className='flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:justify-between w-full sm:w-auto'>
+				<div className='flex items-center gap-2 border-b border-gray-300 pb-2 w-full max-w-56'>
 					<DatePicker
 						selectsRange
 						locale={ru}
@@ -166,7 +182,7 @@ const LiterStats = () => {
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5 }}
-				className='bg-white shadow-lg rounded-lg p-6'
+				className='bg-white shadow-lg rounded-lg p-3 sm:p-6'
 			>
 				{/* Таб переключения */}
 				<div className='flex gap-4 mb-6 pb-2'>
@@ -198,8 +214,12 @@ const LiterStats = () => {
 						<ResponsiveContainer width='100%' height='100%'>
 							<BarChart data={filteredData}>
 								<CartesianGrid strokeDasharray='3 3' />
-								<XAxis dataKey='container' tick={<CustomizedAxisTick />} />
-								<YAxis domain={[0, 3000]} />
+								<XAxis
+									dataKey='container'
+									tick={<CustomizedAxisTick />}
+									className='text-sm'
+								/>
+								<YAxis domain={[0, yAxisMax]} className='text-sm' />
 								<Tooltip
 									formatter={value => [
 										`${value}`,

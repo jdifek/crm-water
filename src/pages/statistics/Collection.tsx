@@ -91,8 +91,8 @@ const Collection = () => {
 
 	return (
 		<div className='p-6 space-y-6'>
-			<div className='flex justify-between items-center'>
-				<div className='flex items-center gap-2 border-b border-gray-300 pb-2'>
+			<div className='flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:justify-between w-full sm:w-auto'>
+				<div className='flex items-center gap-2 border-b border-gray-300 pb-2 w-full max-w-56'>
 					<DatePicker
 						selectsRange
 						locale={ru}
@@ -103,7 +103,7 @@ const Collection = () => {
 						}
 						isClearable
 						dateFormat='dd.MM.yyyy'
-						className='px-2 py-1 text-gray-700 bg-transparent w-56 outline-none focus:ring-0 focus:border-transparent'
+						className='px-2 py-1 text-gray-700 bg-transparent w-full max-w-56 outline-none focus:ring-0 focus:border-transparent'
 					/>
 				</div>
 
@@ -114,7 +114,7 @@ const Collection = () => {
 							e.target.value === 'Усі апарати' ? null : Number(e.target.value)
 						)
 					}
-					className='border border-gray-300 rounded-lg w-48 py-2 pl-2 pr-4 outline-none text-gray-700'
+					className='border border-gray-300 rounded-lg w-full max-w-48 py-2 pl-2 pr-4 outline-none text-gray-700 text-sm md:text-base'
 				>
 					<option value='Усі апарати'>Усі апарати</option>
 					{devices.map(device => (

@@ -19,6 +19,9 @@ export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
 	const { setIsAuthenticated, fetchStats, setUserRole } = useAuth()
 	const navigate = useNavigate()
 
+	const adminRoles = ['super_admin', 'admin', 'accountant']
+	const deviceRoles = ['operator', 'driver', 'technician', 'collector']
+
 	if (!isOpen) return null
 
 	const handleLogin = async () => {
@@ -32,6 +35,7 @@ export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
 			localStorage.setItem('refreshToken', res.data.refresh)
 
 			const user = await UsersService.getMe()
+			console.log(user)
 			const role = user.data.role
 
 			setIsAuthenticated(true)
@@ -40,7 +44,13 @@ export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
 			localStorage.setItem('userRole', role)
 
 			await Promise.all([fetchDevices, fetchStats])
-			navigate('/')
+			if (adminRoles.includes(role)) {
+				navigate('/')
+			} else if (deviceRoles.includes(role)) {
+				navigate('/devices/list')
+			} else {
+				navigate('/')
+			}
 			onClose(false)
 		} catch (error) {
 			console.error('Login error:', error)
@@ -51,7 +61,7 @@ export default function ModalLogin({ isOpen, onClose }: ModalLoginProps) {
 	}
 
 	return (
-		<div className='fixed inset-0 flex items-center justify-center bg-black bg-opacity-50'>
+		<div className='fixed inset-0 flex items-center justify-center bg-blue-500'>
 			<div className='bg-white rounded-2xl p-6 w-80 shadow-lg relative'>
 				<h2 className='text-xl font-semibold text-center text-gray-500 mb-2'>
 					Вхід

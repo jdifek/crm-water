@@ -81,10 +81,10 @@ const DailyStatsTableSection = ({
 			className='bg-white shadow-lg rounded-lg p-6 mt-6'
 		>
 			{/* Верхняя панель */}
-			<div className='flex items-center mb-8'>
+			<div className='flex justify-between items-center mb-8 max-sm:gap-3'>
 				<button
 					onClick={handleExportToExcel}
-					className='flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition'
+					className='flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition text-sm sm:text-base'
 				>
 					<FiDownload size={18} /> Экспорт
 				</button>

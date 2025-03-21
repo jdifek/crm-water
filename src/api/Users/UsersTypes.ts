@@ -9,19 +9,33 @@ export interface IUser {
 	created_at: string
 	updated_at: string
 	username: string
-	role:
-		| 'super_admin'
-		| 'admin'
-		| 'operator'
-		| 'driver'
-		| 'technician'
-		| 'collector'
-		| 'accountant'
-	access: string
+	role: UserRole
+	access?: string
 	email: string
 	full_name: string
 	phone_number: string
+	has_access_to?: HasAccessTo[]
+	notified_by?: NotifiedBy[]
 }
+
+export type HasAccessTo = {
+	id: number
+	name: string
+}
+
+export type NotifiedBy = {
+	id: number
+	name: string
+}
+
+export type UserRole =
+	| 'super_admin'
+	| 'admin'
+	| 'operator'
+	| 'driver'
+	| 'technician'
+	| 'collector'
+	| 'accountant'
 
 // UserMe Response
 export interface IUserMeResponse {

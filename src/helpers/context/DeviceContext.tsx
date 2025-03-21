@@ -4,8 +4,10 @@ import PosDevicesService from '../../api/PosDevices/PosDevicesService'
 import {
 	IPosDevice,
 	IPosDeviceDetails,
+	IPosTechnicianDeviceDetails,
 } from '../../api/PosDevices/PosDevicesTypes'
 import { useAuth } from '../context/AuthContext'
+import { UserRole } from '../../api/Users/UsersTypes'
 
 interface DeviceContextType {
 	selectedDeviceId: number
@@ -13,7 +15,7 @@ interface DeviceContextType {
 	handleDeviceChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 	devices: IPosDevice[]
 	setDevices: React.Dispatch<React.SetStateAction<IPosDevice[]>>
-	selectedDevice?: IPosDeviceDetails
+	selectedDevice?: IPosDeviceDetails | IPosTechnicianDeviceDetails
 	loading: boolean
 	error?: string
 	fetchDevices: (isActive?: boolean) => void
@@ -29,11 +31,20 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 
 	const [devices, setDevices] = useState<IPosDevice[]>([])
 	const [selectedDevice, setSelectedDevice] = useState<
-		IPosDeviceDetails | undefined
+		IPosDeviceDetails | IPosTechnicianDeviceDetails | undefined
 	>(undefined)
 	const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(null)
 	const [loading, setLoading] = useState<boolean>(false)
 	const [error, setError] = useState<string | undefined>(undefined)
+
+	const deviceRoles = [
+		'super_admin',
+		'admin',
+		'operator',
+		'driver',
+		'technician',
+		'collector',
+	]
 
 	const fetchDevices = async (isActive?: boolean) => {
 		setLoading(true)
@@ -48,7 +59,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 					isActive !== undefined ? { is_active: isActive } : {}
 				)
 				setDevices(res.data.results)
-			} else {
+			} else if (userRole !== 'accountant') {
 				const res = await PosDevicesService.getDevices(
 					isActive !== undefined ? { is_active: isActive } : {}
 				)
@@ -63,7 +74,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 
 	// Загружаем устройства при изменении состояния аутентификации
 	useEffect(() => {
-		if (isAuthenticated) {
+		if (isAuthenticated && userRole) {
 			fetchDevices(true)
 		} else {
 			setDevices([])
@@ -99,7 +110,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 							selectedDeviceId
 						)
 						console.log('Fetched device:', device.data)
-						setSelectedDevice(device.data as IPosDeviceDetails)
+						setSelectedDevice(device.data as IPosTechnicianDeviceDetails)
 					} else {
 						const device = await PosDevicesService.getDeviceById(
 							selectedDeviceId

@@ -2,16 +2,16 @@
 // POS Device Response
 export interface IPosDevice {
 	id: number
-	name: string
-	serial_number: string
-	address: string
-	has_connection: boolean
-	sensor_is_ok: boolean
-	system_is_ok: boolean
-	tank_size: string
-	water_sold_since_last_refill: string
-	water_amount_after_last_refill: string
-	water_left: number
+	name?: string
+	serial_number?: string
+	address?: string
+	has_connection?: 'true' | 'false' | boolean
+	sensor_is_ok?: 'true' | 'false' | boolean
+	system_is_ok?: 'true' | 'false' | boolean
+	tank_size?: string
+	water_sold_since_last_refill?: string
+	water_amount_after_last_refill?: string
+	water_left?: number
 }
 
 // POS Device Driver Response

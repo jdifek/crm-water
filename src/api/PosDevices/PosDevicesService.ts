@@ -38,7 +38,7 @@ export default class PosDevicesService {
 	}): Promise<IPosTechnicianDevicesListResponse> {
 		return (
 			await $api.get<IPosTechnicianDevicesListResponse>(
-				'pos/technician/driver/devices/',
+				'pos/technician/devices/',
 				{
 					params: { limit: 100, ...params },
 				}

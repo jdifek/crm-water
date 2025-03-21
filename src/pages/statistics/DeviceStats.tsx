@@ -97,10 +97,19 @@ const DeviceStats = () => {
 		}))
 	}, [deviceStats])
 
+	const maxValue = useMemo(() => {
+		const values = filteredData.map(
+			item => item[tabToKey[selectedTab]] as number
+		)
+		return values.length > 0 ? Math.max(...values) : 0
+	}, [filteredData, selectedTab])
+
+	const yAxisMax = maxValue > 20000 ? maxValue + 3000 : maxValue + 300
+
 	return (
 		<div className='p-6 space-y-6'>
 			{/* Фильтры */}
-			<div className='flex items-center gap-2 border-b border-gray-300 pb-2'>
+			<div className='flex items-center gap-2 border-b border-gray-300 pb-2 w-full max-w-56'>
 				<DatePicker
 					selectsRange
 					startDate={startDate}
@@ -120,9 +129,9 @@ const DeviceStats = () => {
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5 }}
-				className='bg-white shadow-lg rounded-lg p-6'
+				className='bg-white shadow-lg rounded-lg p-3 sm:p-6'
 			>
-				<div className='flex gap-4 mb-6 pb-2'>
+				<div className='flex max-sm:flex-wrap gap-4 mb-6 pb-2'>
 					{TABS.map(({ key, label }) => (
 						<button
 							key={key}
@@ -152,8 +161,17 @@ const DeviceStats = () => {
 						<ResponsiveContainer width='100%' height='100%'>
 							<BarChart data={filteredData} layout='vertical'>
 								<CartesianGrid strokeDasharray='3 3' />
-								<XAxis type='number' />
-								<YAxis dataKey='devices' type='category' width={100} />
+								<XAxis
+									type='number'
+									domain={[0, yAxisMax]}
+									className='text-sm'
+								/>
+								<YAxis
+									dataKey='devices'
+									type='category'
+									width={100}
+									className='text-sm'
+								/>
 								<Tooltip
 									formatter={value => [
 										`${value}`,

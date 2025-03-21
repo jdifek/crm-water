@@ -64,45 +64,56 @@ export const ReplacingValues = () => {
 					<div className='p-4 lg:p-8'>
 						<div className='bg-white rounded-lg shadow p-6'>
 							<div className='space-y-6'>
-								{Object.entries(fieldLabels).map(([key, label]) => (
-									<div key={key}>
-										<label className='block text-sm font-medium text-gray-700'>
-											{label}
-										</label>
-										<div className='mt-1 flex rounded-md shadow-sm'>
-											{units[key] === 'шт' ? (
-												<input
-													type='number'
-													step={1}
-													pattern='\d*'
-													onKeyDown={e => {
-														if (
-															e.key === 'e' ||
-															e.key === '.' ||
-															e.key === ','
-														) {
-															e.preventDefault()
+								{Object.entries(fieldLabels)
+									.filter(
+										([key, label]) =>
+											label.length > 0 &&
+											selectedDevice[key] !== undefined &&
+											selectedDevice[key] !== null
+									)
+									.map(([key, label]) => (
+										<div key={key}>
+											<label className='block text-sm font-medium text-gray-700'>
+												{label}
+											</label>
+											<div className='mt-1 flex rounded-md shadow-sm'>
+												{units[key] === 'шт' ? (
+													<input
+														type='number'
+														step={1}
+														pattern='\d*'
+														onKeyDown={e => {
+															if (
+																e.key === 'e' ||
+																e.key === '.' ||
+																e.key === ','
+															) {
+																e.preventDefault()
+															}
+														}}
+														className='block w-full rounded-md border-gray-300 shadow-sm'
+														value={
+															editedValues[key] ?? selectedDevice[key] ?? ''
 														}
-													}}
-													className='block w-full rounded-md border-gray-300 shadow-sm'
-													value={editedValues[key] ?? selectedDevice[key] ?? ''}
-													onChange={e => handleChange(key, e.target.value)}
-												/>
-											) : (
-												<input
-													type='number'
-													className='block w-full rounded-md border-gray-300 shadow-sm'
-													value={editedValues[key] ?? selectedDevice[key] ?? ''}
-													onChange={e => handleChange(key, e.target.value)}
-												/>
-											)}
+														onChange={e => handleChange(key, e.target.value)}
+													/>
+												) : (
+													<input
+														type='number'
+														className='block w-full rounded-md border-gray-300 shadow-sm'
+														value={
+															editedValues[key] ?? selectedDevice[key] ?? ''
+														}
+														onChange={e => handleChange(key, e.target.value)}
+													/>
+												)}
 
-											<span className='inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500'>
-												{units[key] || ''}
-											</span>
+												<span className='inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500'>
+													{units[key] || ''}
+												</span>
+											</div>
 										</div>
-									</div>
-								))}
+									))}
 								<ButtonSave onClick={handleSave} disabled={isSaving} />
 							</div>
 						</div>

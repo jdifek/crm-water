@@ -19,6 +19,7 @@ import SalesByDay from './pages/statistics/SalesByDay'
 import Statistics from './pages/statistics/Statistics'
 import YearlyReport from './pages/statistics/YearlyReport'
 import { useAuth } from './helpers/context/AuthContext'
+import UserProfile from './pages/UserProfile'
 
 interface ProtectedRouteProps {
 	component: React.ComponentType
@@ -29,7 +30,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 	component: Component,
 	allowedRoles,
 }) => {
-	const { userRole } = useAuth()
+	const { userRole, isAuthenticated } = useAuth()
+	if (!isAuthenticated) {
+		return <Navigate to='/' replace />
+	}
 	if (!userRole || !allowedRoles.includes(userRole)) {
 		return <Navigate to='/' />
 	}
@@ -40,7 +44,34 @@ function App() {
 	return (
 		<Layout>
 			<Routes>
-				<Route path='/' element={<Dashboard />} />
+				<Route
+					path='/'
+					element={
+						<ProtectedRoute
+							component={Dashboard}
+							allowedRoles={['super_admin', 'admin', 'accountant']}
+						/>
+					}
+				/>
+
+				{/* UserProfile */}
+				<Route
+					path='/profile'
+					element={
+						<ProtectedRoute
+							component={UserProfile}
+							allowedRoles={[
+								'super_admin',
+								'admin',
+								'operator',
+								'driver',
+								'technician',
+								'collector',
+								'accountant',
+							]}
+						/>
+					}
+				/>
 
 				{/* Devices */}
 				<Route
@@ -80,7 +111,14 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={DeviceSettings}
-							allowedRoles={['super_admin', 'admin', 'operator', 'technician']}
+							allowedRoles={[
+								'super_admin',
+								'admin',
+								'operator',
+								'technician',
+								'driver',
+								'collector',
+							]}
 						/>
 					}
 				/>
@@ -89,7 +127,14 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={ReplacingValues}
-							allowedRoles={['super_admin', 'admin', 'operator', 'technician']}
+							allowedRoles={[
+								'super_admin',
+								'admin',
+								'operator',
+								'technician',
+								'driver',
+								'collector',
+							]}
 						/>
 					}
 				/>
@@ -98,7 +143,14 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={DeviceConfig}
-							allowedRoles={['super_admin', 'admin', 'operator', 'technician']}
+							allowedRoles={[
+								'super_admin',
+								'admin',
+								'operator',
+								'technician',
+								'driver',
+								'collector',
+							]}
 						/>
 					}
 				/>
@@ -107,7 +159,14 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={DeviceRegulations}
-							allowedRoles={['super_admin', 'admin', 'operator', 'technician']}
+							allowedRoles={[
+								'super_admin',
+								'admin',
+								'operator',
+								'technician',
+								'driver',
+								'collector',
+							]}
 						/>
 					}
 				/>
@@ -118,7 +177,7 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={Statistics}
-							allowedRoles={['super_admin', 'admin', 'operator', 'accountant']}
+							allowedRoles={['super_admin', 'admin', 'accountant']}
 						/>
 					}
 				/>
@@ -127,7 +186,7 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={SalesByDay}
-							allowedRoles={['super_admin', 'admin', 'operator', 'accountant']}
+							allowedRoles={['super_admin', 'admin', 'accountant']}
 						/>
 					}
 				/>
@@ -136,7 +195,7 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={DailyStats}
-							allowedRoles={['super_admin', 'admin', 'operator', 'accountant']}
+							allowedRoles={['super_admin', 'admin', 'accountant']}
 						/>
 					}
 				/>
@@ -145,7 +204,7 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={DeviceStats}
-							allowedRoles={['super_admin', 'admin', 'operator', 'accountant']}
+							allowedRoles={['super_admin', 'admin', 'accountant']}
 						/>
 					}
 				/>
@@ -154,13 +213,7 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={Collection}
-							allowedRoles={[
-								'super_admin',
-								'admin',
-								'operator',
-								'collector',
-								'accountant',
-							]}
+							allowedRoles={['super_admin', 'admin', 'accountant']}
 						/>
 					}
 				/>
@@ -169,7 +222,7 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={LiterStats}
-							allowedRoles={['super_admin', 'admin', 'operator', 'accountant']}
+							allowedRoles={['super_admin', 'admin', 'accountant']}
 						/>
 					}
 				/>
@@ -178,7 +231,7 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={YearlyReport}
-							allowedRoles={['super_admin', 'admin', 'operator', 'accountant']}
+							allowedRoles={['super_admin', 'admin', 'accountant']}
 						/>
 					}
 				/>
@@ -189,7 +242,7 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={CardsList}
-							allowedRoles={['super_admin', 'admin', 'operator']}
+							allowedRoles={['super_admin', 'admin']}
 						/>
 					}
 				/>
@@ -200,7 +253,7 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={MaintenanceHistory}
-							allowedRoles={['super_admin', 'admin', 'operator', 'technician']}
+							allowedRoles={['super_admin', 'admin']}
 						/>
 					}
 				/>

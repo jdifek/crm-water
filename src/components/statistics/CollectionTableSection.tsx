@@ -89,10 +89,10 @@ const CollectionTableSection = ({
 			initial={{ opacity: 0, y: 10 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.5 }}
-			className='bg-white shadow-lg rounded-lg p-6 mt-6'
+			className='bg-white shadow-lg rounded-lg p-6 mt-6 max-xl:max-w-2xl max-xl:mx-auto'
 		>
 			{/* Сводная информация */}
-			<div className='flex flex-col gap-4 mb-4 text-black'>
+			<div className='flex flex-col gap-4 mb-4 text-black text-sm sm:text-base'>
 				<div>
 					<span className='font-semibold'>Сумма, купюры: </span> {totalNotes}
 				</div>
@@ -102,17 +102,17 @@ const CollectionTableSection = ({
 			</div>
 
 			{/* Верхняя панель */}
-			<div className='flex justify-between items-center mb-4'>
+			<div className='flex justify-between items-center mb-4 max-sm:gap-3'>
 				<div>
 					<button
 						onClick={handleExportToExcel}
-						className='flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition'
+						className='flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition text-sm sm:text-base'
 					>
 						<FiDownload size={18} /> Экспорт
 					</button>
 
 					{/* Селект количества записей */}
-					<div className='relative mt-4'>
+					<div className='relative mt-4 text-sm md:text-base max-sm:gap-2'>
 						<span>Показать </span>
 						<select
 							value={itemsPerPage}
@@ -140,7 +140,7 @@ const CollectionTableSection = ({
 						setSearchQuery(e.target.value)
 						setCurrentPage(1)
 					}}
-					className='border-b border-gray-400 py-1 text-gray-700 focus:outline-none focus:border-blue-500'
+					className='border-b border-gray-400 py-1 text-gray-700 focus:outline-none focus:border-blue-500 w-full max-sm:max-w-32 max-w-44'
 				/>
 			</div>
 
@@ -242,25 +242,25 @@ const CollectionTableSection = ({
 
 			{/* Нижняя панель с записями и пагинацией */}
 			<div className='flex justify-between items-center mt-4'>
-				<p className='text-gray-600'>
+				<p className='text-gray-600 text-sm md:text-base'>
 					Записи с {Math.min((currentPage - 1) * itemsPerPage + 1, totalCount)}{' '}
 					до {Math.min(currentPage * itemsPerPage, totalCount)} из {totalCount}{' '}
 					записей
 				</p>
 
 				{/* Пагинация */}
-				<div className='flex justify-end gap-2'>
+				<div className='flex max-sm:flex-wrap justify-end gap-2'>
 					<button
 						onClick={() => setCurrentPage(1)}
 						disabled={currentPage === 1}
-						className='p-2 hover:bg-gray-300 disabled:opacity-50'
+						className='p-2 hover:bg-gray-300 disabled:opacity-50 text-sm sm:text-base'
 					>
 						Первая
 					</button>
 					<button
 						onClick={() => setCurrentPage(currentPage - 1)}
 						disabled={currentPage === 1}
-						className='p-2 hover:bg-gray-300 disabled:opacity-50'
+						className='p-2 hover:bg-gray-300 disabled:opacity-50 text-sm sm:text-base'
 					>
 						Предыдущая
 					</button>
@@ -286,14 +286,14 @@ const CollectionTableSection = ({
 					<button
 						onClick={() => setCurrentPage(currentPage + 1)}
 						disabled={currentPage === totalPages}
-						className='p-2 hover:bg-gray-300 disabled:opacity-50'
+						className='p-2 hover:bg-gray-300 disabled:opacity-50 text-sm sm:text-base'
 					>
 						Следующая
 					</button>
 					<button
 						onClick={() => setCurrentPage(totalPages)}
 						disabled={currentPage === totalPages}
-						className='p-2 hover:bg-gray-300 disabled:opacity-50'
+						className='p-2 hover:bg-gray-300 disabled:opacity-50 text-sm sm:text-base'
 					>
 						Последняя
 					</button>
