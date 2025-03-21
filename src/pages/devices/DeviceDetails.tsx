@@ -4,7 +4,7 @@ import { DeviceNavigate } from '../../components/Device/Navigate'
 import { SelectDevice } from '../../components/Device/SelectDevice'
 import { useDevice } from '../../helpers/context/DeviceContext'
 import { useAuth } from '../../helpers/context/AuthContext'
-import { IoMenu } from 'react-icons/io5'
+import { IoMenu, IoSettingsSharp } from 'react-icons/io5'
 
 const DeviceDetails = () => {
 	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
@@ -272,10 +272,10 @@ const DeviceDetails = () => {
 					</div>
 				</div>
 				<button
-					className='xl:hidden fixed top-4 right-4 z-50 p-2 bg-blue-500 text-white rounded-lg shadow-md'
+					className='xl:hidden fixed top-16 right-4 z-50 p-2 bg-blue-500 hover:bg-blue-700 text-white rounded-lg shadow-md'
 					onClick={() => setIsSidebarOpen(true)}
 				>
-					<IoMenu size={24} />
+					<IoSettingsSharp size={24} />
 				</button>
 				<DeviceSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 			</div>

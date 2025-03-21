@@ -15,7 +15,7 @@ export const DeviceNavigate = () => {
 	return (
 		<ul className='flex flex-wrap gap-2 mb-4'>
 			{menuItems.map(({ name, path }) => (
-				<li key={name} className='p-2 rounded-lg'>
+				<li key={name} className='p-2 rounded-lg text-sm md:text-base'>
 					<NavLink
 						to={path}
 						className={({ isActive }) =>

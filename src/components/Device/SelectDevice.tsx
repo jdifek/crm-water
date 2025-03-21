@@ -12,7 +12,7 @@ export const SelectDevice = () => {
 
 	return (
 		<select
-			className='mb-3 border p-2 rounded'
+			className='w-full max-w-[275px] mb-3 border p-2 rounded text-sm md:text-base'
 			value={selectedDeviceId || ''}
 			onChange={handleDeviceChange}
 		>

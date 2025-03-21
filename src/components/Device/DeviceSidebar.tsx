@@ -84,7 +84,7 @@ export const DeviceSidebar = ({ isOpen, setIsOpen }: DeviceSidebarProps) => {
 				{/* Кнопка "Закрыть" для моб ширине */}
 				{isOpen && (
 					<button
-						className='xl:hidden mb-4 text-red-500 flex items-center gap-2'
+						className='xl:hidden mb-4 text-red-500 hover:text-red-600 flex items-center gap-2'
 						onClick={() => setIsOpen(false)}
 					>
 						<IoClose size={24} />
