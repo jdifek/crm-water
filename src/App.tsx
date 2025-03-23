@@ -1,276 +1,285 @@
 /* временно прописанные роли пользователей */
-import { Route, Routes, Navigate } from 'react-router-dom'
-import DevicesList from './components/DevicesList'
-import { Layout } from './components/Layout'
-import Users from './pages/admin/Users'
-import CardsList from './pages/cards/CardsList'
-import Dashboard from './pages/Dashboard'
-import { DeviceConfig } from './pages/devices/DeviceConfig'
-import DeviceDetails from './pages/devices/DeviceDetails'
-import DeviceRegulations from './pages/devices/DeviceRegulations'
-import DeviceSettings from './pages/devices/DeviceSettings'
-import { ReplacingValues } from './pages/devices/ReplacingValues'
-import MaintenanceHistory from './pages/maintenance/MaintenanceHistory'
-import Collection from './pages/statistics/Collection'
-import DailyStats from './pages/statistics/DailyStats'
-import DeviceStats from './pages/statistics/DeviceStats'
-import LiterStats from './pages/statistics/LiterStats'
-import SalesByDay from './pages/statistics/SalesByDay'
-import Statistics from './pages/statistics/Statistics'
-import YearlyReport from './pages/statistics/YearlyReport'
-import { useAuth } from './helpers/context/AuthContext'
-import UserProfile from './pages/UserProfile'
+import { Route, Routes, Navigate } from "react-router-dom";
+import DevicesList from "./components/DevicesList";
+import { Layout } from "./components/Layout";
+import Users from "./pages/admin/Users";
+import CardsList from "./pages/cards/CardsList";
+import Dashboard from "./pages/Dashboard";
+import { DeviceConfig } from "./pages/devices/DeviceConfig";
+import DeviceDetails from "./pages/devices/DeviceDetails";
+import DeviceRegulations from "./pages/devices/DeviceRegulations";
+import DeviceSettings from "./pages/devices/DeviceSettings";
+import { ReplacingValues } from "./pages/devices/ReplacingValues";
+import MaintenanceHistory from "./pages/maintenance/MaintenanceHistory";
+import Collection from "./pages/statistics/Collection";
+import DailyStats from "./pages/statistics/DailyStats";
+import DeviceStats from "./pages/statistics/DeviceStats";
+import LiterStats from "./pages/statistics/LiterStats";
+import SalesByDay from "./pages/statistics/SalesByDay";
+import Statistics from "./pages/statistics/Statistics";
+import YearlyReport from "./pages/statistics/YearlyReport";
+import { useAuth } from "./helpers/context/AuthContext";
+import UserProfile from "./pages/UserProfile";
 
 interface ProtectedRouteProps {
-	component: React.ComponentType
-	allowedRoles: string[]
+  component: React.ComponentType;
+  allowedRoles: string[];
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-	component: Component,
-	allowedRoles,
+  component: Component,
+  allowedRoles,
 }) => {
-	const { userRole, isAuthenticated } = useAuth()
-	if (!isAuthenticated) {
-		return <Navigate to='/' replace />
-	}
-	if (!userRole || !allowedRoles.includes(userRole)) {
-		return <Navigate to='/' />
-	}
-	return <Component />
-}
+  const { userRole, isAuthenticated } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+  if (!userRole || !allowedRoles.includes(userRole)) {
+    return <Navigate to="/" />;
+  }
+  return <Component />;
+};
 
 function App() {
-	return (
-		<Layout>
-			<Routes>
-				<Route
-					path='/'
-					element={
-						<ProtectedRoute
-							component={Dashboard}
-							allowedRoles={['super_admin', 'admin', 'accountant']}
-						/>
-					}
-				/>
+  const { loading } = useAuth();
 
-				{/* UserProfile */}
-				<Route
-					path='/profile'
-					element={
-						<ProtectedRoute
-							component={UserProfile}
-							allowedRoles={[
-								'super_admin',
-								'admin',
-								'operator',
-								'driver',
-								'technician',
-								'collector',
-								'accountant',
-							]}
-						/>
-					}
-				/>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-lg text-gray-600">Загрузка...</div>
+      </div>
+    );
+  }
+  return (
+    <Layout>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute
+              component={Dashboard}
+              allowedRoles={["super_admin", "admin", "accountant"]}
+            />
+          }
+        />
 
-				{/* Devices */}
-				<Route
-					path='/devices/list'
-					element={
-						<ProtectedRoute
-							component={DevicesList}
-							allowedRoles={[
-								'super_admin',
-								'admin',
-								'operator',
-								'driver',
-								'technician',
-								'collector',
-							]}
-						/>
-					}
-				/>
-				<Route
-					path='/devices/details/:id'
-					element={
-						<ProtectedRoute
-							component={DeviceDetails}
-							allowedRoles={[
-								'super_admin',
-								'admin',
-								'operator',
-								'driver',
-								'technician',
-								'collector',
-							]}
-						/>
-					}
-				/>
-				<Route
-					path='/devices/settings/:id'
-					element={
-						<ProtectedRoute
-							component={DeviceSettings}
-							allowedRoles={[
-								'super_admin',
-								'admin',
-								'operator',
-								'technician',
-								'driver',
-								'collector',
-							]}
-						/>
-					}
-				/>
-				<Route
-					path='/devices/replacing/:id'
-					element={
-						<ProtectedRoute
-							component={ReplacingValues}
-							allowedRoles={[
-								'super_admin',
-								'admin',
-								'operator',
-								'technician',
-								'driver',
-								'collector',
-							]}
-						/>
-					}
-				/>
-				<Route
-					path='/devices/config/:id'
-					element={
-						<ProtectedRoute
-							component={DeviceConfig}
-							allowedRoles={[
-								'super_admin',
-								'admin',
-								'operator',
-								'technician',
-								'driver',
-								'collector',
-							]}
-						/>
-					}
-				/>
-				<Route
-					path='/devices/regulations/:id'
-					element={
-						<ProtectedRoute
-							component={DeviceRegulations}
-							allowedRoles={[
-								'super_admin',
-								'admin',
-								'operator',
-								'technician',
-								'driver',
-								'collector',
-							]}
-						/>
-					}
-				/>
+        {/* UserProfile */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute
+              component={UserProfile}
+              allowedRoles={[
+                "super_admin",
+                "admin",
+                "operator",
+                "driver",
+                "technician",
+                "collector",
+                "accountant",
+              ]}
+            />
+          }
+        />
 
-				{/* Statistics */}
-				<Route
-					path='/stats/sales'
-					element={
-						<ProtectedRoute
-							component={Statistics}
-							allowedRoles={['super_admin', 'admin', 'accountant']}
-						/>
-					}
-				/>
-				<Route
-					path='/stats/by-days'
-					element={
-						<ProtectedRoute
-							component={SalesByDay}
-							allowedRoles={['super_admin', 'admin', 'accountant']}
-						/>
-					}
-				/>
-				<Route
-					path='/stats/daily'
-					element={
-						<ProtectedRoute
-							component={DailyStats}
-							allowedRoles={['super_admin', 'admin', 'accountant']}
-						/>
-					}
-				/>
-				<Route
-					path='/stats/devices'
-					element={
-						<ProtectedRoute
-							component={DeviceStats}
-							allowedRoles={['super_admin', 'admin', 'accountant']}
-						/>
-					}
-				/>
-				<Route
-					path='/stats/collection'
-					element={
-						<ProtectedRoute
-							component={Collection}
-							allowedRoles={['super_admin', 'admin', 'accountant']}
-						/>
-					}
-				/>
-				<Route
-					path='/stats/by-liters'
-					element={
-						<ProtectedRoute
-							component={LiterStats}
-							allowedRoles={['super_admin', 'admin', 'accountant']}
-						/>
-					}
-				/>
-				<Route
-					path='/stats/yearly'
-					element={
-						<ProtectedRoute
-							component={YearlyReport}
-							allowedRoles={['super_admin', 'admin', 'accountant']}
-						/>
-					}
-				/>
+        {/* Devices */}
+        <Route
+          path="/devices/list"
+          element={
+            <ProtectedRoute
+              component={DevicesList}
+              allowedRoles={[
+                "super_admin",
+                "admin",
+                "operator",
+                "driver",
+                "technician",
+                "collector",
+              ]}
+            />
+          }
+        />
+        <Route
+          path="/devices/details/:id"
+          element={
+            <ProtectedRoute
+              component={DeviceDetails}
+              allowedRoles={[
+                "super_admin",
+                "admin",
+                "operator",
+                "driver",
+                "technician",
+                "collector",
+              ]}
+            />
+          }
+        />
+        <Route
+          path="/devices/settings/:id"
+          element={
+            <ProtectedRoute
+              component={DeviceSettings}
+              allowedRoles={[
+                "super_admin",
+                "admin",
+                "operator",
+                "technician",
+                "driver",
+                "collector",
+              ]}
+            />
+          }
+        />
+        <Route
+          path="/devices/replacing/:id"
+          element={
+            <ProtectedRoute
+              component={ReplacingValues}
+              allowedRoles={[
+                "super_admin",
+                "admin",
+                "operator",
+                "technician",
+                "driver",
+                "collector",
+              ]}
+            />
+          }
+        />
+        <Route
+          path="/devices/config/:id"
+          element={
+            <ProtectedRoute
+              component={DeviceConfig}
+              allowedRoles={[
+                "super_admin",
+                "admin",
+                "operator",
+                "technician",
+                "driver",
+                "collector",
+              ]}
+            />
+          }
+        />
+        <Route
+          path="/devices/regulations/:id"
+          element={
+            <ProtectedRoute
+              component={DeviceRegulations}
+              allowedRoles={[
+                "super_admin",
+                "admin",
+                "operator",
+                "technician",
+                "driver",
+                "collector",
+              ]}
+            />
+          }
+        />
 
-				{/* Cards */}
-				<Route
-					path='/cards/list'
-					element={
-						<ProtectedRoute
-							component={CardsList}
-							allowedRoles={['super_admin', 'admin']}
-						/>
-					}
-				/>
+        {/* Statistics */}
+        <Route
+          path="/stats/sales"
+          element={
+            <ProtectedRoute
+              component={Statistics}
+              allowedRoles={["super_admin", "admin", "accountant"]}
+            />
+          }
+        />
+        <Route
+          path="/stats/by-days"
+          element={
+            <ProtectedRoute
+              component={SalesByDay}
+              allowedRoles={["super_admin", "admin", "accountant"]}
+            />
+          }
+        />
+        <Route
+          path="/stats/daily"
+          element={
+            <ProtectedRoute
+              component={DailyStats}
+              allowedRoles={["super_admin", "admin", "accountant"]}
+            />
+          }
+        />
+        <Route
+          path="/stats/devices"
+          element={
+            <ProtectedRoute
+              component={DeviceStats}
+              allowedRoles={["super_admin", "admin", "accountant"]}
+            />
+          }
+        />
+        <Route
+          path="/stats/collection"
+          element={
+            <ProtectedRoute
+              component={Collection}
+              allowedRoles={["super_admin", "admin", "accountant"]}
+            />
+          }
+        />
+        <Route
+          path="/stats/by-liters"
+          element={
+            <ProtectedRoute
+              component={LiterStats}
+              allowedRoles={["super_admin", "admin", "accountant"]}
+            />
+          }
+        />
+        <Route
+          path="/stats/yearly"
+          element={
+            <ProtectedRoute
+              component={YearlyReport}
+              allowedRoles={["super_admin", "admin", "accountant"]}
+            />
+          }
+        />
 
-				{/* Maintenance */}
-				<Route
-					path='/maintenance/history'
-					element={
-						<ProtectedRoute
-							component={MaintenanceHistory}
-							allowedRoles={['super_admin', 'admin']}
-						/>
-					}
-				/>
+        {/* Cards */}
+        <Route
+          path="/cards/list"
+          element={
+            <ProtectedRoute
+              component={CardsList}
+              allowedRoles={["super_admin", "admin"]}
+            />
+          }
+        />
 
-				{/* Administration */}
-				<Route
-					path='/admin/users'
-					element={
-						<ProtectedRoute component={Users} allowedRoles={['super_admin']} />
-					}
-				/>
-			</Routes>
-		</Layout>
-	)
+        {/* Maintenance */}
+        <Route
+          path="/maintenance/history"
+          element={
+            <ProtectedRoute
+              component={MaintenanceHistory}
+              allowedRoles={["super_admin", "admin"]}
+            />
+          }
+        />
+
+        {/* Administration */}
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute component={Users} allowedRoles={["super_admin"]} />
+          }
+        />
+      </Routes>
+    </Layout>
+  );
 }
 
-export default App
+export default App;
 
 // import { Route, Routes } from 'react-router-dom'
 // import DevicesList from './components/DevicesList'
