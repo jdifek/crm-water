@@ -1,19 +1,22 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
+import App from '../App.tsx'
 
 import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './helpers/context/AuthContext.tsx'
 import { DeviceProvider } from './helpers/context/DeviceContext.tsx'
 import './index.css'
+import { UserProfileProvider } from './helpers/context/UserProfileContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<BrowserRouter>
 			<AuthProvider>
-				<DeviceProvider>
-					<App />
-				</DeviceProvider>
+				<UserProfileProvider>
+					<DeviceProvider>
+						<App />
+					</DeviceProvider>
+				</UserProfileProvider>
 			</AuthProvider>
 		</BrowserRouter>
 	</StrictMode>

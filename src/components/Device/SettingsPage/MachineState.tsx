@@ -1,29 +1,67 @@
-import { ButtonSave } from "../../ui/Button";
+import { useEffect, useState } from 'react'
+import { ButtonSave } from '../../ui/Button'
+import PosDevicesService from '../../../api/PosDevices/PosDevicesService'
+import {
+	IPosDeviceDetails,
+	IPosTechnicianDeviceDetails,
+} from '../../../api/PosDevices/PosDevicesTypes'
 
 interface MachineStateProps {
-  active: boolean;
-  setActive: React.Dispatch<React.SetStateAction<boolean>>;
+	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
+
+	loading: boolean
 }
 
-export const MachineState = ({ active, setActive }: MachineStateProps) => {
-  return (
-    <div className="flex justify-between mb-8">
-      <p className="font-bold">Состояние автомата</p>
-      <div
-        className={`flex border-solid w-[15rem] border-2 ${
-          active ? "justify-start" : "justify-end"
-        }`}
-      >
-        <p
-          onClick={() => setActive((data) => !data)}
-          className={`text-white p-2 cursor-pointer ${
-            active ? "bg-green-500" : "bg-red-500"
-          }`}
-        >
-          {active ? "Активирован" : "Деактивирован"}
-        </p>
-      </div>
-      <ButtonSave />
-    </div>
-  );
-};
+export const MachineState = ({
+	selectedDevice,
+	loading,
+}: MachineStateProps) => {
+	const [active, setActive] = useState<boolean>(selectedDevice.is_active)
+	const [isSaving, setIsSaving] = useState<boolean>(false)
+
+	useEffect(() => {
+		setActive(selectedDevice.is_active)
+	}, [selectedDevice])
+
+	const handleSave = async () => {
+		try {
+			setIsSaving(true)
+			await PosDevicesService.updateDevice(selectedDevice.id, {
+				is_active: active,
+			})
+		} catch (error) {
+			console.error('Ошибка при обновлении состояния аппарата:', error)
+		} finally {
+			setIsSaving(false)
+		}
+	}
+
+	if (loading) {
+		return (
+			<div className='flex justify-center items-center py-6'>
+				<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600'></div>
+			</div>
+		)
+	}
+
+	return (
+		<div className='flex justify-between mb-8'>
+			<p className='font-bold'>Состояние автомата</p>
+			<div
+				className={`flex border-solid w-[15rem] border-2 ${
+					active ? 'justify-start' : 'justify-end'
+				}`}
+			>
+				<p
+					onClick={() => setActive(data => !data)}
+					className={`text-white p-2 cursor-pointer ${
+						active ? 'bg-green-500' : 'bg-red-500'
+					}`}
+				>
+					{active ? 'Активирован' : 'Деактивирован'}
+				</p>
+			</div>
+			<ButtonSave onClick={handleSave} disabled={isSaving} />
+		</div>
+	)
+}

@@ -143,11 +143,13 @@
 import { useEffect, useState } from 'react'
 import { IUser } from '../../api/Users/UsersTypes'
 import UsersService from '../../api/Users/UsersService'
+import { useNavigate } from 'react-router-dom'
 
 const Users = () => {
 	const [users, setUsers] = useState<IUser[]>([])
 	const [isLoading, setIsLoading] = useState<boolean>(false)
 	const [error, setError] = useState<string | null>(null)
+	const navigate = useNavigate()
 
 	useEffect(() => {
 		const fetchUsers = async () => {
@@ -168,9 +170,13 @@ const Users = () => {
 		fetchUsers()
 	}, [])
 
+	const handleUserClick = (userId: number) => {
+		navigate(`/profile/${userId}`)
+	}
+
 	return (
 		<div className='p-4 lg:p-8'>
-			<div className='bg-white shadow-lg rounded-lg w-full p-6 mx-auto sm:max-w-[640px] md:max-w-[796px] lg:max-w-[700px] xl:max-w-[960px] 2xl:max-w-[1440px]'>
+			<div className='bg-white shadow-lg rounded-lg w-full p-6 max-xl:max-w-2xl max-xl:mx-auto'>
 				<div className='px-4 py-5 sm:px-6 flex justify-between items-center max-sm:flex-wrap max-sm:gap-3'>
 					<h3 className='text-lg leading-6 font-medium text-gray-900'>
 						Пользователи
@@ -215,7 +221,10 @@ const Users = () => {
 									users.map(user => (
 										<tr key={user.id}>
 											<td className='px-6 py-4 whitespace-nowrap'>
-												<div className='text-sm font-medium text-gray-900'>
+												<div
+													className='text-sm font-medium text-blue-500 hover:text-blue-700 cursor-pointer'
+													onClick={() => handleUserClick(user.id)}
+												>
 													{user.full_name}
 												</div>
 											</td>

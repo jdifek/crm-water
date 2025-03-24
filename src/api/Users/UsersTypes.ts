@@ -44,6 +44,33 @@ export interface IUserMeResponse {
 	status: string
 }
 
+// Set password
+
+export interface IUserSetPassword {
+	data: {
+		password1: string
+		password2: string
+	}
+	errors: []
+	status: string
+}
+
+export interface IUserSetPasswordParams {
+	password1?: string
+	password2?: string
+}
+
+// updateUsers
+
+export interface IUserUpdateParams {
+	email?: string
+	role?: string
+	last_login?: string
+	username?: string
+	full_name?: string
+	phone_number?: string
+}
+
 // Users List Response
 export interface IUsersListResponse {
 	data: { count: number; next?: string; previous?: string; results: IUser[] }

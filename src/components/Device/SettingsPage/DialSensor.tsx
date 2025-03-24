@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
 import PosDevicesService from '../../../api/PosDevices/PosDevicesService'
-import { IPosDeviceDetails } from '../../../api/PosDevices/PosDevicesTypes'
+import {
+	IPosDeviceDetails,
+	IPosTechnicianDeviceDetails,
+} from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
 
 interface DialSensorProps {
 	isOn: boolean
 	setIsOn: React.Dispatch<React.SetStateAction<boolean>>
-	selectedDevice: IPosDeviceDetails
+	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
 	loading: boolean
 }
 

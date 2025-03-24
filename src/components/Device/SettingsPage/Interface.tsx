@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 import PosDevicesService from '../../../api/PosDevices/PosDevicesService'
-import { IPosDeviceDetails } from '../../../api/PosDevices/PosDevicesTypes'
+import {
+	IPosDeviceDetails,
+	IPosTechnicianDeviceDetails,
+} from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
 
 interface IInterfaceProps {
-	selectedDevice: IPosDeviceDetails
+	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
 	loading: boolean
 }
 

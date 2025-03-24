@@ -13,7 +13,6 @@ import { useDevice } from '../../helpers/context/DeviceContext'
 
 const DeviceSettings = () => {
 	const { selectedDevice, loading, error } = useDevice()
-	const [active, setActive] = useState(true)
 	const [isOn, setIsOn] = useState(false)
 
 	if (loading) return <p>Загрузка устройства...</p>
@@ -28,7 +27,7 @@ const DeviceSettings = () => {
 				<div className='bg-white rounded-lg shadow p-5 flex flex-col flex-1'>
 					<DeviceNavigate />
 
-					<MachineState active={active} setActive={setActive} />
+					<MachineState selectedDevice={selectedDevice} loading={loading} />
 
 					<div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
 						<Wifi selectedDevice={selectedDevice} loading={loading} />

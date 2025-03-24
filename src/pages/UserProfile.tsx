@@ -1,17 +1,38 @@
-import { useEffect, useState } from 'react'
-import UsersService from '../api/Users/UsersService'
-import { useAuth } from '../helpers/context/AuthContext'
-import { IUser } from '../api/Users/UsersTypes'
 import UserNavigate from '../components/UserProfile/UserNavigate'
 import { IoSettingsSharp } from 'react-icons/io5'
 import UserSidebar from '../components/UserProfile/UserSidebar'
+import { useUserProfile } from '../helpers/context/UserProfileContext'
+import UsersService from '../api/Users/UsersService'
+import { useEffect } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { useAuth } from '../helpers/context/AuthContext'
+import { useDevice } from '../helpers/context/DeviceContext'
+
+const formatDate = (dateString: string | undefined) => {
+	if (!dateString) return '-'
+	const date = new Date(dateString)
+	const year = date.getFullYear()
+	const month = String(date.getMonth() + 1).padStart(2, '0')
+	const day = String(date.getDate()).padStart(2, '0')
+	const hours = String(date.getHours()).padStart(2, '0')
+	const minutes = String(date.getMinutes()).padStart(2, '0')
+	return `${year}-${month}-${day} ${hours}:${minutes}`
+}
 
 const UserProfile = () => {
-	const [userData, setUserData] = useState<IUser | null>(null)
-	const [loading, setLoading] = useState<boolean>(true)
-	const [error, setError] = useState<string | null>(null)
-	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
 	const { isAuthenticated } = useAuth()
+	const { setSelectedDeviceId } = useDevice()
+	const { id } = useParams<{ id: string }>()
+	const {
+		userData,
+		setUserData,
+		loading,
+		setLoading,
+		error,
+		setError,
+		isSidebarOpen,
+		setIsSidebarOpen,
+	} = useUserProfile()
 
 	useEffect(() => {
 		const fetchUserData = async () => {
@@ -23,9 +44,15 @@ const UserProfile = () => {
 			try {
 				setLoading(true)
 				setError(null)
-				const response = await UsersService.getMe()
+				let response
+				if (id) {
+					response = await UsersService.getUserById(Number(id))
+				} else {
+					response = await UsersService.getMe()
+				}
+				console.log('User profile data:', response)
 				setUserData(response.data)
-				console.log('User profile data:', response.data)
+				console.log('User profile data:', response)
 			} catch (err) {
 				console.error('Error fetching user data:', err)
 				setError('Ошибка при загрузке данных пользователя')
@@ -35,10 +62,20 @@ const UserProfile = () => {
 		}
 
 		fetchUserData()
-	}, [isAuthenticated])
+	}, [isAuthenticated, id, setUserData, setLoading, setError])
 
-	if (!isAuthenticated) {
-		return <div>Вы не авторизованы. Пожалуйста, войдите в систему.</div>
+	const handleDeviceClick = (id: number) => {
+		setSelectedDeviceId(id)
+	}
+
+	console.log('notified_by:', userData?.notified_by)
+
+	const handleRemoveUser = () => {
+		console.log('користувач видалений')
+	}
+
+	const handleDeactivateUser = () => {
+		console.log('користуча деактивований')
 	}
 
 	if (loading) {
@@ -53,29 +90,73 @@ const UserProfile = () => {
 		return <div className='text-center text-red-500 p-4'>{error}</div>
 	}
 
+	if (!userData) {
+		return (
+			<div className='text-center text-gray-500 p-4'>
+				Пользователь не найден
+			</div>
+		)
+	}
+
 	const infoSections = [
 		{
 			title: 'Основна інформація',
 			items: [
-				{ label: 'Имя', value: userData?.full_name || '-' },
-				{ label: 'По фамилии', value: '-' },
-				{ label: 'Дата последнего входа', value: userData?.last_login || '-' },
+				{ label: 'ПІБ', value: userData?.full_name || '-' },
+				{ label: 'Дата народження', value: '-' },
+				{ label: 'Філія', value: '-' },
 				{ label: 'Роль', value: userData?.role || '-' },
 				{
-					label: 'Администратор',
-					value: userData?.role === 'super_admin' ? 'Да' : 'Нет',
+					label: 'Дата активності',
+					value: formatDate(userData?.last_login) || '-',
 				},
+
 				{ label: 'Статус', value: 'Активный' },
-				{ label: 'Телефон', value: userData?.phone_number || '-' },
-				{ label: 'Email', value: userData?.email || '-' },
 			],
 		},
 		{
-			title: 'Повідомлення від апаратів',
+			title: 'Апарати що сповіщають',
 			items: userData?.notified_by?.map(notified => ({
 				label: notified.name,
-				value: `Аппарат №${notified.id}`,
+				value: (
+					<Link
+						to={`/devices/details/${notified.id}`}
+						onClick={() => handleDeviceClick(notified.id)}
+						className='text-blue-500 hover:text-blue-700'
+					>
+						Аппарат №{notified.id}
+					</Link>
+				),
 			})) || [{ label: 'Нет подчиненных', value: '-' }],
+		},
+		{
+			title: 'Дані картки',
+			items: [
+				{ label: 'Номер картки', value: '-' },
+				{ label: 'Код картки', value: '-' },
+			],
+		},
+		{
+			title: 'Доступ до апаратів',
+			items: userData?.notified_by?.map(notified => ({
+				label: notified.name,
+				value: (
+					<Link
+						to={`/devices/details/${notified.id}`}
+						onClick={() => handleDeviceClick(notified.id)}
+						className='text-blue-500 hover:text-blue-700'
+					>
+						Аппарат №{notified.id}
+					</Link>
+				),
+			})) || [{ label: 'Нет подчиненных', value: '-' }],
+		},
+		{
+			title: 'Контакти',
+			items: [
+				{ label: 'Телефон', value: userData?.phone_number || '-' },
+				{ label: 'Email', value: userData?.email || '-' },
+			],
 		},
 	]
 
@@ -95,15 +176,34 @@ const UserProfile = () => {
 								<h3 className='text-base md:text-xl font-semibold mb-6'>
 									{section.title}
 								</h3>
-								<div className='space-y-4'>
+								<div className='space-y-4 border-t border-gray-300'>
 									{section.items?.map((item, itemIndex) => (
-										<div key={itemIndex} className='grid grid-cols-2 gap-4'>
+										<div
+											key={itemIndex}
+											className='grid grid-cols-2 gap-4  mt-4'
+										>
 											<div className='text-gray-600 text-xs md:text-base'>
 												{item.label}
 											</div>
 											<div className='text-xs md:text-base'>{item.value}</div>
 										</div>
 									))}
+									{section.title === 'Контакти' && (
+										<div className='flex flex-col gap-4 mt-4 border-t border-gray-300'>
+											<button
+												onClick={handleRemoveUser}
+												className='mt-4 py-2 px-4 w-fit min-w-28 bg-red-500 text-white rounded-md hover:bg-red-600 uppercase'
+											>
+												Видалити
+											</button>
+											<button
+												onClick={handleDeactivateUser}
+												className='py-2 px-4 w-fit min-w-28 bg-blue-500 text-white rounded-md hover:bg-blue-600 uppercase'
+											>
+												Деактивувати користувача
+											</button>
+										</div>
+									)}
 								</div>
 							</div>
 						))}
@@ -115,7 +215,12 @@ const UserProfile = () => {
 				>
 					<IoSettingsSharp size={24} />
 				</button>
-				<UserSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+				<UserSidebar
+					userData={userData}
+					loading={loading}
+					isOpen={isSidebarOpen}
+					setIsOpen={setIsSidebarOpen}
+				/>
 			</div>
 		</div>
 	)

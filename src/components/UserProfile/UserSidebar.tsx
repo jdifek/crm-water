@@ -1,37 +1,23 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../helpers/context/AuthContext'
 import { IoClose } from 'react-icons/io5'
-import { useEffect, useState } from 'react'
 import { IUser } from '../../api/Users/UsersTypes'
-import UsersService from '../../api/Users/UsersService'
 
 interface UserSidebarProps {
+	userData: IUser | null
+	loading: boolean
 	isOpen: boolean
 	setIsOpen: (isOpen: boolean) => void
 }
 
-const UserSidebar = ({ isOpen, setIsOpen }: UserSidebarProps) => {
-	const [userData, setUserData] = useState<IUser | null>(null)
-	const [loading, setLoading] = useState<boolean>(true)
+const UserSidebar = ({
+	userData,
+	loading,
+	isOpen,
+	setIsOpen,
+}: UserSidebarProps) => {
 	const navigate = useNavigate()
-	const { setIsAuthenticated, setUserRole, setIsLoginModalOpen, userRole } =
-		useAuth()
-
-	useEffect(() => {
-		const fetchUserData = async () => {
-			try {
-				setLoading(true)
-				const response = await UsersService.getMe()
-				setUserData(response.data)
-			} catch (err) {
-				console.error('Error fetching user data in UserSidebar:', err)
-			} finally {
-				setLoading(false)
-			}
-		}
-
-		fetchUserData()
-	}, [])
+	const { setIsAuthenticated, setUserRole, setIsLoginModalOpen } = useAuth()
 
 	const handleLogout = () => {
 		localStorage.removeItem('authToken')
@@ -60,7 +46,7 @@ const UserSidebar = ({ isOpen, setIsOpen }: UserSidebarProps) => {
 					<span className='text-gray-500 text-2xl'>👤</span>
 				</div>
 				<p className='text-sm text-gray-500 uppercase'>
-					{loading ? 'Загрузка...' : userRole || 'Роль не указана'}
+					{loading ? 'Загрузка...' : userData?.role || 'Роль не указана'}
 				</p>
 				<p className='text-lg font-semibold text-gray-800'>
 					{loading ? 'Загрузка...' : userData?.full_name || 'Пользователь'}

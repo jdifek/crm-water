@@ -1,26 +1,26 @@
 /* временно прописанные роли пользователей */
 import { Route, Routes, Navigate } from 'react-router-dom'
-import DevicesList from './components/DevicesList'
-import { Layout } from './components/Layout'
-import Users from './pages/admin/Users'
-import CardsList from './pages/cards/CardsList'
-import Dashboard from './pages/Dashboard'
-import { DeviceConfig } from './pages/devices/DeviceConfig'
-import DeviceDetails from './pages/devices/DeviceDetails'
-import DeviceRegulations from './pages/devices/DeviceRegulations'
-import DeviceSettings from './pages/devices/DeviceSettings'
-import { ReplacingValues } from './pages/devices/ReplacingValues'
-import MaintenanceHistory from './pages/maintenance/MaintenanceHistory'
-import Collection from './pages/statistics/Collection'
-import DailyStats from './pages/statistics/DailyStats'
-import DeviceStats from './pages/statistics/DeviceStats'
-import LiterStats from './pages/statistics/LiterStats'
-import SalesByDay from './pages/statistics/SalesByDay'
-import Statistics from './pages/statistics/Statistics'
-import YearlyReport from './pages/statistics/YearlyReport'
-import { useAuth } from './helpers/context/AuthContext'
-import UserProfile from './pages/UserProfile'
-import EditTab from './components/UserProfile/EditTab'
+import DevicesList from './src/components/DevicesList'
+import { Layout } from './src/components/Layout'
+import Users from './src/pages/admin/Users'
+import CardsList from './src/pages/cards/CardsList'
+import Dashboard from './src/pages/Dashboard'
+import { DeviceConfig } from './src/pages/devices/DeviceConfig'
+import DeviceDetails from './src/pages/devices/DeviceDetails'
+import DeviceRegulations from './src/pages/devices/DeviceRegulations'
+import DeviceSettings from './src/pages/devices/DeviceSettings'
+import { ReplacingValues } from './src/pages/devices/ReplacingValues'
+import MaintenanceHistory from './src/pages/maintenance/MaintenanceHistory'
+import Collection from './src/pages/statistics/Collection'
+import DailyStats from './src/pages/statistics/DailyStats'
+import DeviceStats from './src/pages/statistics/DeviceStats'
+import LiterStats from './src/pages/statistics/LiterStats'
+import SalesByDay from './src/pages/statistics/SalesByDay'
+import Statistics from './src/pages/statistics/Statistics'
+import YearlyReport from './src/pages/statistics/YearlyReport'
+import { useAuth } from './src/helpers/context/AuthContext'
+import UserProfile from './src/pages/UserProfile'
+import EditTab from './src/components/UserProfile/EditTab'
 
 interface ProtectedRouteProps {
 	component: React.ComponentType
@@ -87,7 +87,15 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={EditTab}
-							allowedRoles={['super_admin']}
+							allowedRoles={[
+								'super_admin',
+								'admin',
+								'operator',
+								'driver',
+								'technician',
+								'collector',
+								'accountant',
+							]}
 						/>
 					}
 				/>

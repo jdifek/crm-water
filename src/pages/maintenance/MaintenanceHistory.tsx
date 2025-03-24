@@ -51,7 +51,7 @@ const MaintenanceHistory = () => {
 
 	return (
 		<div className='p-4 lg:p-8'>
-			<div className='bg-white shadow-lg rounded-lg w-full p-6 mx-auto sm:max-w-[640px] md:max-w-[796px] lg:max-w-[700px] xl:max-w-[960px] 2xl:max-w-[1440px]'>
+			<div className='bg-white shadow-lg rounded-lg w-full p-6 max-xl:max-w-2xl max-xl:mx-auto'>
 				<div className='mb-5 flex max-sm:flex-wrap max-sm:gap-3 justify-between items-center'>
 					<h3 className='text-lg leading-6 font-medium text-gray-900'>
 						История обслуживания

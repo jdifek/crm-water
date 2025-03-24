@@ -208,7 +208,7 @@ const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
 				{
 					text: 'Пользователи',
 					path: '/admin/users',
-					allowedRoles: ['super_admin'],
+					allowedRoles: ['super_admin', 'admin'],
 				},
 			],
 		},
