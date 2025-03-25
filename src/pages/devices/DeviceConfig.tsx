@@ -5,6 +5,7 @@ import { DeviceNavigate } from '../../components/Device/Navigate'
 import { SelectDevice } from '../../components/Device/SelectDevice'
 import { ButtonSave } from '../../components/ui/Button'
 import { useDevice } from '../../helpers/context/DeviceContext'
+import { useAuth } from '../../helpers/context/AuthContext'
 
 const BILL_ACCEPTOR_MODEL_OPTIONS = {
 	nv9usb: 'NV9USB',
@@ -19,6 +20,7 @@ const fieldLabel: Record<string, string> = {
 }
 
 export const DeviceConfig = () => {
+	const { userRole } = useAuth()
 	const [isSaving, setIsSaving] = useState<boolean>(false)
 	const [billAcceptorModel, setBillAcceptorModel] = useState<string>('')
 	const [coinlAcceptorModel, setCoinAcceptorModel] = useState<string>('')
@@ -105,7 +107,14 @@ export const DeviceConfig = () => {
 
 		try {
 			setIsSaving(true)
-			await PosDevicesService.updateDevice(selectedDevice.id, updatedValues)
+			if (userRole === 'technician') {
+				await PosDevicesService.updateTechnicianDevice(
+					selectedDevice.id,
+					updatedValues
+				)
+			} else {
+				await PosDevicesService.updateDevice(selectedDevice.id, updatedValues)
+			}
 		} catch (error) {
 			console.error('Ошибка при обновлении устройства:', error)
 		} finally {

@@ -89,7 +89,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           fixed lg:static inset-y-0 left-0 transform 
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0 transition-transform duration-200 ease-in-out
-          z-30 lg:z-0
+          z-50 lg:z-0
         `}
 			>
 				<Sidebar onClose={() => setIsSidebarOpen(false)} />

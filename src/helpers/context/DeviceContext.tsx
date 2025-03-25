@@ -4,6 +4,7 @@ import PosDevicesService from '../../api/PosDevices/PosDevicesService'
 import {
 	IPosDevice,
 	IPosDeviceDetails,
+	IPosDriverDeviceDetails,
 	IPosTechnicianDeviceDetails,
 } from '../../api/PosDevices/PosDevicesTypes'
 import { useAuth } from '../context/AuthContext'
@@ -15,7 +16,10 @@ interface DeviceContextType {
 	handleDeviceChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
 	devices: IPosDevice[]
 	setDevices: React.Dispatch<React.SetStateAction<IPosDevice[]>>
-	selectedDevice?: IPosDeviceDetails | IPosTechnicianDeviceDetails
+	selectedDevice?:
+		| IPosDeviceDetails
+		| IPosTechnicianDeviceDetails
+		| IPosDriverDeviceDetails
 	loading: boolean
 	error?: string
 	fetchDevices: (isActive?: boolean) => void
@@ -31,7 +35,10 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 
 	const [devices, setDevices] = useState<IPosDevice[]>([])
 	const [selectedDevice, setSelectedDevice] = useState<
-		IPosDeviceDetails | IPosTechnicianDeviceDetails | undefined
+		| IPosDeviceDetails
+		| IPosTechnicianDeviceDetails
+		| IPosDriverDeviceDetails
+		| undefined
 	>(undefined)
 	const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(null)
 	const [loading, setLoading] = useState<boolean>(false)
@@ -105,7 +112,13 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 			const fetchDevice = async () => {
 				setLoading(true)
 				try {
-					if (userRole === 'technician') {
+					if (userRole === 'driver') {
+						const device = await PosDevicesService.getDriverDeviceById(
+							selectedDeviceId
+						)
+						console.log('Fetched device:', device.data)
+						setSelectedDevice(device.data as IPosDriverDeviceDetails)
+					} else if (userRole === 'technician') {
 						const device = await PosDevicesService.getTechnicianDeviceById(
 							selectedDeviceId
 						)

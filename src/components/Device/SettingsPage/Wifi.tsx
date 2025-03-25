@@ -5,6 +5,7 @@ import {
 	IPosTechnicianDeviceDetails,
 } from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
+import { useAuth } from '../../../helpers/context/AuthContext'
 
 interface IWifiProps {
 	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
@@ -12,6 +13,7 @@ interface IWifiProps {
 }
 
 export const Wifi = ({ selectedDevice, loading }: IWifiProps) => {
+	const { userRole } = useAuth()
 	const [wifiName, setWifiName] = useState<string>(
 		selectedDevice.wifi_name || ''
 	)
@@ -43,11 +45,19 @@ export const Wifi = ({ selectedDevice, loading }: IWifiProps) => {
 
 		try {
 			setIsSaving(true)
-			await PosDevicesService.updateDevice(selectedDevice.id, {
-				use_wifi: pendingUseWifi,
-				wifi_name: pendingUseWifi ? wifiName : null,
-				wifi_password: pendingUseWifi ? wifiPassword : null,
-			})
+			if (userRole === 'technician') {
+				await PosDevicesService.updateTechnicianDevice(selectedDevice.id, {
+					use_wifi: pendingUseWifi,
+					wifi_name: pendingUseWifi ? wifiName : null,
+					wifi_password: pendingUseWifi ? wifiPassword : null,
+				})
+			} else {
+				await PosDevicesService.updateDevice(selectedDevice.id, {
+					use_wifi: pendingUseWifi,
+					wifi_name: pendingUseWifi ? wifiName : null,
+					wifi_password: pendingUseWifi ? wifiPassword : null,
+				})
+			}
 		} catch (error) {
 			console.error('Ошибка при обновлении WiFi:', error)
 		} finally {

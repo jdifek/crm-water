@@ -9,6 +9,7 @@ import {
 import { motion } from 'framer-motion'
 import PosDevicesService from '../../api/PosDevices/PosDevicesService'
 import { useDevice } from '../../helpers/context/DeviceContext'
+import { useAuth } from '../../helpers/context/AuthContext'
 
 interface DeviceSidebarProps {
 	isOpen: boolean
@@ -17,6 +18,7 @@ interface DeviceSidebarProps {
 
 export const DeviceSidebar = ({ isOpen, setIsOpen }: DeviceSidebarProps) => {
 	const { selectedDevice, loading } = useDevice()
+	const { userRole } = useAuth()
 	const [isEditingAlerts, setIsEditingAlerts] = useState(false)
 	const [isEditingAccess, setIsEditingAccess] = useState(false)
 	const [alertedUsers, setAlertedUsers] = useState(
@@ -37,20 +39,33 @@ export const DeviceSidebar = ({ isOpen, setIsOpen }: DeviceSidebarProps) => {
 	}
 
 	const handleSave = async () => {
+		setIsSaving(true)
 		try {
 			const updatedData = {
-				alerted_users: selectedDevice.alerted_users.map(user => ({
-					id: user.id,
-				})),
-				trusted_users: selectedDevice.trusted_users.map(user => ({
-					id: user.id,
-				})),
+				alerted_users: alertedUsers.map(user => ({ id: user.id })),
+				trusted_users: trustedUsers.map(user => ({ id: user.id })),
 			}
 
-			await PosDevicesService.updateDevice(selectedDevice.id, updatedData)
+			// Выбор метода в зависимости от роли
+			if (userRole === 'driver') {
+				await PosDevicesService.updateDriverDevice(
+					selectedDevice.id,
+					updatedData
+				)
+			} else if (userRole === 'technician') {
+				await PosDevicesService.updateTechnicianDevice(
+					selectedDevice.id,
+					updatedData
+				)
+			} else {
+				await PosDevicesService.updateDevice(selectedDevice.id, updatedData)
+			}
+
 			console.log('Данные успешно обновлены!')
 		} catch (error) {
 			console.error('Ошибка при обновлении данных устройства:', error)
+		} finally {
+			setIsSaving(false)
 		}
 	}
 

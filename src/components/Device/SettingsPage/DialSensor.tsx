@@ -5,6 +5,7 @@ import {
 	IPosTechnicianDeviceDetails,
 } from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
+import { useAuth } from '../../../helpers/context/AuthContext'
 
 interface DialSensorProps {
 	isOn: boolean
@@ -19,6 +20,7 @@ export const DialSensor = ({
 	selectedDevice,
 	loading,
 }: DialSensorProps) => {
+	const { userRole } = useAuth()
 	const litersArray = [0.5, 1.0, 1.5, 2.0, 5.0, 6.0, 10.0, 12.0, 19.0]
 
 	const formatKey = (liters: number) =>
@@ -30,12 +32,10 @@ export const DialSensor = ({
 
 	useEffect(() => {
 		const initialValues: { [key: number]: number } = {}
-
 		litersArray.forEach(l => {
 			const key = formatKey(l) as keyof IPosDeviceDetails
 			initialValues[l] = selectedDevice[key] ?? 0
 		})
-
 		setPulseValues(initialValues)
 	}, [selectedDevice])
 
@@ -45,15 +45,28 @@ export const DialSensor = ({
 	}
 
 	const handleSave = async () => {
+		setIsSaving(true)
 		try {
-			setIsSaving(true)
-
 			const updatedParams: Partial<IPosDeviceDetails> = {}
 			litersArray.forEach(l => {
 				updatedParams[formatKey(l) as keyof IPosDeviceDetails] = pulseValues[l]
 			})
 
-			await PosDevicesService.updateDevice(selectedDevice.id, updatedParams)
+			if (userRole === 'driver') {
+				await PosDevicesService.updateDriverDevice(
+					selectedDevice.id,
+					updatedParams
+				)
+			} else if (userRole === 'technician') {
+				await PosDevicesService.updateTechnicianDevice(
+					selectedDevice.id,
+					updatedParams
+				)
+			} else {
+				await PosDevicesService.updateDevice(selectedDevice.id, updatedParams)
+			}
+
+			console.log('Данные успешно обновлены!')
 		} catch (error) {
 			console.error('Ошибка при обновлении данных:', error)
 		} finally {

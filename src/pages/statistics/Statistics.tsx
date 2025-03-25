@@ -192,18 +192,18 @@ const SalesPage = () => {
 						setSortState={setSortState}
 					/>
 				)}
-				<div className='flex justify-end gap-2'>
+				<div className='flex max-xl:flex-wrap justify-end gap-2'>
 					<button
 						onClick={() => setCurrentPage(1)}
 						disabled={currentPage === 1}
-						className='p-2 hover:bg-gray-300 disabled:opacity-50'
+						className='p-2 hover:bg-gray-300 disabled:opacity-50 text-sm sm:text-base'
 					>
 						Первая
 					</button>
 					<button
 						onClick={() => setCurrentPage(currentPage - 1)}
 						disabled={currentPage === 1}
-						className='p-2 hover:bg-gray-300 disabled:opacity-50'
+						className='p-2 hover:bg-gray-300 disabled:opacity-50 text-sm sm:text-base'
 					>
 						Предыдущая
 					</button>
@@ -229,14 +229,14 @@ const SalesPage = () => {
 					<button
 						onClick={() => setCurrentPage(currentPage + 1)}
 						disabled={currentPage === totalPages}
-						className='p-2 hover:bg-gray-300 disabled:opacity-50'
+						className='p-2 hover:bg-gray-300 disabled:opacity-50 text-sm sm:text-base'
 					>
 						Следующая
 					</button>
 					<button
 						onClick={() => setCurrentPage(totalPages)}
 						disabled={currentPage === totalPages}
-						className='p-2 hover:bg-gray-300 disabled:opacity-50'
+						className='p-2 hover:bg-gray-300 disabled:opacity-50 text-sm sm:text-base'
 					>
 						Последняя
 					</button>

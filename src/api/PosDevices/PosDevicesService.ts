@@ -10,6 +10,9 @@ import {
 	IPosDriverDevicesListResponse,
 	IPosTechnicianDevicesListResponse,
 	IPosTechnicianDeviceDetails,
+	IPosDriverDeviceDetails,
+	IPosDriverDeviceUpdateParams,
+	IPosTechnicianDeviceUpdateParams,
 } from './PosDevicesTypes'
 
 export default class PosDevicesService {
@@ -58,6 +61,14 @@ export default class PosDevicesService {
 		return (await $api.get<IPosDeviceDetails>(`pos/devices/${id}/`)).data
 	}
 
+	static async getDriverDeviceById(
+		id: number
+	): Promise<IPosDriverDeviceDetails> {
+		return (
+			await $api.get<IPosDriverDeviceDetails>(`pos/driver/devices/${id}/`)
+		).data
+	}
+
 	static async getTechnicianDeviceById(
 		id: number
 	): Promise<IPosTechnicianDeviceDetails> {
@@ -74,6 +85,32 @@ export default class PosDevicesService {
 	): Promise<IPosDeviceDetails> {
 		return (await $api.patch<IPosDeviceDetails>(`pos/devices/${id}/`, params))
 			.data
+	}
+
+	// Обновление устройства для роли driver
+	static async updateDriverDevice(
+		id: number,
+		params: IPosDriverDeviceUpdateParams
+	): Promise<IPosDriverDeviceDetails> {
+		return (
+			await $api.patch<IPosDriverDeviceDetails>(
+				`pos/driver/devices/${id}/`,
+				params
+			)
+		).data
+	}
+
+	// Обновление устройства для роли technician
+	static async updateTechnicianDevice(
+		id: number,
+		params: IPosTechnicianDeviceUpdateParams
+	): Promise<IPosTechnicianDeviceDetails> {
+		return (
+			await $api.patch<IPosTechnicianDeviceDetails>(
+				`pos/technician/devices/${id}/`,
+				params
+			)
+		).data
 	}
 }
 

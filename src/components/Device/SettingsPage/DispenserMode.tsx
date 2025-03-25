@@ -5,6 +5,7 @@ import {
 	IPosTechnicianDeviceDetails,
 } from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
+import { useAuth } from '../../../helpers/context/AuthContext'
 
 interface IDispenserModeProps {
 	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
@@ -17,6 +18,7 @@ export const DispenserMode = ({
 	selectedDevice,
 	loading,
 }: IDispenserModeProps) => {
+	const { userRole } = useAuth()
 	const [dispensers, setDispensers] = useState<
 		Record<number, { enabled: boolean; t1: number; t2: number }>
 	>({})
@@ -66,7 +68,14 @@ export const DispenserMode = ({
 				updatedParams[`dispenser_${id}_t2`] = dispensers[id].t2
 			})
 
-			await PosDevicesService.updateDevice(selectedDevice.id, updatedParams)
+			if (userRole === 'technician') {
+				await PosDevicesService.updateTechnicianDevice(
+					selectedDevice.id,
+					updatedParams
+				)
+			} else {
+				await PosDevicesService.updateDevice(selectedDevice.id, updatedParams)
+			}
 		} catch (error) {
 			console.error('Ошибка при обновлении данных:', error)
 		} finally {

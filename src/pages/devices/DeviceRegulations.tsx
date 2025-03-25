@@ -5,6 +5,7 @@ import { DeviceNavigate } from '../../components/Device/Navigate'
 import { SelectDevice } from '../../components/Device/SelectDevice'
 import { ButtonSave } from '../../components/ui/Button'
 import { useDevice } from '../../helpers/context/DeviceContext'
+import { useAuth } from '../../helpers/context/AuthContext'
 
 const fieldLabels: Record<string, string> = {
 	before_replacing_pre_filters: 'До замены предварительных фильтров',
@@ -15,6 +16,7 @@ const fieldLabels: Record<string, string> = {
 }
 
 const DeviceRegulations = () => {
+	const { userRole } = useAuth()
 	const [isSaving, setIsSaving] = useState<boolean>(false)
 	const [editedValues, setEditedValues] = useState<Record<string, number>>({})
 	const { selectedDevice, loading, error } = useDevice()
@@ -30,7 +32,14 @@ const DeviceRegulations = () => {
 	const handleSave = async () => {
 		try {
 			setIsSaving(true)
-			await PosDevicesService.updateDevice(selectedDevice.id, editedValues)
+			if (userRole === 'technician') {
+				await PosDevicesService.updateTechnicianDevice(
+					selectedDevice.id,
+					editedValues
+				)
+			} else {
+				await PosDevicesService.updateDevice(selectedDevice.id, editedValues)
+			}
 		} catch (error) {
 			console.error('Ошибка при сохранении:', error)
 		} finally {

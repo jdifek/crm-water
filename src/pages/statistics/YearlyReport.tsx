@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import 'react-datepicker/dist/react-datepicker.css'
 import { FiDownload } from 'react-icons/fi'
 import * as XLSX from 'xlsx'
-import { YearlyReportData } from '../../types'
+import { YearlyReportData } from '../..'
 import StatsService from '../../api/Stats/StatsService'
 import { CurrentYearlyStats } from '../../api/Stats/StatsTypes'
 import { useDevice } from '../../helpers/context/DeviceContext'
@@ -241,7 +241,7 @@ const YearlyReport = () => {
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5 }}
-				className='bg-white shadow-lg rounded-lg p-6 w-full mx-auto sm:max-w-[640px] md:max-w-[796px] lg:max-w-[748px] xl:max-w-[1024px] 2xl:max-w-[1440px]'
+				className='bg-white shadow-lg rounded-lg p-6 w-full mx-auto sm:max-w-[640px] md:max-w-[796px] lg:max-w-[730px] max-w-3lg max-w-2lg xl:max-w-[980px] 2xl:max-w-full'
 			>
 				{loading ? (
 					<div className='flex justify-center items-center h-[400px]'>

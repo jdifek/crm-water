@@ -5,6 +5,7 @@ import {
 	IPosTechnicianDeviceDetails,
 } from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
+import { useAuth } from '../../../helpers/context/AuthContext'
 
 interface IInterfaceProps {
 	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
@@ -18,6 +19,7 @@ const LANGUAGE_OPTIONS = {
 }
 
 export const Interface = ({ selectedDevice, loading }: IInterfaceProps) => {
+	const { userRole } = useAuth()
 	const [interfaceLanguage, setInterfaceLanguage] = useState<string>('')
 	const [isSaving, setIsSaving] = useState<boolean>(false)
 
@@ -38,9 +40,15 @@ export const Interface = ({ selectedDevice, loading }: IInterfaceProps) => {
 		if (newLanguageKey) {
 			try {
 				setIsSaving(true)
-				await PosDevicesService.updateDevice(selectedDevice.id, {
-					interface_language: newLanguageKey,
-				})
+				if (userRole === 'technician') {
+					await PosDevicesService.updateTechnicianDevice(selectedDevice.id, {
+						interface_language: newLanguageKey,
+					})
+				} else {
+					await PosDevicesService.updateDevice(selectedDevice.id, {
+						interface_language: newLanguageKey,
+					})
+				}
 			} catch (error) {
 				console.error('Ошибка при обновлении языка интерфейса:', error)
 			} finally {

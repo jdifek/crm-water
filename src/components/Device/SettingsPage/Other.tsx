@@ -6,6 +6,7 @@ import {
 } from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
 import ConcentrationInput from '../ConcentrationInput'
+import { useAuth } from '../../../helpers/context/AuthContext'
 
 interface IOtherProps {
 	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
@@ -13,6 +14,7 @@ interface IOtherProps {
 }
 
 export const Other = ({ selectedDevice, loading }: IOtherProps) => {
+	const { userRole } = useAuth()
 	const [isSaving, setIsSaving] = useState<boolean>(false)
 	const [settings, setSettings] = useState<Record<string, boolean>>({})
 	const [productConcentration, setProductConcentration] = useState<number>(
@@ -47,10 +49,17 @@ export const Other = ({ selectedDevice, loading }: IOtherProps) => {
 	const handleSave = async () => {
 		try {
 			setIsSaving(true)
-			await PosDevicesService.updateDevice(selectedDevice.id, {
-				...settings,
-				product_concentration: productConcentration.toFixed(2),
-			})
+			if (userRole === 'technician') {
+				await PosDevicesService.updateTechnicianDevice(selectedDevice.id, {
+					...settings,
+					product_concentration: productConcentration.toFixed(2),
+				})
+			} else {
+				await PosDevicesService.updateDevice(selectedDevice.id, {
+					...settings,
+					product_concentration: productConcentration.toFixed(2),
+				})
+			}
 		} catch (error) {
 			console.error('Ошибка при обновлении настроек:', error)
 		} finally {

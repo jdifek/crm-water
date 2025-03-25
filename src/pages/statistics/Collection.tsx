@@ -92,7 +92,7 @@ const Collection = () => {
 	return (
 		<div className='p-6 space-y-6'>
 			<div className='flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:justify-between w-full sm:w-auto'>
-				<div className='flex items-center gap-2 border-b border-gray-300 pb-2 w-full max-w-56'>
+				<div className='flex items-center gap-2 border-b border-gray-300 pb-2 w-full max-w-52'>
 					<DatePicker
 						selectsRange
 						locale={ru}
@@ -103,7 +103,7 @@ const Collection = () => {
 						}
 						isClearable
 						dateFormat='dd.MM.yyyy'
-						className='px-2 py-1 text-gray-700 bg-transparent w-full max-w-56 outline-none focus:ring-0 focus:border-transparent'
+						className='px-2 py-1 text-gray-700 bg-transparent w-52 outline-none focus:ring-0 focus:border-transparent'
 					/>
 				</div>
 

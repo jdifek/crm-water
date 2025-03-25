@@ -5,6 +5,7 @@ import {
 	IPosTechnicianDeviceDetails,
 } from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
+import { useAuth } from '../../../helpers/context/AuthContext'
 
 interface IPaymentProps {
 	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
@@ -16,6 +17,7 @@ const POS_TERMINAL_MODEL_OPTIONS = {
 }
 
 export const Payment = ({ selectedDevice, loading }: IPaymentProps) => {
+	const { userRole } = useAuth()
 	const [isSaving, setIsSaving] = useState<boolean>(false)
 	const [posTerminalModel, setPosTerminalModel] = useState<string>('')
 	const [useCustomerCards, setUseCustomerCards] = useState<boolean>(
@@ -53,11 +55,19 @@ export const Payment = ({ selectedDevice, loading }: IPaymentProps) => {
 
 		try {
 			setIsSaving(true)
-			await PosDevicesService.updateDevice(selectedDevice.id, {
-				use_customer_cards: useCustomerCards,
-				enable_privat_24_payment: useEnablePrivat24,
-				pos_terminal_model: newModelKey,
-			})
+			if (userRole === 'technician') {
+				await PosDevicesService.updateTechnicianDevice(selectedDevice.id, {
+					use_customer_cards: useCustomerCards,
+					enable_privat_24_payment: useEnablePrivat24,
+					pos_terminal_model: newModelKey,
+				})
+			} else {
+				await PosDevicesService.updateDevice(selectedDevice.id, {
+					use_customer_cards: useCustomerCards,
+					enable_privat_24_payment: useEnablePrivat24,
+					pos_terminal_model: newModelKey,
+				})
+			}
 		} catch (error) {
 			console.error('Ошибка при обновлении WiFi:', error)
 		} finally {

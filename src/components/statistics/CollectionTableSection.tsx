@@ -89,7 +89,7 @@ const CollectionTableSection = ({
 			initial={{ opacity: 0, y: 10 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.5 }}
-			className='bg-white shadow-lg rounded-lg p-6 mt-6 max-xl:max-w-2xl max-xl:mx-auto'
+			className='bg-white shadow-lg rounded-lg p-6 mt-6 w-full mx-auto sm:max-w-[640px] md:max-w-full lg:max-w-[700px] max-w-3lg max-w-2lg xl:max-w-full 2xl:max-w-full'
 		>
 			{/* Сводная информация */}
 			<div className='flex flex-col gap-4 mb-4 text-black text-sm sm:text-base'>

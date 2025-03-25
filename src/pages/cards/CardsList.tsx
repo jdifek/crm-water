@@ -215,7 +215,7 @@ const TableComponent = () => {
 				<select className='border rounded-lg p-2 w-56'>
 					<option>Все аппараты</option>
 				</select>
-				<div className='border-b border-gray-300 pb-2 w-full max-w-56'>
+				<div className='border-b border-gray-300 pb-2 w-full max-w-52'>
 					<DatePicker
 						locale={ru}
 						selectsRange
@@ -225,7 +225,8 @@ const TableComponent = () => {
 							setDateRange(update as [Date | null, Date | null])
 						}
 						isClearable
-						className='px-2 py-1 text-gray-700 bg-transparent w-56 outline-none focus:ring-0 focus:border-transparent'
+						dateFormat='dd.MM.yyyy'
+						className='px-2 py-1 text-gray-700 bg-transparent w-52 outline-none focus:ring-0 focus:border-transparent'
 					/>
 				</div>
 			</div>
@@ -290,7 +291,7 @@ const TableComponent = () => {
 												? () => handleSort(key as keyof (typeof CARD_DATA)[0])
 												: undefined
 										}
-										className={`cursor-pointer p-3 ${
+										className={`cursor-pointer p-3 lg:p-2 xl:p-3 ${
 											showRegistered || key !== 'active' ? '' : 'text-right'
 										}`}
 									>
@@ -326,11 +327,14 @@ const TableComponent = () => {
 						<tbody>
 							{paginatedData.length > 0 ? (
 								paginatedData.map(item => (
-									<tr key={item.id} className='border-b text-[14px]'>
+									<tr
+										key={item.id}
+										className='border-b text-[14px] lg:text-[12px] xl:text-[14px]'
+									>
 										{tableHeaders.map(({ key }) => (
 											<td
 												key={key}
-												className={`px-4 py-2 ${
+												className={`px-4 lg:px-2 xl:px-4 py-2 ${
 													key === 'active' && !showRegistered
 														? 'text-right'
 														: ''

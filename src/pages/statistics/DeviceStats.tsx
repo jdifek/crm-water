@@ -109,7 +109,7 @@ const DeviceStats = () => {
 	return (
 		<div className='p-6 space-y-6'>
 			{/* Фильтры */}
-			<div className='flex items-center gap-2 border-b border-gray-300 pb-2 w-full max-w-56'>
+			<div className='flex items-center gap-2 border-b border-gray-300 pb-2 w-full max-w-52'>
 				<DatePicker
 					selectsRange
 					startDate={startDate}
@@ -120,7 +120,7 @@ const DeviceStats = () => {
 					}
 					isClearable
 					dateFormat='dd.MM.yyyy'
-					className='px-2 py-1 text-gray-700 bg-transparent w-56 outline-none focus:ring-0 focus:border-transparent'
+					className='px-2 py-1 text-gray-700 bg-transparent w-52 outline-none focus:ring-0 focus:border-transparent'
 				/>
 			</div>
 
@@ -164,13 +164,13 @@ const DeviceStats = () => {
 								<XAxis
 									type='number'
 									domain={[0, yAxisMax]}
-									className='text-sm'
+									className='text-[12px]'
 								/>
 								<YAxis
 									dataKey='devices'
 									type='category'
 									width={100}
-									className='text-sm'
+									className='text-[12px]'
 								/>
 								<Tooltip
 									formatter={value => [

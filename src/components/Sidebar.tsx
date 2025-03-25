@@ -21,6 +21,7 @@ interface NavItemProps {
 	path?: string
 	children?: { text: string; path: string; allowedRoles: string[] }[]
 	allowedRoles?: string[]
+	onClose?: () => void
 }
 
 const NavItem: React.FC<NavItemProps> = ({
@@ -29,6 +30,7 @@ const NavItem: React.FC<NavItemProps> = ({
 	path,
 	children,
 	allowedRoles,
+	onClose,
 }) => {
 	const [isOpen, setIsOpen] = useState(false)
 	const navigate = useNavigate()
@@ -44,13 +46,21 @@ const NavItem: React.FC<NavItemProps> = ({
 		child => location.pathname === child.path
 	)
 
+	const handleClick = (e: React.MouseEvent, targetPath?: string) => {
+		e.stopPropagation() // Останавливает всплытие события
+		if (targetPath) {
+			navigate(targetPath)
+			if (onClose) onClose()
+		}
+	}
+
 	if (!children) {
 		return (
 			<div
 				className={`text-gray-300 hover:bg-gray-700 cursor-pointer ${
 					isActive(path!) ? 'bg-gray-700' : ''
 				}`}
-				onClick={() => path && navigate(path)}
+				onClick={e => handleClick(e, path)}
 			>
 				<div className='flex items-center px-4 py-2'>
 					<span className='mr-2'>{icon}</span>
@@ -92,7 +102,7 @@ const NavItem: React.FC<NavItemProps> = ({
 							className={`pl-12 py-2 text-gray-400 hover:bg-gray-700 cursor-pointer text-sm ${
 								isActive(item.path) ? 'bg-gray-700' : ''
 							}`}
-							onClick={() => navigate(item.path)}
+							onClick={e => handleClick(e, item.path)}
 						>
 							{item.text}
 						</div>
@@ -234,6 +244,7 @@ const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
 						path={item.path}
 						children={item.children}
 						allowedRoles={item.allowedRoles}
+						onClose={onClose} // Передаём onClose в NavItem
 					/>
 				))}
 			</nav>

@@ -20,7 +20,7 @@ const formatDate = (dateString: string | undefined) => {
 }
 
 const UserProfile = () => {
-	const { isAuthenticated } = useAuth()
+	const { isAuthenticated, userRole } = useAuth()
 	const { setSelectedDeviceId } = useDevice()
 	const { id } = useParams<{ id: string }>()
 	const {
@@ -188,22 +188,23 @@ const UserProfile = () => {
 											<div className='text-xs md:text-base'>{item.value}</div>
 										</div>
 									))}
-									{section.title === 'Контакти' && (
-										<div className='flex flex-col gap-4 mt-4 border-t border-gray-300'>
-											<button
-												onClick={handleRemoveUser}
-												className='mt-4 py-2 px-4 w-fit min-w-28 bg-red-500 text-white rounded-md hover:bg-red-600 uppercase'
-											>
-												Видалити
-											</button>
-											<button
-												onClick={handleDeactivateUser}
-												className='py-2 px-4 w-fit min-w-28 bg-blue-500 text-white rounded-md hover:bg-blue-600 uppercase'
-											>
-												Деактивувати користувача
-											</button>
-										</div>
-									)}
+									{section.title === 'Контакти' &&
+										userRole === 'super_admin' && (
+											<div className='flex flex-col gap-4 mt-4 border-t border-gray-300'>
+												<button
+													onClick={handleRemoveUser}
+													className='mt-4 py-2 px-4 w-fit min-w-28 bg-red-500 text-white rounded-md hover:bg-red-600 uppercase'
+												>
+													Видалити
+												</button>
+												<button
+													onClick={handleDeactivateUser}
+													className='py-2 px-4 w-fit min-w-28 bg-blue-500 text-white rounded-md hover:bg-blue-600 uppercase'
+												>
+													Деактивувати користувача
+												</button>
+											</div>
+										)}
 								</div>
 							</div>
 						))}

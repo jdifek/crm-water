@@ -46,12 +46,12 @@ const MaintenanceHistory = () => {
 		const deadlineDate = new Date(deadline)
 		const diffInMs = today.getTime() - deadlineDate.getTime()
 		const daysLeft = Math.ceil(diffInMs / (1000 * 60 * 60 * 24))
-		return daysLeft >= 0 ? `${daysLeft} дн.` : 'Просрочено'
+		return daysLeft >= 0 ? `-${daysLeft} дн.` : `${daysLeft} дн.`
 	}
 
 	return (
 		<div className='p-4 lg:p-8'>
-			<div className='bg-white shadow-lg rounded-lg w-full p-6 max-xl:max-w-2xl max-xl:mx-auto'>
+			<div className='bg-white shadow-lg rounded-lg w-full p-6 mx-auto sm:max-w-[640px] md:max-w-full lg:max-w-[700px] max-w-3lg max-w-2lg xl:max-w-full 2xl:max-w-full'>
 				<div className='mb-5 flex max-sm:flex-wrap max-sm:gap-3 justify-between items-center'>
 					<h3 className='text-lg leading-6 font-medium text-gray-900'>
 						История обслуживания
@@ -134,7 +134,13 @@ const MaintenanceHistory = () => {
 											</td>
 										)) ||
 											(statusFilter === 'scheduled' && (
-												<td className='px-3 py-4 whitespace-nowrap text-sm text-gray-500'>
+												<td
+													className={`px-3 py-4 whitespace-nowrap text-sm ${
+														calculateDaysLeft(record.deadline).includes('-')
+															? 'text-red-500 font-semibold'
+															: 'text-gray-500'
+													}`}
+												>
 													{calculateDaysLeft(record.deadline)}
 												</td>
 											))}

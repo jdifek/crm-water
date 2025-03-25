@@ -114,7 +114,7 @@ const DailyStats = () => {
 		<div className='p-6 space-y-6'>
 			{/* Фильтры */}
 			<div className='flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:justify-between w-full sm:w-auto'>
-				<div className='flex items-center gap-2 border-b border-gray-300 pb-2 w-full max-w-56'>
+				<div className='flex items-center gap-2 border-b border-gray-300 pb-2 w-full max-w-52'>
 					<DatePicker
 						locale={ru}
 						selectsRange
@@ -125,7 +125,7 @@ const DailyStats = () => {
 						}
 						isClearable
 						dateFormat='dd.MM.yyyy'
-						className='px-2 py-1 text-gray-700 bg-transparent w-56 outline-none focus:ring-0 focus:border-transparent'
+						className='px-2 py-1 text-gray-700 bg-transparent w-52 outline-none focus:ring-0 focus:border-transparent'
 					/>
 				</div>
 
@@ -184,8 +184,8 @@ const DailyStats = () => {
 						<ResponsiveContainer width='100%' height='100%'>
 							<BarChart data={filteredData}>
 								<CartesianGrid strokeDasharray='3 3' />
-								<XAxis dataKey='date' className='text-sm' />
-								<YAxis domain={[0, yAxisMax]} className='text-sm' />
+								<XAxis dataKey='date' className='text-[12px]' />
+								<YAxis domain={[0, yAxisMax]} className='text-[12px]' />
 								<Tooltip
 									formatter={value => [
 										`${value}`,

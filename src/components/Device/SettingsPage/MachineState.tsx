@@ -5,6 +5,7 @@ import {
 	IPosDeviceDetails,
 	IPosTechnicianDeviceDetails,
 } from '../../../api/PosDevices/PosDevicesTypes'
+import { useAuth } from '../../../helpers/context/AuthContext'
 
 interface MachineStateProps {
 	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
@@ -16,6 +17,7 @@ export const MachineState = ({
 	selectedDevice,
 	loading,
 }: MachineStateProps) => {
+	const { userRole } = useAuth()
 	const [active, setActive] = useState<boolean>(selectedDevice.is_active)
 	const [isSaving, setIsSaving] = useState<boolean>(false)
 
@@ -26,9 +28,15 @@ export const MachineState = ({
 	const handleSave = async () => {
 		try {
 			setIsSaving(true)
-			await PosDevicesService.updateDevice(selectedDevice.id, {
-				is_active: active,
-			})
+			if (userRole === 'technician') {
+				await PosDevicesService.updateTechnicianDevice(selectedDevice.id, {
+					is_active: active,
+				})
+			} else {
+				await PosDevicesService.updateDevice(selectedDevice.id, {
+					is_active: active,
+				})
+			}
 		} catch (error) {
 			console.error('Ошибка при обновлении состояния аппарата:', error)
 		} finally {

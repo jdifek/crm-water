@@ -5,6 +5,7 @@ import { DeviceNavigate } from '../../components/Device/Navigate'
 import { SelectDevice } from '../../components/Device/SelectDevice'
 import { ButtonSave } from '../../components/ui/Button'
 import { useDevice } from '../../helpers/context/DeviceContext'
+import { useAuth } from '../../helpers/context/AuthContext'
 
 const fieldLabels: Record<string, string> = {
 	water_inlet_counter: 'Счетчик воды на входе',
@@ -28,6 +29,7 @@ const units: Record<string, string> = {
 }
 
 export const ReplacingValues = () => {
+	const { userRole } = useAuth()
 	const [isSaving, setIsSaving] = useState<boolean>(false)
 	const [editedValues, setEditedValues] = useState<
 		Record<string, string | number>
@@ -45,7 +47,14 @@ export const ReplacingValues = () => {
 	const handleSave = async () => {
 		try {
 			setIsSaving(true)
-			await PosDevicesService.updateDevice(selectedDevice.id, editedValues)
+			if (userRole === 'technician') {
+				await PosDevicesService.updateTechnicianDevice(
+					selectedDevice.id,
+					editedValues
+				)
+			} else {
+				await PosDevicesService.updateDevice(selectedDevice.id, editedValues)
+			}
 		} catch (error) {
 			console.error('Ошибка при сохранении:', error)
 		} finally {
