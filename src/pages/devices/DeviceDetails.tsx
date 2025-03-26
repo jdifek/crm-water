@@ -1,13 +1,13 @@
-import { useState } from 'react'
 import { DeviceSidebar } from '../../components/Device/DeviceSidebar'
 import { DeviceNavigate } from '../../components/Device/Navigate'
 import { SelectDevice } from '../../components/Device/SelectDevice'
 import { useDevice } from '../../helpers/context/DeviceContext'
 import { useAuth } from '../../helpers/context/AuthContext'
 import { IoSettingsSharp } from 'react-icons/io5'
+import useSidebar from '../../helpers/hooks/useSidebar'
 
 const DeviceDetails = () => {
-	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false)
+	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
 	const { selectedDevice, loading, error } = useDevice()
 	const { userRole } = useAuth()
 
@@ -28,7 +28,7 @@ const DeviceDetails = () => {
 						items: [
 							{ label: 'IMEI', value: selectedDevice.imei },
 							{ label: 'Серийный номер', value: selectedDevice.serial_number },
-							{ label: 'Размере бака', value: selectedDevice.tank_size },
+							{ label: 'Объем резервуара', value: selectedDevice.tank_size },
 							{ label: 'Модель аппарата', value: selectedDevice.device_model },
 							{
 								label: 'Модель купюроприемника',
@@ -288,7 +288,7 @@ const DeviceDetails = () => {
 	return (
 		<div className='p-4 lg:p-8'>
 			<SelectDevice />
-			<div className='flex gap-3 flex-nowrap w-full p-6 lg:max-w-[748px] xl:max-w-[960px] 2xl:max-w-[1440px]'>
+			<div className='flex gap-3 flex-nowrap w-full lg:max-w-[748px] xl:max-w-[960px] 2xl:max-w-full'>
 				<div className='w-full bg-white rounded-lg shadow p-5 flex flex-col flex-1'>
 					<DeviceNavigate />
 					<div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>

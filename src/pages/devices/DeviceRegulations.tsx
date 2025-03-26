@@ -6,6 +6,8 @@ import { SelectDevice } from '../../components/Device/SelectDevice'
 import { ButtonSave } from '../../components/ui/Button'
 import { useDevice } from '../../helpers/context/DeviceContext'
 import { useAuth } from '../../helpers/context/AuthContext'
+import useSidebar from '../../helpers/hooks/useSidebar'
+import { IoSettingsSharp } from 'react-icons/io5'
 
 const fieldLabels: Record<string, string> = {
 	before_replacing_pre_filters: 'До замены предварительных фильтров',
@@ -16,10 +18,11 @@ const fieldLabels: Record<string, string> = {
 }
 
 const DeviceRegulations = () => {
-	const { userRole } = useAuth()
 	const [isSaving, setIsSaving] = useState<boolean>(false)
 	const [editedValues, setEditedValues] = useState<Record<string, number>>({})
+	const { userRole } = useAuth()
 	const { selectedDevice, loading, error } = useDevice()
+	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
 
 	if (loading) return <p>Загрузка устройства...</p>
 	if (error) return <p className='text-red-500'>{error}</p>
@@ -32,7 +35,12 @@ const DeviceRegulations = () => {
 	const handleSave = async () => {
 		try {
 			setIsSaving(true)
-			if (userRole === 'technician') {
+			if (userRole === 'driver') {
+				await PosDevicesService.updateDriverDevice(
+					selectedDevice.id,
+					editedValues
+				)
+			} else if (userRole === 'technician') {
 				await PosDevicesService.updateTechnicianDevice(
 					selectedDevice.id,
 					editedValues
@@ -51,8 +59,8 @@ const DeviceRegulations = () => {
 		<div className='p-4 lg:p-8'>
 			<SelectDevice />
 
-			<div className='flex gap-3 flex-nowrap w-full'>
-				<div className='bg-white rounded-lg shadow p-5 flex flex-col flex-1'>
+			<div className='flex gap-3 flex-nowrap w-full lg:max-w-[748px] xl:max-w-[960px] 2xl:max-w-full'>
+				<div className='w-full bg-white rounded-lg shadow p-5 flex flex-col flex-1'>
 					<DeviceNavigate />
 
 					<div className='p-4 lg:p-8'>
@@ -84,7 +92,13 @@ const DeviceRegulations = () => {
 					</div>
 				</div>
 
-				<DeviceSidebar />
+				<button
+					className='xl:hidden fixed top-16 right-4 z-50 p-2 bg-blue-500 hover:bg-blue-700 text-white rounded-lg shadow-md'
+					onClick={() => setIsSidebarOpen(true)}
+				>
+					<IoSettingsSharp size={24} />
+				</button>
+				<DeviceSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 			</div>
 		</div>
 	)

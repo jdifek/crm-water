@@ -1,5 +1,4 @@
-import { useState } from 'react'
-
+import { useState, useEffect } from 'react'
 import { useDevice } from '../../helpers/context/DeviceContext'
 import { useAuth } from '../../helpers/context/AuthContext'
 import { SelectDevice } from '../../components/Device/SelectDevice'
@@ -7,42 +6,65 @@ import { DeviceNavigate } from '../../components/Device/Navigate'
 import PosDevicesService from '../../api/PosDevices/PosDevicesService'
 import { ButtonSave } from '../../components/ui/Button'
 import { DeviceSidebar } from '../../components/Device/DeviceSidebar'
+import { IoSettingsSharp } from 'react-icons/io5'
+import useSidebar from '../../helpers/hooks/useSidebar'
 
 const fieldLabels: Record<string, string> = {
-	before_replacing_pre_filters: 'До замены предварительных фильтров',
-	before_replacing_post_filters: 'До замены постфильтров',
-	before_membrane_replacement: 'До замены (промывки) мембран',
-	before_antiscalant_replacement: 'До замены антискаланта',
-	before_minerals_replacement: 'До замены минералов',
+	water_sold_since_last_refill: 'Продано',
+	water_amount_after_last_refill: 'Заправка',
 }
 
 const DeviceRefill = () => {
-	const { userRole } = useAuth()
 	const [isSaving, setIsSaving] = useState<boolean>(false)
 	const [editedValues, setEditedValues] = useState<Record<string, number>>({})
+	const [pendingServiceMode, setPendingServiceMode] = useState<boolean>(false)
 	const { selectedDevice, loading, error } = useDevice()
+	const { userRole } = useAuth()
+	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
 
-	console.log('selectedDevice:', selectedDevice)
-	console.log('loading:', loading, 'error:', error)
+	console.log('selected driver device:', selectedDevice)
+	console.log('selected ID driver device:', selectedDevice?.id)
 
 	if (loading) return <p>Загрузка устройства...</p>
 	if (error) return <p className='text-red-500'>{error}</p>
 	if (!selectedDevice) return <p>Устройство не найдено</p>
 
+	useEffect(() => {
+		const initialValues: Record<string, number> = {}
+		Object.keys(fieldLabels).forEach(key => {
+			initialValues[key] = selectedDevice[key] ?? 0
+		})
+		setEditedValues(initialValues)
+		setPendingServiceMode(selectedDevice.service_mode ?? false)
+	}, [selectedDevice])
+
 	const handleChange = (key: string, value: number) => {
 		setEditedValues(prev => ({ ...prev, [key]: value }))
+	}
+
+	const handleToggleServiceMode = () => {
+		setPendingServiceMode(prev => !prev)
 	}
 
 	const handleSave = async () => {
 		try {
 			setIsSaving(true)
-			if (userRole === 'technician') {
+			const updateData = {
+				...editedValues,
+				service_mode: pendingServiceMode,
+			}
+			if (userRole === 'driver') {
+				await PosDevicesService.updateDriverDevice(
+					selectedDevice.id,
+					updateData
+				)
+			} else if (userRole === 'technician') {
 				await PosDevicesService.updateTechnicianDevice(
 					selectedDevice.id,
-					editedValues
+					updateData
 				)
 			} else {
-				await PosDevicesService.updateDevice(selectedDevice.id, editedValues)
+				await PosDevicesService.updateDevice(selectedDevice.id, updateData)
 			}
 		} catch (error) {
 			console.error('Ошибка при сохранении:', error)
@@ -55,8 +77,8 @@ const DeviceRefill = () => {
 		<div className='p-4 lg:p-8'>
 			<SelectDevice />
 
-			<div className='flex gap-3 flex-nowrap w-full'>
-				<div className='bg-white rounded-lg shadow p-5 flex flex-col flex-1'>
+			<div className='flex gap-3 flex-nowrap w-full lg:max-w-[748px] xl:max-w-[960px] 2xl:max-w-full'>
+				<div className='w-full bg-white rounded-lg shadow p-5 flex flex-col flex-1'>
 					<DeviceNavigate />
 
 					<div className='p-4 lg:p-8'>
@@ -75,6 +97,7 @@ const DeviceRefill = () => {
 												onChange={e =>
 													handleChange(key, parseInt(e.target.value) || 0)
 												}
+												disabled={isSaving}
 											/>
 											<span className='inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500'>
 												л
@@ -82,13 +105,31 @@ const DeviceRefill = () => {
 										</div>
 									</div>
 								))}
+								<div className='flex items-center'>
+									<input
+										type='checkbox'
+										id='serviceMode'
+										className='mr-2'
+										checked={pendingServiceMode}
+										onChange={handleToggleServiceMode}
+										disabled={isSaving}
+									/>
+									<label htmlFor='serviceMode'>Сервисный режим</label>
+								</div>
+								{/* Кнопка сохранения */}
 								<ButtonSave onClick={handleSave} disabled={isSaving} />
 							</div>
 						</div>
 					</div>
 				</div>
 
-				<DeviceSidebar />
+				<button
+					className='xl:hidden fixed top-16 right-4 z-50 p-2 bg-blue-500 hover:bg-blue-700 text-white rounded-lg shadow-md'
+					onClick={() => setIsSidebarOpen(true)}
+				>
+					<IoSettingsSharp size={24} />
+				</button>
+				<DeviceSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 			</div>
 		</div>
 	)

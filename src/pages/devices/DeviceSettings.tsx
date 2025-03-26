@@ -10,9 +10,12 @@ import { Other } from '../../components/Device/SettingsPage/Other'
 import { Payment } from '../../components/Device/SettingsPage/Payment'
 import { Wifi } from '../../components/Device/SettingsPage/Wifi'
 import { useDevice } from '../../helpers/context/DeviceContext'
+import { IoSettingsSharp } from 'react-icons/io5'
+import useSidebar from '../../helpers/hooks/useSidebar'
 
 const DeviceSettings = () => {
 	const { selectedDevice, loading, error } = useDevice()
+	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
 	const [isOn, setIsOn] = useState(false)
 
 	if (loading) return <p>Загрузка устройства...</p>
@@ -23,8 +26,8 @@ const DeviceSettings = () => {
 		<div className='p-4 lg:p-8'>
 			<SelectDevice />
 
-			<div className='flex gap-3 flex-nowrap w-full'>
-				<div className='bg-white rounded-lg shadow p-5 flex flex-col flex-1'>
+			<div className='flex gap-3 flex-nowrap w-full lg:max-w-[748px] xl:max-w-[960px] 2xl:max-w-full'>
+				<div className='w-full bg-white rounded-lg shadow p-5 flex flex-col flex-1'>
 					<DeviceNavigate />
 
 					<MachineState selectedDevice={selectedDevice} loading={loading} />
@@ -49,7 +52,13 @@ const DeviceSettings = () => {
 					</div>
 				</div>
 
-				<DeviceSidebar />
+				<button
+					className='xl:hidden fixed top-16 right-4 z-50 p-2 bg-blue-500 hover:bg-blue-700 text-white rounded-lg shadow-md'
+					onClick={() => setIsSidebarOpen(true)}
+				>
+					<IoSettingsSharp size={24} />
+				</button>
+				<DeviceSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 			</div>
 		</div>
 	)

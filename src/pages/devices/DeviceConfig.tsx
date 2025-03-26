@@ -6,6 +6,8 @@ import { SelectDevice } from '../../components/Device/SelectDevice'
 import { ButtonSave } from '../../components/ui/Button'
 import { useDevice } from '../../helpers/context/DeviceContext'
 import { useAuth } from '../../helpers/context/AuthContext'
+import useSidebar from '../../helpers/hooks/useSidebar'
+import { IoSettingsSharp } from 'react-icons/io5'
 
 const BILL_ACCEPTOR_MODEL_OPTIONS = {
 	nv9usb: 'NV9USB',
@@ -20,14 +22,15 @@ const fieldLabel: Record<string, string> = {
 }
 
 export const DeviceConfig = () => {
-	const { userRole } = useAuth()
 	const [isSaving, setIsSaving] = useState<boolean>(false)
 	const [billAcceptorModel, setBillAcceptorModel] = useState<string>('')
 	const [coinlAcceptorModel, setCoinAcceptorModel] = useState<string>('')
 	const [editedValues, setEditedValues] = useState<
 		Record<string, string | number>
 	>({})
+	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
 	const { selectedDevice, loading, error } = useDevice()
+	const { userRole } = useAuth()
 
 	useEffect(() => {
 		if (selectedDevice) {
@@ -126,8 +129,8 @@ export const DeviceConfig = () => {
 		<div className='p-4 lg:p-8'>
 			<SelectDevice />
 
-			<div className='flex gap-3 flex-nowrap w-full'>
-				<div className='bg-white rounded-lg shadow p-5 flex flex-col flex-1'>
+			<div className='flex gap-3 flex-nowrap w-full lg:max-w-[748px] xl:max-w-[960px] 2xl:max-w-full'>
+				<div className='w-full bg-white rounded-lg shadow p-5 flex flex-col flex-1'>
 					<DeviceNavigate />
 
 					<div className='p-4 lg:p-8'>
@@ -191,7 +194,13 @@ export const DeviceConfig = () => {
 					</div>
 				</div>
 
-				<DeviceSidebar />
+				<button
+					className='xl:hidden fixed top-16 right-4 z-50 p-2 bg-blue-500 hover:bg-blue-700 text-white rounded-lg shadow-md'
+					onClick={() => setIsSidebarOpen(true)}
+				>
+					<IoSettingsSharp size={24} />
+				</button>
+				<DeviceSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 			</div>
 		</div>
 	)

@@ -53,7 +53,7 @@ export const MachineState = ({
 	}
 
 	return (
-		<div className='flex justify-between mb-8'>
+		<div className='flex max-sm:flex-wrap max-sm:gap-5 justify-between mb-8'>
 			<p className='font-bold'>Состояние автомата</p>
 			<div
 				className={`flex border-solid w-[15rem] border-2 ${
