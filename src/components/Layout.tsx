@@ -60,6 +60,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 		if (path.startsWith('/devices/settings')) return 'Настройки'
 		if (path.startsWith('/devices/regulations')) return 'Регламент'
 		if (path.startsWith('/devices/replacing')) return 'Замена значений'
+		if (path.startsWith('/devices/refill')) return 'Заправка'
 		if (path.startsWith('/devices/config')) return 'Конфигурация'
 		if (path.startsWith('/devices/tarif')) return 'Тариф'
 		if (path.startsWith('/stats/sales')) return 'Статистика продаж'

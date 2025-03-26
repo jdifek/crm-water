@@ -107,6 +107,10 @@ export const DeviceSidebar = ({ isOpen, setIsOpen }: DeviceSidebarProps) => {
 					</button>
 				)}
 
+				<h3 className='text-lg font-semibold text-center mb-10'>
+					{selectedDevice?.name}
+				</h3>
+
 				<button
 					className='mb-3 text-white bg-blue-500 rounded-lg shadow-md p-2 flex items-center gap-2 w-full'
 					disabled={isSaving}

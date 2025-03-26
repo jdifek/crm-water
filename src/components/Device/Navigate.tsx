@@ -4,11 +4,16 @@ import { useDevice } from '../../helpers/context/DeviceContext'
 export const DeviceNavigate = () => {
 	const { selectedDeviceId } = useDevice()
 
+	console.log('selectedDeviceId:', selectedDeviceId)
+
+	if (!selectedDeviceId) return <p>Устройство не выбрано</p>
+
 	const menuItems = [
 		{ name: 'Подробно', path: `/devices/details/${selectedDeviceId}` },
 		{ name: 'Настройки', path: `/devices/settings/${selectedDeviceId}` },
 		{ name: 'Регламент', path: `/devices/regulations/${selectedDeviceId}` },
 		{ name: 'Замена значений', path: `/devices/replacing/${selectedDeviceId}` },
+		{ name: 'Заправка', path: `/devices/refill/${selectedDeviceId}` },
 		{ name: 'Конфигурация', path: `/devices/config/${selectedDeviceId}` },
 	]
 

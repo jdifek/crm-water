@@ -116,7 +116,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 						const device = await PosDevicesService.getDriverDeviceById(
 							selectedDeviceId
 						)
-						console.log('Fetched device:', device.data)
+						console.log('Fetched driver device:', device.data)
 						setSelectedDevice(device.data as IPosDriverDeviceDetails)
 					} else if (userRole === 'technician') {
 						const device = await PosDevicesService.getTechnicianDeviceById(

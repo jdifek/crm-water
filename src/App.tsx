@@ -5,6 +5,7 @@ import { Layout } from './components/Layout'
 import Users from './pages/admin/Users'
 import CardsList from './pages/cards/CardsList'
 import Dashboard from './pages/Dashboard'
+import DeviceRefill from './pages/devices/DeviceRefill'
 import { DeviceConfig } from './pages/devices/DeviceConfig'
 import DeviceDetails from './pages/devices/DeviceDetails'
 import DeviceRegulations from './pages/devices/DeviceRegulations'
@@ -190,6 +191,22 @@ function App() {
 					element={
 						<ProtectedRoute
 							component={ReplacingValues}
+							allowedRoles={[
+								'super_admin',
+								'admin',
+								'operator',
+								'technician',
+								'driver',
+								'collector',
+							]}
+						/>
+					}
+				/>
+				<Route
+					path='/devices/refill/:id'
+					element={
+						<ProtectedRoute
+							component={DeviceRefill}
 							allowedRoles={[
 								'super_admin',
 								'admin',

@@ -28,6 +28,7 @@ const DeviceDetails = () => {
 						items: [
 							{ label: 'IMEI', value: selectedDevice.imei },
 							{ label: 'Серийный номер', value: selectedDevice.serial_number },
+							{ label: 'Размере бака', value: selectedDevice.tank_size },
 							{ label: 'Модель аппарата', value: selectedDevice.device_model },
 							{
 								label: 'Модель купюроприемника',
@@ -45,7 +46,12 @@ const DeviceDetails = () => {
 								label: 'Язык интерфейса',
 								value: selectedDevice.interface_language,
 							},
-							{ label: 'Дата создания', value: selectedDevice.creation_date },
+							{ label: 'Страна', value: selectedDevice.country },
+							{ label: 'Город', value: selectedDevice.city },
+							{ label: 'Улица', value: selectedDevice.street },
+							{ label: 'Дом', value: selectedDevice.house },
+							{ label: 'Широта', value: selectedDevice.latitude },
+							{ label: 'Долгота', value: selectedDevice.longitude },
 						],
 					},
 					{
