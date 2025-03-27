@@ -8,6 +8,7 @@ import { ButtonSave } from '../../components/ui/Button'
 import { DeviceSidebar } from '../../components/Device/DeviceSidebar'
 import { IoSettingsSharp } from 'react-icons/io5'
 import useSidebar from '../../helpers/hooks/useSidebar'
+import usePermissions from '../../helpers/hooks/usePermissions'
 
 const fieldLabels: Record<string, string> = {
 	water_sold_since_last_refill: 'Продано',
@@ -21,6 +22,7 @@ const DeviceRefill = () => {
 	const { selectedDevice, loading, error } = useDevice()
 	const { userRole } = useAuth()
 	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
+	const { canEdit } = usePermissions()
 
 	console.log('selected driver device:', selectedDevice)
 	console.log('selected ID driver device:', selectedDevice?.id)
@@ -39,14 +41,22 @@ const DeviceRefill = () => {
 	}, [selectedDevice])
 
 	const handleChange = (key: string, value: number) => {
-		setEditedValues(prev => ({ ...prev, [key]: value }))
+		if (canEdit) {
+			setEditedValues(prev => ({ ...prev, [key]: value }))
+		}
 	}
 
 	const handleToggleServiceMode = () => {
-		setPendingServiceMode(prev => !prev)
+		if (canEdit) {
+			setPendingServiceMode(prev => !prev)
+		}
 	}
 
 	const handleSave = async () => {
+		if (!canEdit) {
+			console.log('У вас нет прав для сохранения изменений')
+			return
+		}
 		try {
 			setIsSaving(true)
 			const updateData = {
@@ -55,11 +65,6 @@ const DeviceRefill = () => {
 			}
 			if (userRole === 'driver') {
 				await PosDevicesService.updateDriverDevice(
-					selectedDevice.id,
-					updateData
-				)
-			} else if (userRole === 'technician') {
-				await PosDevicesService.updateTechnicianDevice(
 					selectedDevice.id,
 					updateData
 				)
@@ -97,7 +102,7 @@ const DeviceRefill = () => {
 												onChange={e =>
 													handleChange(key, parseInt(e.target.value) || 0)
 												}
-												disabled={isSaving}
+												disabled={isSaving || !canEdit}
 											/>
 											<span className='inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500'>
 												л
@@ -112,12 +117,15 @@ const DeviceRefill = () => {
 										className='mr-2'
 										checked={pendingServiceMode}
 										onChange={handleToggleServiceMode}
-										disabled={isSaving}
+										disabled={isSaving || !canEdit}
 									/>
 									<label htmlFor='serviceMode'>Сервисный режим</label>
 								</div>
 								{/* Кнопка сохранения */}
-								<ButtonSave onClick={handleSave} disabled={isSaving} />
+								<ButtonSave
+									onClick={handleSave}
+									disabled={isSaving || !canEdit}
+								/>
 							</div>
 						</div>
 					</div>

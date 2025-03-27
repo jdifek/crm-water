@@ -20,7 +20,6 @@ const DeviceDetails = () => {
 			case 'super_admin':
 			case 'admin':
 			case 'operator':
-			case 'driver':
 			case 'collector':
 				return [
 					{
@@ -163,6 +162,21 @@ const DeviceDetails = () => {
 								label: 'Дата прошивки главного контроллера',
 								value: selectedDevice.main_controller_firmware_date,
 							},
+						],
+					},
+				]
+			case 'driver':
+				return [
+					{
+						title: 'Аппарат',
+						items: [
+							{ label: 'Объем резервуара', value: selectedDevice.tank_size },
+							{ label: 'Страна', value: selectedDevice.country },
+							{ label: 'Город', value: selectedDevice.city },
+							{ label: 'Улица', value: selectedDevice.street },
+							{ label: 'Дом', value: selectedDevice.house },
+							{ label: 'Широта', value: selectedDevice.latitude },
+							{ label: 'Долгота', value: selectedDevice.longitude },
 						],
 					},
 				]

@@ -40,9 +40,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 		| IPosDriverDeviceDetails
 		| undefined
 	>(undefined)
-	const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(
-		id ? Number(id) : null
-	)
+	const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(null)
 	const [loading, setLoading] = useState<boolean>(false)
 	const [error, setError] = useState<string | undefined>(undefined)
 
@@ -97,13 +95,11 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 	useEffect(() => {
 		if (id) {
 			const deviceId = Number(id)
-			if (selectedDeviceId !== deviceId) {
-				setSelectedDeviceId(deviceId)
-			}
+			setSelectedDeviceId(deviceId)
 		} else if (
 			devices.length > 0 &&
 			selectedDeviceId === null &&
-			location.pathname.startsWith('/devices/')
+			location.pathname.startsWith('/devices/details')
 		) {
 			setSelectedDeviceId(devices[0].id)
 			navigate(`/devices/details/${devices[0].id}`, { replace: true })

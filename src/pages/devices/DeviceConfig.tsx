@@ -8,6 +8,7 @@ import { useDevice } from '../../helpers/context/DeviceContext'
 import { useAuth } from '../../helpers/context/AuthContext'
 import useSidebar from '../../helpers/hooks/useSidebar'
 import { IoSettingsSharp } from 'react-icons/io5'
+import usePermissions from '../../helpers/hooks/usePermissions'
 
 const BILL_ACCEPTOR_MODEL_OPTIONS = {
 	nv9usb: 'NV9USB',
@@ -31,6 +32,7 @@ export const DeviceConfig = () => {
 	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
 	const { selectedDevice, loading, error } = useDevice()
 	const { userRole } = useAuth()
+	const { canEdit } = usePermissions()
 
 	useEffect(() => {
 		if (selectedDevice) {
@@ -107,17 +109,14 @@ export const DeviceConfig = () => {
 			console.log('Нет изменений для сохранения')
 			return
 		}
+		if (!canEdit) {
+			console.log('У вас нет прав для сохранения изменений')
+			return
+		}
 
 		try {
 			setIsSaving(true)
-			if (userRole === 'technician') {
-				await PosDevicesService.updateTechnicianDevice(
-					selectedDevice.id,
-					updatedValues
-				)
-			} else {
-				await PosDevicesService.updateDevice(selectedDevice.id, updatedValues)
-			}
+			await PosDevicesService.updateDevice(selectedDevice.id, updatedValues)
 		} catch (error) {
 			console.error('Ошибка при обновлении устройства:', error)
 		} finally {
@@ -144,6 +143,7 @@ export const DeviceConfig = () => {
 										className='block w-full rounded-md border-gray-300 shadow-sm'
 										value={billAcceptorModel}
 										onChange={handleBillAcceptorModelChange}
+										disabled={!canEdit}
 									>
 										{Object.values(BILL_ACCEPTOR_MODEL_OPTIONS).map(model => (
 											<option key={model} value={model}>
@@ -161,6 +161,7 @@ export const DeviceConfig = () => {
 										className='block w-full rounded-md border-gray-300 shadow-sm'
 										value={coinlAcceptorModel}
 										onChange={handleCoinAcceptorModelChange}
+										disabled={!canEdit}
 									>
 										{Object.values(COINL_ACCEPTOR_MODEL_OPTIONS).map(model => (
 											<option key={model} value={model}>
@@ -185,10 +186,14 @@ export const DeviceConfig = () => {
 												e.target.value
 											)
 										}
+										disabled={!canEdit}
 									/>
 								</div>
 
-								<ButtonSave onClick={handleSave} disabled={isSaving} />
+								<ButtonSave
+									onClick={handleSave}
+									disabled={isSaving || !canEdit}
+								/>
 							</div>
 						</div>
 					</div>

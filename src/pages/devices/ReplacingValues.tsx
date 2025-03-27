@@ -5,9 +5,9 @@ import { DeviceNavigate } from '../../components/Device/Navigate'
 import { SelectDevice } from '../../components/Device/SelectDevice'
 import { ButtonSave } from '../../components/ui/Button'
 import { useDevice } from '../../helpers/context/DeviceContext'
-import { useAuth } from '../../helpers/context/AuthContext'
 import { IoSettingsSharp } from 'react-icons/io5'
 import useSidebar from '../../helpers/hooks/useSidebar'
+import usePermissions from '../../helpers/hooks/usePermissions'
 
 const fieldLabels: Record<string, string> = {
 	water_inlet_counter: 'Счетчик воды на входе',
@@ -36,8 +36,8 @@ export const ReplacingValues = () => {
 		Record<string, string | number>
 	>({})
 	const { selectedDevice, selectedDeviceId, loading, error } = useDevice()
-	const { userRole } = useAuth()
 	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
+	const { canEdit } = usePermissions()
 
 	console.log('selected device:', selectedDevice)
 
@@ -47,20 +47,19 @@ export const ReplacingValues = () => {
 	if (!selectedDevice) return <p>Устройство не найдено</p>
 
 	const handleChange = (key: string, value: string | number) => {
-		setEditedValues(prev => ({ ...prev, [key]: value }))
+		if (canEdit) {
+			setEditedValues(prev => ({ ...prev, [key]: value }))
+		}
 	}
 
 	const handleSave = async () => {
+		if (!canEdit) {
+			console.log('У вас нет прав для сохранения изменений')
+			return
+		}
 		try {
 			setIsSaving(true)
-			if (userRole === 'technician') {
-				await PosDevicesService.updateTechnicianDevice(
-					selectedDevice.id,
-					editedValues
-				)
-			} else {
-				await PosDevicesService.updateDevice(selectedDevice.id, editedValues)
-			}
+			await PosDevicesService.updateDevice(selectedDevice.id, editedValues)
 		} catch (error) {
 			console.error('Ошибка при сохранении:', error)
 		} finally {
@@ -111,6 +110,7 @@ export const ReplacingValues = () => {
 															editedValues[key] ?? selectedDevice[key] ?? ''
 														}
 														onChange={e => handleChange(key, e.target.value)}
+														disabled={!canEdit}
 													/>
 												) : (
 													<input
@@ -120,6 +120,7 @@ export const ReplacingValues = () => {
 															editedValues[key] ?? selectedDevice[key] ?? ''
 														}
 														onChange={e => handleChange(key, e.target.value)}
+														disabled={!canEdit}
 													/>
 												)}
 
@@ -129,7 +130,10 @@ export const ReplacingValues = () => {
 											</div>
 										</div>
 									))}
-								<ButtonSave onClick={handleSave} disabled={isSaving} />
+								<ButtonSave
+									onClick={handleSave}
+									disabled={isSaving || !canEdit}
+								/>
 							</div>
 						</div>
 					</div>

@@ -7,6 +7,7 @@ import {
 import { ButtonSave } from '../../ui/Button'
 import ConcentrationInput from '../ConcentrationInput'
 import { useAuth } from '../../../helpers/context/AuthContext'
+import usePermissions from '../../../helpers/hooks/usePermissions'
 
 interface IOtherProps {
 	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
@@ -20,6 +21,7 @@ export const Other = ({ selectedDevice, loading }: IOtherProps) => {
 	const [productConcentration, setProductConcentration] = useState<number>(
 		parseFloat(selectedDevice.product_concentration) || 0
 	)
+	const { canEdit } = usePermissions()
 
 	const OTHER_SETTING_ITEMS = [
 		{ id: 'should_update', label: 'Обновить' },
@@ -42,11 +44,17 @@ export const Other = ({ selectedDevice, loading }: IOtherProps) => {
 	}, [selectedDevice])
 
 	const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const { id, checked } = e.target
-		setSettings(prev => ({ ...prev, [id]: checked }))
+		if (canEdit) {
+			const { id, checked } = e.target
+			setSettings(prev => ({ ...prev, [id]: checked }))
+		}
 	}
 
 	const handleSave = async () => {
+		if (!canEdit) {
+			console.log('У вас нет прав для сохранения изменений')
+			return
+		}
 		try {
 			setIsSaving(true)
 			if (userRole === 'technician') {
@@ -87,7 +95,7 @@ export const Other = ({ selectedDevice, loading }: IOtherProps) => {
 							className='mr-2'
 							checked={settings[item.id]} // Получаем значение состояния по item.id
 							onChange={handleCheckboxChange}
-							disabled={isSaving}
+							disabled={isSaving || !canEdit}
 						/>
 						<label htmlFor={item.id}>{item.label}</label>
 					</div>
@@ -98,7 +106,7 @@ export const Other = ({ selectedDevice, loading }: IOtherProps) => {
 					onChange={setProductConcentration}
 				/>
 
-				<ButtonSave onClick={handleSave} disabled={isSaving} />
+				<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
 			</div>
 		</div>
 	)

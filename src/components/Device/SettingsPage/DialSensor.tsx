@@ -6,6 +6,7 @@ import {
 } from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
 import { useAuth } from '../../../helpers/context/AuthContext'
+import usePermissions from '../../../helpers/hooks/usePermissions'
 
 interface DialSensorProps {
 	isOn: boolean
@@ -21,6 +22,7 @@ export const DialSensor = ({
 	loading,
 }: DialSensorProps) => {
 	const { userRole } = useAuth()
+	const { canEdit } = usePermissions()
 	const litersArray = [0.5, 1.0, 1.5, 2.0, 5.0, 6.0, 10.0, 12.0, 19.0]
 
 	const formatKey = (liters: number) =>
@@ -40,11 +42,17 @@ export const DialSensor = ({
 	}, [selectedDevice])
 
 	const handleInputChange = (liters: number, value: string) => {
-		const newValue = parseFloat(value) || 0
-		setPulseValues(prev => ({ ...prev, [liters]: newValue }))
+		if (canEdit) {
+			const newValue = parseFloat(value) || 0
+			setPulseValues(prev => ({ ...prev, [liters]: newValue }))
+		}
 	}
 
 	const handleSave = async () => {
+		if (!canEdit) {
+			console.log('У вас нет прав для сохранения изменений')
+			return
+		}
 		setIsSaving(true)
 		try {
 			const updatedParams: Partial<IPosDeviceDetails> = {}
@@ -52,12 +60,7 @@ export const DialSensor = ({
 				updatedParams[formatKey(l) as keyof IPosDeviceDetails] = pulseValues[l]
 			})
 
-			if (userRole === 'driver') {
-				await PosDevicesService.updateDriverDevice(
-					selectedDevice.id,
-					updatedParams
-				)
-			} else if (userRole === 'technician') {
+			if (userRole === 'technician') {
 				await PosDevicesService.updateTechnicianDevice(
 					selectedDevice.id,
 					updatedParams
@@ -93,6 +96,7 @@ export const DialSensor = ({
 							className='sr-only'
 							checked={isOn}
 							onChange={() => setIsOn(!isOn)}
+							disabled={!canEdit}
 						/>
 						<div
 							className={`w-14 h-7 bg-gray-300 rounded-full p-1 transition ${
@@ -121,6 +125,7 @@ export const DialSensor = ({
 							className='block w-full rounded-md border-gray-300 shadow-sm'
 							value={value || ''}
 							onChange={e => setValue(e.target.value)}
+							disabled={!canEdit}
 						/>
 					</div>
 					<p className='text-gray-400 font-semibold text-sm'>импульсов</p>
@@ -139,13 +144,14 @@ export const DialSensor = ({
 								className='block w-full rounded-md border-gray-300 shadow-sm'
 								value={pulseValues[el] || ''}
 								onChange={e => handleInputChange(el, e.target.value)}
+								disabled={!canEdit}
 							/>
 						</div>
 					</div>
 				))}
 
 				{/* Вторая кнопка сохранить после всех инпутов */}
-				<ButtonSave onClick={handleSave} disabled={isSaving} />
+				<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
 			</div>
 		</div>
 	)

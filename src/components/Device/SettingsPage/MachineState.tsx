@@ -6,10 +6,10 @@ import {
 	IPosTechnicianDeviceDetails,
 } from '../../../api/PosDevices/PosDevicesTypes'
 import { useAuth } from '../../../helpers/context/AuthContext'
+import usePermissions from '../../../helpers/hooks/usePermissions'
 
 interface MachineStateProps {
 	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
-
 	loading: boolean
 }
 
@@ -20,12 +20,17 @@ export const MachineState = ({
 	const { userRole } = useAuth()
 	const [active, setActive] = useState<boolean>(selectedDevice.is_active)
 	const [isSaving, setIsSaving] = useState<boolean>(false)
+	const { canEdit } = usePermissions()
 
 	useEffect(() => {
 		setActive(selectedDevice.is_active)
 	}, [selectedDevice])
 
 	const handleSave = async () => {
+		if (!canEdit) {
+			console.log('У вас нет прав для сохранения изменений')
+			return
+		}
 		try {
 			setIsSaving(true)
 			if (userRole === 'technician') {
@@ -69,7 +74,7 @@ export const MachineState = ({
 					{active ? 'Активирован' : 'Деактивирован'}
 				</p>
 			</div>
-			<ButtonSave onClick={handleSave} disabled={isSaving} />
+			<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
 		</div>
 	)
 }

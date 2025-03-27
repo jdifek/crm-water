@@ -6,6 +6,7 @@ import {
 } from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
 import { useAuth } from '../../../helpers/context/AuthContext'
+import usePermissions from '../../../helpers/hooks/usePermissions'
 
 interface IWifiProps {
 	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
@@ -24,6 +25,7 @@ export const Wifi = ({ selectedDevice, loading }: IWifiProps) => {
 	const [pendingUseWifi, setPendingUseWifi] = useState<boolean>(
 		selectedDevice.use_wifi
 	)
+	const { canEdit } = usePermissions()
 
 	useEffect(() => {
 		setPendingUseWifi(selectedDevice.use_wifi)
@@ -40,6 +42,10 @@ export const Wifi = ({ selectedDevice, loading }: IWifiProps) => {
 	const handleSave = async () => {
 		if (pendingUseWifi && (!wifiName || !wifiPassword)) {
 			console.log('Введите имя и пароль WiFi')
+			return
+		}
+		if (!canEdit) {
+			console.log('У вас нет прав для сохранения изменений')
 			return
 		}
 
@@ -87,7 +93,7 @@ export const Wifi = ({ selectedDevice, loading }: IWifiProps) => {
 						className='mr-2'
 						checked={pendingUseWifi}
 						onChange={handleToggleWifi}
-						disabled={isSaving}
+						disabled={isSaving || !canEdit}
 					/>
 					<label htmlFor='useWifi'>Использовать WiFi</label>
 				</div>
@@ -100,7 +106,7 @@ export const Wifi = ({ selectedDevice, loading }: IWifiProps) => {
 						className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
 						value={wifiName}
 						onChange={e => setWifiName(e.target.value)}
-						disabled={!pendingUseWifi}
+						disabled={!pendingUseWifi || !canEdit}
 					/>
 				</div>
 				<div>
@@ -112,11 +118,11 @@ export const Wifi = ({ selectedDevice, loading }: IWifiProps) => {
 						className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
 						value={wifiPassword}
 						onChange={e => setWifiPassword(e.target.value)}
-						disabled={!pendingUseWifi}
+						disabled={!pendingUseWifi || !canEdit}
 					/>
 				</div>
 
-				<ButtonSave onClick={handleSave} disabled={isSaving} />
+				<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
 			</div>
 		</div>
 	)

@@ -6,6 +6,7 @@ import {
 } from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
 import { useAuth } from '../../../helpers/context/AuthContext'
+import usePermissions from '../../../helpers/hooks/usePermissions'
 
 interface IPaymentProps {
 	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
@@ -26,6 +27,7 @@ export const Payment = ({ selectedDevice, loading }: IPaymentProps) => {
 	const [useEnablePrivat24, setUseEnablePrivat24] = useState<boolean>(
 		selectedDevice.enable_privat_24_payment
 	)
+	const { canEdit } = usePermissions()
 
 	useEffect(() => {
 		const model = selectedDevice.pos_terminal_model.toLowerCase()
@@ -33,7 +35,9 @@ export const Payment = ({ selectedDevice, loading }: IPaymentProps) => {
 	}, [selectedDevice])
 
 	const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		setPosTerminalModel(e.target.value)
+		if (canEdit) {
+			setPosTerminalModel(e.target.value)
+		}
 	}
 
 	useEffect(() => {
@@ -42,16 +46,24 @@ export const Payment = ({ selectedDevice, loading }: IPaymentProps) => {
 	}, [selectedDevice])
 
 	const handleToggleCustomerCard = () => {
-		setUseCustomerCards(!useCustomerCards)
+		if (canEdit) {
+			setUseCustomerCards(!useCustomerCards)
+		}
 	}
 	const handleToggleEnablePrivat24 = () => {
-		setUseEnablePrivat24(!useEnablePrivat24)
+		if (canEdit) {
+			setUseEnablePrivat24(!useEnablePrivat24)
+		}
 	}
 
 	const handleSave = async () => {
 		const newModelKey = Object.keys(POS_TERMINAL_MODEL_OPTIONS).find(
 			key => POS_TERMINAL_MODEL_OPTIONS[key] === posTerminalModel
 		)
+		if (!canEdit) {
+			console.log('У вас нет прав для сохранения изменений')
+			return
+		}
 
 		try {
 			setIsSaving(true)
@@ -91,7 +103,7 @@ export const Payment = ({ selectedDevice, loading }: IPaymentProps) => {
 					<input
 						checked={useCustomerCards}
 						onChange={handleToggleCustomerCard}
-						disabled={isSaving}
+						disabled={isSaving || !canEdit}
 						type='checkbox'
 						id='useCards'
 						className='mr-2'
@@ -103,7 +115,7 @@ export const Payment = ({ selectedDevice, loading }: IPaymentProps) => {
 						type='checkbox'
 						checked={useEnablePrivat24}
 						onChange={handleToggleEnablePrivat24}
-						disabled={isSaving}
+						disabled={isSaving || !canEdit}
 						id='useQR'
 						className='mr-2'
 					/>
@@ -117,6 +129,7 @@ export const Payment = ({ selectedDevice, loading }: IPaymentProps) => {
 					<select
 						value={posTerminalModel}
 						onChange={handleModelChange}
+						disabled={!canEdit}
 						className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
 					>
 						{Object.values(POS_TERMINAL_MODEL_OPTIONS).map(model => (
@@ -134,10 +147,11 @@ export const Payment = ({ selectedDevice, loading }: IPaymentProps) => {
 						type='text'
 						className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
 						defaultValue={selectedDevice.vendor_id}
+						disabled={!canEdit}
 					/>
 				</div>
 
-				<ButtonSave onClick={handleSave} disabled={isSaving} />
+				<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
 			</div>
 		</div>
 	)

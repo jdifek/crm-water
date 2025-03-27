@@ -6,6 +6,7 @@ import {
 } from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
 import { useAuth } from '../../../helpers/context/AuthContext'
+import usePermissions from '../../../helpers/hooks/usePermissions'
 
 interface IInterfaceProps {
 	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
@@ -22,6 +23,7 @@ export const Interface = ({ selectedDevice, loading }: IInterfaceProps) => {
 	const { userRole } = useAuth()
 	const [interfaceLanguage, setInterfaceLanguage] = useState<string>('')
 	const [isSaving, setIsSaving] = useState<boolean>(false)
+	const { canEdit } = usePermissions()
 
 	useEffect(() => {
 		const language = selectedDevice.interface_language.toLowerCase()
@@ -29,13 +31,19 @@ export const Interface = ({ selectedDevice, loading }: IInterfaceProps) => {
 	}, [selectedDevice])
 
 	const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		setInterfaceLanguage(e.target.value)
+		if (canEdit) {
+			setInterfaceLanguage(e.target.value)
+		}
 	}
 
 	const handleSave = async () => {
 		const newLanguageKey = Object.keys(LANGUAGE_OPTIONS).find(
 			key => LANGUAGE_OPTIONS[key] === interfaceLanguage
 		)
+		if (!canEdit) {
+			console.log('У вас нет прав для сохранения изменений')
+			return
+		}
 
 		if (newLanguageKey) {
 			try {
@@ -77,6 +85,7 @@ export const Interface = ({ selectedDevice, loading }: IInterfaceProps) => {
 						className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
 						value={interfaceLanguage}
 						onChange={handleLanguageChange}
+						disabled={!canEdit}
 					>
 						{Object.values(LANGUAGE_OPTIONS).map(lang => (
 							<option key={lang} value={lang}>
@@ -85,7 +94,7 @@ export const Interface = ({ selectedDevice, loading }: IInterfaceProps) => {
 						))}
 					</select>
 				</div>
-				<ButtonSave onClick={handleSave} disabled={isSaving} />
+				<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
 			</div>
 		</div>
 	)

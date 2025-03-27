@@ -6,6 +6,7 @@ import {
 } from '../../../api/PosDevices/PosDevicesTypes'
 import { ButtonSave } from '../../ui/Button'
 import { useAuth } from '../../../helpers/context/AuthContext'
+import usePermissions from '../../../helpers/hooks/usePermissions'
 
 interface IDispenserModeProps {
 	selectedDevice: IPosDeviceDetails | IPosTechnicianDeviceDetails
@@ -24,6 +25,7 @@ export const DispenserMode = ({
 	>({})
 	const [winterMode, setWinterMode] = useState<boolean>(false)
 	const [isSaving, setIsSaving] = useState<boolean>(false)
+	const { canEdit } = usePermissions()
 
 	useEffect(() => {
 		const initialDispensers: typeof dispensers = {}
@@ -45,16 +47,22 @@ export const DispenserMode = ({
 		key: 'enabled' | 't1' | 't2',
 		value: boolean | number
 	) => {
-		setDispensers(prev => ({
-			...prev,
-			[id]: {
-				...prev[id],
-				[key]: value,
-			},
-		}))
+		if (canEdit) {
+			setDispensers(prev => ({
+				...prev,
+				[id]: {
+					...prev[id],
+					[key]: value,
+				},
+			}))
+		}
 	}
 
 	const handleSave = async () => {
+		if (!canEdit) {
+			console.log('У вас нет прав для сохранения изменений')
+			return
+		}
 		try {
 			setIsSaving(true)
 
@@ -104,6 +112,7 @@ export const DispenserMode = ({
 							type='checkbox'
 							checked={dispensers[id]?.enabled || false}
 							onChange={e => handleChange(id, 'enabled', e.target.checked)}
+							disabled={!canEdit}
 						/>
 
 						<div className='flex items-center gap-2'>
@@ -115,6 +124,7 @@ export const DispenserMode = ({
 								onChange={e =>
 									handleChange(id, 't1', parseInt(e.target.value) || 0)
 								}
+								disabled={!canEdit}
 							/>
 						</div>
 
@@ -127,6 +137,7 @@ export const DispenserMode = ({
 								onChange={e =>
 									handleChange(id, 't2', parseInt(e.target.value) || 0)
 								}
+								disabled={!canEdit}
 							/>
 						</div>
 					</div>
@@ -138,13 +149,14 @@ export const DispenserMode = ({
 						id='winterMode'
 						checked={winterMode}
 						onChange={e => setWinterMode(e.target.checked)}
+						disabled={!canEdit}
 					/>
 					<label htmlFor='winterMode' className='mr-1'>
 						Зимний режим
 					</label>
 				</div>
 
-				<ButtonSave onClick={handleSave} disabled={isSaving} />
+				<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
 			</div>
 		</div>
 	)

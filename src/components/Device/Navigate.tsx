@@ -1,14 +1,16 @@
 import { NavLink } from 'react-router-dom'
 import { useDevice } from '../../helpers/context/DeviceContext'
+import { useAuth } from '../../helpers/context/AuthContext'
 
 export const DeviceNavigate = () => {
 	const { selectedDeviceId } = useDevice()
+	const { userRole } = useAuth()
 
 	console.log('selectedDeviceId:', selectedDeviceId)
 
 	if (!selectedDeviceId) return <p>Устройство не выбрано</p>
 
-	const menuItems = [
+	const allMenuItems = [
 		{ name: 'Подробно', path: `/devices/details/${selectedDeviceId}` },
 		{ name: 'Настройки', path: `/devices/settings/${selectedDeviceId}` },
 		{ name: 'Регламент', path: `/devices/regulations/${selectedDeviceId}` },
@@ -16,6 +18,13 @@ export const DeviceNavigate = () => {
 		{ name: 'Заправка', path: `/devices/refill/${selectedDeviceId}` },
 		{ name: 'Конфигурация', path: `/devices/config/${selectedDeviceId}` },
 	]
+
+	const menuItems =
+		userRole === 'driver'
+			? allMenuItems.filter(
+					item => item.name === 'Подробно' || item.name === 'Заправка'
+			  )
+			: allMenuItems
 
 	return (
 		<ul className='flex flex-wrap gap-2 mb-4'>

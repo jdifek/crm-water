@@ -8,6 +8,7 @@ import { useDevice } from '../../helpers/context/DeviceContext'
 import { useAuth } from '../../helpers/context/AuthContext'
 import useSidebar from '../../helpers/hooks/useSidebar'
 import { IoSettingsSharp } from 'react-icons/io5'
+import usePermissions from '../../helpers/hooks/usePermissions'
 
 const fieldLabels: Record<string, string> = {
 	before_replacing_pre_filters: 'До замены предварительных фильтров',
@@ -23,24 +24,26 @@ const DeviceRegulations = () => {
 	const { userRole } = useAuth()
 	const { selectedDevice, loading, error } = useDevice()
 	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
+	const { canEdit } = usePermissions()
 
 	if (loading) return <p>Загрузка устройства...</p>
 	if (error) return <p className='text-red-500'>{error}</p>
 	if (!selectedDevice) return <p>Устройство не найдено</p>
 
 	const handleChange = (key: string, value: number) => {
-		setEditedValues(prev => ({ ...prev, [key]: value }))
+		if (canEdit) {
+			setEditedValues(prev => ({ ...prev, [key]: value }))
+		}
 	}
 
 	const handleSave = async () => {
+		if (!canEdit) {
+			console.log('У вас нет прав для сохранения изменений')
+			return
+		}
 		try {
 			setIsSaving(true)
-			if (userRole === 'driver') {
-				await PosDevicesService.updateDriverDevice(
-					selectedDevice.id,
-					editedValues
-				)
-			} else if (userRole === 'technician') {
+			if (userRole === 'technician') {
 				await PosDevicesService.updateTechnicianDevice(
 					selectedDevice.id,
 					editedValues
@@ -79,6 +82,7 @@ const DeviceRegulations = () => {
 												onChange={e =>
 													handleChange(key, parseInt(e.target.value) || 0)
 												}
+												disabled={!canEdit}
 											/>
 											<span className='inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500'>
 												л
@@ -86,7 +90,10 @@ const DeviceRegulations = () => {
 										</div>
 									</div>
 								))}
-								<ButtonSave onClick={handleSave} disabled={isSaving} />
+								<ButtonSave
+									onClick={handleSave}
+									disabled={isSaving || !canEdit}
+								/>
 							</div>
 						</div>
 					</div>

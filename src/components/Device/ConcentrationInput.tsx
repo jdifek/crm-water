@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import usePermissions from '../../helpers/hooks/usePermissions'
 
 interface IConcentrationInputProps {
 	value: number
@@ -7,16 +8,19 @@ interface IConcentrationInputProps {
 
 const ConcentrationInput = ({ value, onChange }: IConcentrationInputProps) => {
 	const [localValue, setLocalValue] = useState(value)
+	const { canEdit } = usePermissions()
 
 	useEffect(() => {
 		setLocalValue(value)
 	}, [value])
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const newValue = Number(e.target.value)
-		if (newValue >= 0 && newValue <= 100) {
-			setLocalValue(newValue)
-			onChange(newValue)
+		if (canEdit) {
+			const newValue = Number(e.target.value)
+			if (newValue >= 0 && newValue <= 100) {
+				setLocalValue(newValue)
+				onChange(newValue)
+			}
 		}
 	}
 
@@ -49,6 +53,7 @@ const ConcentrationInput = ({ value, onChange }: IConcentrationInputProps) => {
 					type='number'
 					value={localValue}
 					onChange={handleChange}
+					disabled={!canEdit}
 					min='0'
 					max='100'
 					className='w-14 text-center text-lg font-semibold border-none outline-none bg-transparent'
