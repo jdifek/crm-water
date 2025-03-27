@@ -35,12 +35,15 @@ export const ReplacingValues = () => {
 	const [editedValues, setEditedValues] = useState<
 		Record<string, string | number>
 	>({})
-	const { selectedDevice, loading, error } = useDevice()
+	const { selectedDevice, selectedDeviceId, loading, error } = useDevice()
 	const { userRole } = useAuth()
 	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
 
+	console.log('selected device:', selectedDevice)
+
 	if (loading) return <p>Загрузка устройства...</p>
 	if (error) return <p className='text-red-500'>{error}</p>
+	if (!selectedDeviceId) return <p>Выберите устройство</p>
 	if (!selectedDevice) return <p>Устройство не найдено</p>
 
 	const handleChange = (key: string, value: string | number) => {

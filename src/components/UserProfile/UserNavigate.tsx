@@ -22,9 +22,11 @@ const UserNavigate = () => {
 						end={exact}
 						className={({ isActive }) =>
 							`px-4 py-2 rounded-full uppercase text-sm ${
-								isActive
+								name === 'Активність'
+									? 'cursor-not-allowed bg-transparent text-gray-700 pointer-events-none'
+									: isActive
 									? 'bg-blue-500 text-white shadow-md'
-									: 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+									: 'bg-gray-200 text-gray-700 hover:bg-gray-300 focus:bg-gray-300'
 							}`
 						}
 					>

@@ -167,6 +167,7 @@ export interface IPosDeviceDetails {
 
 // POS Driver Device by ID
 export interface IPosDriverDeviceDetails {
+	id: number
 	name: string
 	latitude: string
 	longitude: string
@@ -323,6 +324,8 @@ export interface IPosDeviceUpdateParams {
 	before_antiscalant_replacement?: number
 	before_minerals_replacement?: number
 	vibration_sensor_sensitivity?: number
+	water_sold_since_last_refill?: string
+	water_amount_after_last_refill?: string
 	service_mode?: boolean
 }
 
