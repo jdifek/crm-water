@@ -28,6 +28,7 @@ const DeviceRegulations = () => {
 	const { canEdit } = usePermissions()
 
 	const checkForChanges = () => {
+		if (!selectedDevice) return false
 		return Object.keys(fieldLabels).some(key => {
 			const currentValue = editedValues[key]
 			const originalValue = selectedDevice[key]
@@ -37,11 +38,21 @@ const DeviceRegulations = () => {
 
 	useEffect(() => {
 		setIsDisabled(!checkForChanges())
-	}, [editedValues])
+	}, [editedValues, selectedDevice])
 
-	if (loading) return <p>Загрузка устройства...</p>
-	if (error) return <p className='text-red-500'>{error}</p>
-	if (!selectedDevice) return <p>Устройство не найдено</p>
+	useEffect(() => {
+		if (selectedDevice) {
+			const initialValues: Record<string, number> = {}
+			Object.keys(fieldLabels).forEach(key => {
+				initialValues[key] = selectedDevice[key] ?? 0
+			})
+			setEditedValues(initialValues)
+		}
+	}, [selectedDevice])
+
+	if (loading) return <div className="p-4 lg:p-8">Загрузка устройства...</div>
+	if (error) return <div className="p-4 lg:p-8 text-red-500">{error}</div>
+	if (!selectedDevice) return <div className="p-4 lg:p-8">Устройство не найдено</div>
 
 	const handleChange = (key: string, value: number) => {
 		if (canEdit) {

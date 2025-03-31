@@ -40,9 +40,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 		| IPosDriverDeviceDetails
 		| undefined
 	>(undefined)
-	const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(
-		id ? Number(id) : null // Инициализация из id сразу
-	)
+	const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(null)
 	const [loading, setLoading] = useState<boolean>(false)
 	const [error, setError] = useState<string | undefined>(undefined)
 
@@ -54,6 +52,28 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 		'technician',
 		'collector',
 	]
+
+	const fetchDevice = async (deviceId: number) => {
+		setLoading(true)
+		try {
+			if (userRole === 'driver') {
+				const device = await PosDevicesService.getDriverDeviceById(deviceId)
+				setSelectedDevice(device.data as IPosDriverDeviceDetails)
+			} else if (userRole === 'technician') {
+				const device = await PosDevicesService.getTechnicianDeviceById(deviceId)
+				setSelectedDevice(device.data as IPosTechnicianDeviceDetails)
+			} else {
+				const device = await PosDevicesService.getDeviceById(deviceId)
+				setSelectedDevice(device.data as IPosDeviceDetails)
+			}
+		} catch (error) {
+			console.log('Error fetching device:', error)
+			setError('Ошибка при загрузке устройства')
+			setSelectedDevice(undefined)
+		} finally {
+			setLoading(false)
+		}
+	}
 
 	const fetchDevices = async (isActive?: boolean) => {
 		setLoading(true)
@@ -81,10 +101,15 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 	}
 
-	// Загружаем устройства при изменении состояния аутентификации
+	// Инициализация при монтировании компонента
 	useEffect(() => {
 		if (isAuthenticated && userRole) {
 			fetchDevices(true)
+			if (id) {
+				const deviceId = Number(id)
+				setSelectedDeviceId(deviceId)
+				fetchDevice(deviceId)
+			}
 		} else {
 			setDevices([])
 			setSelectedDeviceId(null)
@@ -99,53 +124,26 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 			const deviceId = Number(id)
 			if (selectedDeviceId !== deviceId) {
 				setSelectedDeviceId(deviceId)
+				fetchDevice(deviceId)
 			}
 		} else if (
 			devices.length > 0 &&
 			selectedDeviceId === null &&
-			location.pathname.startsWith('/devices/') // Убрано ограничение на /details
+			location.pathname.startsWith('/devices/')
 		) {
+			const currentPath = location.pathname.split('/')
+			const currentTab = currentPath[2] || 'details'
 			setSelectedDeviceId(devices[0].id)
-			navigate(`/devices/details/${devices[0].id}`, { replace: true })
+			navigate(`/devices/${currentTab}/${devices[0].id}`, { replace: true })
 		}
 	}, [id, devices, navigate, location.pathname])
 
 	// Загружаем данные устройства при изменении selectedDeviceId
 	useEffect(() => {
-		if (selectedDeviceId && isAuthenticated) {
-			const fetchDevice = async () => {
-				setLoading(true)
-				try {
-					if (userRole === 'driver') {
-						const device = await PosDevicesService.getDriverDeviceById(
-							selectedDeviceId
-						)
-						console.log('Fetched driver device:', device.data)
-						setSelectedDevice(device.data as IPosDriverDeviceDetails)
-					} else if (userRole === 'technician') {
-						const device = await PosDevicesService.getTechnicianDeviceById(
-							selectedDeviceId
-						)
-						console.log('Fetched device:', device.data)
-						setSelectedDevice(device.data as IPosTechnicianDeviceDetails)
-					} else {
-						const device = await PosDevicesService.getDeviceById(
-							selectedDeviceId
-						)
-						console.log('Fetched device:', device.data)
-						setSelectedDevice(device.data as IPosDeviceDetails)
-					}
-				} catch (error) {
-					console.log('Error fetching device:', error)
-					setError('Ошибка при загрузке устройства')
-					setSelectedDevice(undefined) // Очищаем, если ошибка
-				} finally {
-					setLoading(false)
-				}
-			}
-			fetchDevice()
+		if (selectedDeviceId && isAuthenticated && !id) {
+			fetchDevice(selectedDeviceId)
 		}
-	}, [selectedDeviceId, isAuthenticated, userRole])
+	}, [selectedDeviceId, isAuthenticated])
 
 	const handleDeviceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newId = Number(e.target.value)

@@ -29,6 +29,7 @@ const DeviceRefill = () => {
 	console.log('selected ID driver device:', selectedDevice?.id)
 
 	const checkForChanges = () => {
+		if (!selectedDevice) return false
 		const hasValuesChanged = Object.keys(fieldLabels).some(key => {
 			const currentValue = editedValues[key]
 			const originalValue = selectedDevice[key]
@@ -41,15 +42,17 @@ const DeviceRefill = () => {
 
 	useEffect(() => {
 		setIsDisabled(!checkForChanges())
-	}, [editedValues, pendingServiceMode])
+	}, [editedValues, pendingServiceMode, selectedDevice])
 
 	useEffect(() => {
-		const initialValues: Record<string, number> = {}
-		Object.keys(fieldLabels).forEach(key => {
-			initialValues[key] = selectedDevice[key] ?? 0
-		})
-		setEditedValues(initialValues)
-		setPendingServiceMode(selectedDevice.service_mode ?? false)
+		if (selectedDevice) {
+			const initialValues: Record<string, number> = {}
+			Object.keys(fieldLabels).forEach(key => {
+				initialValues[key] = selectedDevice[key] ?? 0
+			})
+			setEditedValues(initialValues)
+			setPendingServiceMode(selectedDevice.service_mode ?? false)
+		}
 	}, [selectedDevice])
 
 	const handleChange = (key: string, value: number) => {
@@ -92,9 +95,9 @@ const DeviceRefill = () => {
 		}
 	}
 
-	if (loading) return <p>Загрузка устройства...</p>
-	if (error) return <p className='text-red-500'>{error}</p>
-	if (!selectedDevice) return <p>Устройство не найдено</p>
+	if (loading) return <div className="p-4 lg:p-8">Загрузка устройства...</div>
+	if (error) return <div className="p-4 lg:p-8 text-red-500">{error}</div>
+	if (!selectedDevice) return <div className="p-4 lg:p-8">Устройство не найдено</div>
 
 	return (
 		<div className='p-4 lg:p-8'>
