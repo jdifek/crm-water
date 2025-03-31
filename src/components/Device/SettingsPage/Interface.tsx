@@ -23,6 +23,7 @@ export const Interface = ({ selectedDevice, loading }: IInterfaceProps) => {
 	const { userRole } = useAuth()
 	const [interfaceLanguage, setInterfaceLanguage] = useState<string>('')
 	const [isSaving, setIsSaving] = useState<boolean>(false)
+	const [isDisabled, setIsDisabled] = useState<boolean>(true)
 	const { canEdit } = usePermissions()
 
 	useEffect(() => {
@@ -30,9 +31,18 @@ export const Interface = ({ selectedDevice, loading }: IInterfaceProps) => {
 		setInterfaceLanguage(LANGUAGE_OPTIONS[language] || 'Українська')
 	}, [selectedDevice])
 
+	useEffect(() => {
+		const currentLanguage = selectedDevice.interface_language.toLowerCase()
+		const selectedLanguage = Object.keys(LANGUAGE_OPTIONS).find(
+			key => LANGUAGE_OPTIONS[key] === interfaceLanguage
+		)
+		setIsDisabled(currentLanguage === selectedLanguage)
+	}, [interfaceLanguage])
+
 	const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		if (canEdit) {
 			setInterfaceLanguage(e.target.value)
+			setIsDisabled(false)
 		}
 	}
 
@@ -94,7 +104,11 @@ export const Interface = ({ selectedDevice, loading }: IInterfaceProps) => {
 						))}
 					</select>
 				</div>
-				<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
+				<ButtonSave
+					onClick={handleSave}
+					disabled={!canEdit || isDisabled}
+					isSaving={isSaving}
+				/>
 			</div>
 		</div>
 	)

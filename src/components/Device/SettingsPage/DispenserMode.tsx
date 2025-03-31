@@ -25,6 +25,7 @@ export const DispenserMode = ({
 	>({})
 	const [winterMode, setWinterMode] = useState<boolean>(false)
 	const [isSaving, setIsSaving] = useState<boolean>(false)
+	const [isDisabled, setIsDisabled] = useState<boolean>(true)
 	const { canEdit } = usePermissions()
 
 	useEffect(() => {
@@ -42,6 +43,21 @@ export const DispenserMode = ({
 		setWinterMode(selectedDevice.winter_mode ?? false)
 	}, [selectedDevice])
 
+	useEffect(() => {
+		const hasDispensersChanged = DISPENSER_IDS.some(id => {
+			const dispenser = dispensers[id]
+			if (!dispenser) return false
+
+			return (
+				dispenser.enabled !== selectedDevice[`dispenser_${id}_enabled`] ||
+				dispenser.t1 !== selectedDevice[`dispenser_${id}_t1`] ||
+				dispenser.t2 !== selectedDevice[`dispenser_${id}_t2`]
+			)
+		})
+		const hasWinterModeChanged = winterMode !== selectedDevice.winter_mode
+		setIsDisabled(!hasDispensersChanged && !hasWinterModeChanged)
+	}, [dispensers, winterMode])
+
 	const handleChange = (
 		id: number,
 		key: 'enabled' | 't1' | 't2',
@@ -55,6 +71,14 @@ export const DispenserMode = ({
 					[key]: value,
 				},
 			}))
+			setIsDisabled(false)
+		}
+	}
+
+	const handleWinterModeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (canEdit) {
+			setWinterMode(e.target.checked)
+			setIsDisabled(false)
 		}
 	}
 
@@ -71,9 +95,12 @@ export const DispenserMode = ({
 			}
 
 			DISPENSER_IDS.forEach(id => {
-				updatedParams[`dispenser_${id}_enabled`] = dispensers[id].enabled
-				updatedParams[`dispenser_${id}_t1`] = dispensers[id].t1
-				updatedParams[`dispenser_${id}_t2`] = dispensers[id].t2
+				const dispenser = dispensers[id]
+				if (dispenser) {
+					updatedParams[`dispenser_${id}_enabled`] = dispenser.enabled
+					updatedParams[`dispenser_${id}_t1`] = dispenser.t1
+					updatedParams[`dispenser_${id}_t2`] = dispenser.t2
+				}
 			})
 
 			if (userRole === 'technician') {
@@ -105,50 +132,55 @@ export const DispenserMode = ({
 				Настройка режима работы дозаторов
 			</h2>
 			<div className='space-y-4'>
-				{DISPENSER_IDS.map(id => (
-					<div key={id} className='flex items-center gap-4'>
-						<label className='mr-1'>#{id}</label>
-						<input
-							type='checkbox'
-							checked={dispensers[id]?.enabled || false}
-							onChange={e => handleChange(id, 'enabled', e.target.checked)}
-							disabled={!canEdit}
-						/>
+				{DISPENSER_IDS.map(id => {
+					const dispenser = dispensers[id]
+					if (!dispenser) return null
 
-						<div className='flex items-center gap-2'>
-							<label className='mr-1'>T1</label>
+					return (
+						<div key={id} className='flex items-center gap-4'>
+							<label className='mr-1'>#{id}</label>
 							<input
-								type='number'
-								className='block rounded-md border-gray-300 w-[70%] shadow-sm'
-								value={dispensers[id]?.t1 || ''}
-								onChange={e =>
-									handleChange(id, 't1', parseInt(e.target.value) || 0)
-								}
+								type='checkbox'
+								checked={dispenser.enabled}
+								onChange={e => handleChange(id, 'enabled', e.target.checked)}
 								disabled={!canEdit}
 							/>
-						</div>
 
-						<div className='flex items-center gap-2'>
-							<label className='mr-1'>T2</label>
-							<input
-								type='number'
-								className='block rounded-md border-gray-300 w-[70%] shadow-sm'
-								value={dispensers[id]?.t2 || ''}
-								onChange={e =>
-									handleChange(id, 't2', parseInt(e.target.value) || 0)
-								}
-								disabled={!canEdit}
-							/>
+							<div className='flex items-center gap-2'>
+								<label className='mr-1'>T1</label>
+								<input
+									type='number'
+									className='block rounded-md border-gray-300 w-[70%] shadow-sm'
+									value={dispenser.t1 || ''}
+									onChange={e =>
+										handleChange(id, 't1', parseInt(e.target.value) || 0)
+									}
+									disabled={!canEdit}
+								/>
+							</div>
+
+							<div className='flex items-center gap-2'>
+								<label className='mr-1'>T2</label>
+								<input
+									type='number'
+									className='block rounded-md border-gray-300 w-[70%] shadow-sm'
+									value={dispenser.t2 || ''}
+									onChange={e =>
+										handleChange(id, 't2', parseInt(e.target.value) || 0)
+									}
+									disabled={!canEdit}
+								/>
+							</div>
 						</div>
-					</div>
-				))}
+					)
+				})}
 
 				<div className='flex items-center gap-2'>
 					<input
 						type='checkbox'
 						id='winterMode'
 						checked={winterMode}
-						onChange={e => setWinterMode(e.target.checked)}
+						onChange={handleWinterModeChange}
 						disabled={!canEdit}
 					/>
 					<label htmlFor='winterMode' className='mr-1'>
@@ -156,7 +188,11 @@ export const DispenserMode = ({
 					</label>
 				</div>
 
-				<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
+				<ButtonSave
+					onClick={handleSave}
+					disabled={!canEdit || isDisabled}
+					isSaving={isSaving}
+				/>
 			</div>
 		</div>
 	)

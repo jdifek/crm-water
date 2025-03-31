@@ -1,9 +1,14 @@
 interface IButtonSaveProps {
 	onClick: () => void
 	disabled?: boolean
+	isSaving?: boolean
 }
 
-export const ButtonSave = ({ onClick, disabled }: IButtonSaveProps) => {
+export const ButtonSave = ({
+	onClick,
+	disabled,
+	isSaving,
+}: IButtonSaveProps) => {
 	return (
 		<button
 			onClick={onClick}
@@ -12,7 +17,7 @@ export const ButtonSave = ({ onClick, disabled }: IButtonSaveProps) => {
 				disabled ? 'opacity-50 cursor-not-allowed' : ''
 			}`}
 		>
-			{disabled ? 'Сохранение...' : 'Сохранить'}
+			{isSaving ? 'Сохранение...' : 'Сохранить'}
 		</button>
 	)
 }

@@ -24,6 +24,7 @@ const fieldLabel: Record<string, string> = {
 
 export const DeviceConfig = () => {
 	const [isSaving, setIsSaving] = useState<boolean>(false)
+	const [isDisabled, setIsDisabled] = useState<boolean>(true)
 	const [billAcceptorModel, setBillAcceptorModel] = useState<string>('')
 	const [coinlAcceptorModel, setCoinAcceptorModel] = useState<string>('')
 	const [editedValues, setEditedValues] = useState<
@@ -54,6 +55,29 @@ export const DeviceConfig = () => {
 		}
 	}, [selectedDevice])
 
+	const checkForChanges = () => {
+		const newBillModelKey = Object.keys(BILL_ACCEPTOR_MODEL_OPTIONS).find(
+			key => BILL_ACCEPTOR_MODEL_OPTIONS[key] === billAcceptorModel
+		)
+		const newCoinModelKey = Object.keys(COINL_ACCEPTOR_MODEL_OPTIONS).find(
+			key => COINL_ACCEPTOR_MODEL_OPTIONS[key] === coinlAcceptorModel
+		)
+
+		const hasBillModelChanged =
+			newBillModelKey !== selectedDevice?.bill_acceptor_model
+		const hasCoinModelChanged =
+			newCoinModelKey !== selectedDevice?.coin_acceptor_model
+		const hasVibrationChanged =
+			String(editedValues.vibration_sensor_sensitivity) !==
+			String(selectedDevice?.vibration_sensor_sensitivity)
+
+		return hasBillModelChanged || hasCoinModelChanged || hasVibrationChanged
+	}
+
+	useEffect(() => {
+		setIsDisabled(!checkForChanges())
+	}, [billAcceptorModel, coinlAcceptorModel, editedValues])
+
 	if (loading) return <p>Загрузка устройства...</p>
 	if (error) return <p className='text-red-500'>{error}</p>
 	if (!selectedDevice) return <p>Устройство не найдено</p>
@@ -62,16 +86,19 @@ export const DeviceConfig = () => {
 		e: React.ChangeEvent<HTMLSelectElement>
 	) => {
 		setBillAcceptorModel(e.target.value)
+		setIsDisabled(false)
 	}
 
 	const handleCoinAcceptorModelChange = (
 		e: React.ChangeEvent<HTMLSelectElement>
 	) => {
 		setCoinAcceptorModel(e.target.value)
+		setIsDisabled(false)
 	}
 
 	const handleChange = (key: string, value: string | number) => {
 		setEditedValues(prev => ({ ...prev, [key]: value }))
+		setIsDisabled(false)
 	}
 
 	const handleSave = async () => {
@@ -107,6 +134,7 @@ export const DeviceConfig = () => {
 
 		if (Object.keys(updatedValues).length === 0) {
 			console.log('Нет изменений для сохранения')
+			setIsDisabled(true)
 			return
 		}
 		if (!canEdit) {
@@ -116,7 +144,14 @@ export const DeviceConfig = () => {
 
 		try {
 			setIsSaving(true)
-			await PosDevicesService.updateDevice(selectedDevice.id, updatedValues)
+			if (userRole === 'technician') {
+				await PosDevicesService.updateTechnicianDevice(
+					selectedDevice.id,
+					updatedValues
+				)
+			} else {
+				await PosDevicesService.updateDevice(selectedDevice.id, updatedValues)
+			}
 		} catch (error) {
 			console.error('Ошибка при обновлении устройства:', error)
 		} finally {
@@ -189,10 +224,10 @@ export const DeviceConfig = () => {
 										disabled={!canEdit}
 									/>
 								</div>
-
 								<ButtonSave
 									onClick={handleSave}
-									disabled={isSaving || !canEdit}
+									disabled={!canEdit || isDisabled}
+									isSaving={isSaving}
 								/>
 							</div>
 						</div>

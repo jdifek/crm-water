@@ -24,6 +24,7 @@ export const DialSensor = ({
 	const { userRole } = useAuth()
 	const { canEdit } = usePermissions()
 	const litersArray = [0.5, 1.0, 1.5, 2.0, 5.0, 6.0, 10.0, 12.0, 19.0]
+	const [isDisabled, setIsDisabled] = useState<boolean>(true)
 
 	const formatKey = (liters: number) =>
 		`sensor_impulses_${liters.toString().replace('.', '_')}l`
@@ -41,10 +42,27 @@ export const DialSensor = ({
 		setPulseValues(initialValues)
 	}, [selectedDevice])
 
+	useEffect(() => {
+		const hasValuesChanged = litersArray.some(l => {
+			const key = formatKey(l) as keyof IPosDeviceDetails
+			return pulseValues[l] !== selectedDevice[key]
+		})
+		setIsDisabled(!hasValuesChanged)
+	}, [pulseValues])
+
 	const handleInputChange = (liters: number, value: string) => {
 		if (canEdit) {
 			const newValue = parseFloat(value) || 0
 			setPulseValues(prev => ({ ...prev, [liters]: newValue }))
+			setIsDisabled(false)
+		}
+	}
+
+	const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (canEdit) {
+			const newValue = parseFloat(e.target.value) || 0
+			setValue(newValue)
+			setIsDisabled(false)
 		}
 	}
 
@@ -124,14 +142,14 @@ export const DialSensor = ({
 							type='number'
 							className='block w-full rounded-md border-gray-300 shadow-sm'
 							value={value || ''}
-							onChange={e => setValue(e.target.value)}
+							onChange={handleValueChange}
 							disabled={!canEdit}
 						/>
 					</div>
 					<p className='text-gray-400 font-semibold text-sm'>импульсов</p>
 				</div>
 
-				<ButtonSave onClick={handleSave} />
+				<ButtonSave onClick={handleSave} disabled={isDisabled} />
 
 				{litersArray.map((el, index) => (
 					<div key={index} className='flex items-center gap-2'>
@@ -150,8 +168,11 @@ export const DialSensor = ({
 					</div>
 				))}
 
-				{/* Вторая кнопка сохранить после всех инпутов */}
-				<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
+				<ButtonSave
+					onClick={handleSave}
+					disabled={!canEdit || isDisabled}
+					isSaving={isSaving}
+				/>
 			</div>
 		</div>
 	)

@@ -22,6 +22,7 @@ export const Wifi = ({ selectedDevice, loading }: IWifiProps) => {
 		selectedDevice.wifi_password || ''
 	)
 	const [isSaving, setIsSaving] = useState<boolean>(false)
+	const [isDisabled, setIsDisabled] = useState<boolean>(true)
 	const [pendingUseWifi, setPendingUseWifi] = useState<boolean>(
 		selectedDevice.use_wifi
 	)
@@ -33,10 +34,35 @@ export const Wifi = ({ selectedDevice, loading }: IWifiProps) => {
 		setWifiPassword(selectedDevice.wifi_password || '')
 	}, [selectedDevice])
 
+	useEffect(() => {
+		const hasWifiChanged = pendingUseWifi !== selectedDevice.use_wifi
+		const hasNameChanged = wifiName !== (selectedDevice.wifi_name || '')
+		const hasPasswordChanged =
+			wifiPassword !== (selectedDevice.wifi_password || '')
+		setIsDisabled(!hasWifiChanged && !hasNameChanged && !hasPasswordChanged)
+	}, [pendingUseWifi, wifiName, wifiPassword, selectedDevice])
+
 	const handleToggleWifi = () => {
-		setPendingUseWifi(!pendingUseWifi)
-		setWifiName('')
-		setWifiPassword('')
+		if (canEdit) {
+			setPendingUseWifi(!pendingUseWifi)
+			setWifiName('')
+			setWifiPassword('')
+			setIsDisabled(false)
+		}
+	}
+
+	const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (canEdit) {
+			setWifiName(e.target.value)
+			setIsDisabled(false)
+		}
+	}
+
+	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (canEdit) {
+			setWifiPassword(e.target.value)
+			setIsDisabled(false)
+		}
 	}
 
 	const handleSave = async () => {
@@ -54,14 +80,14 @@ export const Wifi = ({ selectedDevice, loading }: IWifiProps) => {
 			if (userRole === 'technician') {
 				await PosDevicesService.updateTechnicianDevice(selectedDevice.id, {
 					use_wifi: pendingUseWifi,
-					wifi_name: pendingUseWifi ? wifiName : null,
-					wifi_password: pendingUseWifi ? wifiPassword : null,
+					wifi_name: pendingUseWifi ? wifiName : undefined,
+					wifi_password: pendingUseWifi ? wifiPassword : undefined,
 				})
 			} else {
 				await PosDevicesService.updateDevice(selectedDevice.id, {
 					use_wifi: pendingUseWifi,
-					wifi_name: pendingUseWifi ? wifiName : null,
-					wifi_password: pendingUseWifi ? wifiPassword : null,
+					wifi_name: pendingUseWifi ? wifiName : undefined,
+					wifi_password: pendingUseWifi ? wifiPassword : undefined,
 				})
 			}
 		} catch (error) {
@@ -105,7 +131,7 @@ export const Wifi = ({ selectedDevice, loading }: IWifiProps) => {
 						type='text'
 						className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
 						value={wifiName}
-						onChange={e => setWifiName(e.target.value)}
+						onChange={handleNameChange}
 						disabled={!pendingUseWifi || !canEdit}
 					/>
 				</div>
@@ -117,12 +143,16 @@ export const Wifi = ({ selectedDevice, loading }: IWifiProps) => {
 						type='password'
 						className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
 						value={wifiPassword}
-						onChange={e => setWifiPassword(e.target.value)}
+						onChange={handlePasswordChange}
 						disabled={!pendingUseWifi || !canEdit}
 					/>
 				</div>
 
-				<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
+				<ButtonSave
+					onClick={handleSave}
+					disabled={!canEdit || isDisabled}
+					isSaving={isSaving}
+				/>
 			</div>
 		</div>
 	)

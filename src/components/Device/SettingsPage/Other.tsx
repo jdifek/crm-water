@@ -21,6 +21,7 @@ export const Other = ({ selectedDevice, loading }: IOtherProps) => {
 	const [productConcentration, setProductConcentration] = useState<number>(
 		parseFloat(selectedDevice.product_concentration) || 0
 	)
+	const [isDisabled, setIsDisabled] = useState<boolean>(true)
 	const { canEdit } = usePermissions()
 
 	const OTHER_SETTING_ITEMS = [
@@ -43,10 +44,27 @@ export const Other = ({ selectedDevice, loading }: IOtherProps) => {
 		)
 	}, [selectedDevice])
 
+	useEffect(() => {
+		const hasSettingsChanged = OTHER_SETTING_ITEMS.some(
+			item => settings[item.id] !== selectedDevice[item.id]
+		)
+		const hasConcentrationChanged =
+			productConcentration !== parseFloat(selectedDevice.product_concentration)
+		setIsDisabled(!hasSettingsChanged && !hasConcentrationChanged)
+	}, [settings, productConcentration])
+
 	const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (canEdit) {
 			const { id, checked } = e.target
 			setSettings(prev => ({ ...prev, [id]: checked }))
+			setIsDisabled(false)
+		}
+	}
+
+	const handleConcentrationChange = (value: number) => {
+		if (canEdit) {
+			setProductConcentration(value)
+			setIsDisabled(false)
 		}
 	}
 
@@ -91,9 +109,9 @@ export const Other = ({ selectedDevice, loading }: IOtherProps) => {
 					<div key={item.id} className='flex items-center'>
 						<input
 							type='checkbox'
-							id={item.id} // Используем item.id как id для чекбокса
+							id={item.id}
 							className='mr-2'
-							checked={settings[item.id]} // Получаем значение состояния по item.id
+							checked={settings[item.id]}
 							onChange={handleCheckboxChange}
 							disabled={isSaving || !canEdit}
 						/>
@@ -103,10 +121,14 @@ export const Other = ({ selectedDevice, loading }: IOtherProps) => {
 
 				<ConcentrationInput
 					value={productConcentration}
-					onChange={setProductConcentration}
+					onChange={handleConcentrationChange}
 				/>
 
-				<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
+				<ButtonSave
+					onClick={handleSave}
+					disabled={!canEdit || isDisabled}
+					isSaving={isSaving}
+				/>
 			</div>
 		</div>
 	)

@@ -17,6 +17,7 @@ const fieldLabels: Record<string, string> = {
 
 const DeviceRefill = () => {
 	const [isSaving, setIsSaving] = useState<boolean>(false)
+	const [isDisabled, setIsDisabled] = useState<boolean>(true)
 	const [editedValues, setEditedValues] = useState<Record<string, number>>({})
 	const [pendingServiceMode, setPendingServiceMode] = useState<boolean>(false)
 	const { selectedDevice, loading, error } = useDevice()
@@ -27,9 +28,20 @@ const DeviceRefill = () => {
 	console.log('selected driver device:', selectedDevice)
 	console.log('selected ID driver device:', selectedDevice?.id)
 
-	if (loading) return <p>Загрузка устройства...</p>
-	if (error) return <p className='text-red-500'>{error}</p>
-	if (!selectedDevice) return <p>Устройство не найдено</p>
+	const checkForChanges = () => {
+		const hasValuesChanged = Object.keys(fieldLabels).some(key => {
+			const currentValue = editedValues[key]
+			const originalValue = selectedDevice[key]
+			return currentValue !== undefined && currentValue !== originalValue
+		})
+		const hasServiceModeChanged =
+			pendingServiceMode !== selectedDevice.service_mode
+		return hasValuesChanged || hasServiceModeChanged
+	}
+
+	useEffect(() => {
+		setIsDisabled(!checkForChanges())
+	}, [editedValues, pendingServiceMode])
 
 	useEffect(() => {
 		const initialValues: Record<string, number> = {}
@@ -43,12 +55,14 @@ const DeviceRefill = () => {
 	const handleChange = (key: string, value: number) => {
 		if (canEdit) {
 			setEditedValues(prev => ({ ...prev, [key]: value }))
+			setIsDisabled(false)
 		}
 	}
 
 	const handleToggleServiceMode = () => {
 		if (canEdit) {
 			setPendingServiceMode(prev => !prev)
+			setIsDisabled(false)
 		}
 	}
 
@@ -77,6 +91,10 @@ const DeviceRefill = () => {
 			setIsSaving(false)
 		}
 	}
+
+	if (loading) return <p>Загрузка устройства...</p>
+	if (error) return <p className='text-red-500'>{error}</p>
+	if (!selectedDevice) return <p>Устройство не найдено</p>
 
 	return (
 		<div className='p-4 lg:p-8'>
@@ -124,7 +142,8 @@ const DeviceRefill = () => {
 								{/* Кнопка сохранения */}
 								<ButtonSave
 									onClick={handleSave}
-									disabled={isSaving || !canEdit}
+									disabled={!canEdit || isDisabled}
+									isSaving={isSaving}
 								/>
 							</div>
 						</div>

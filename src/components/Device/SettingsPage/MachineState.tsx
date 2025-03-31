@@ -20,11 +20,23 @@ export const MachineState = ({
 	const { userRole } = useAuth()
 	const [active, setActive] = useState<boolean>(selectedDevice.is_active)
 	const [isSaving, setIsSaving] = useState<boolean>(false)
+	const [isDisabled, setIsDisabled] = useState<boolean>(true)
 	const { canEdit } = usePermissions()
 
 	useEffect(() => {
 		setActive(selectedDevice.is_active)
 	}, [selectedDevice])
+
+	useEffect(() => {
+		setIsDisabled(active === selectedDevice.is_active)
+	}, [active])
+
+	const handleToggleActive = () => {
+		if (canEdit) {
+			setActive(prev => !prev)
+			setIsDisabled(false)
+		}
+	}
 
 	const handleSave = async () => {
 		if (!canEdit) {
@@ -66,7 +78,7 @@ export const MachineState = ({
 				}`}
 			>
 				<p
-					onClick={() => setActive(data => !data)}
+					onClick={handleToggleActive}
 					className={`text-white p-2 cursor-pointer ${
 						active ? 'bg-green-500' : 'bg-red-500'
 					}`}
@@ -74,7 +86,11 @@ export const MachineState = ({
 					{active ? 'Активирован' : 'Деактивирован'}
 				</p>
 			</div>
-			<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
+			<ButtonSave
+				onClick={handleSave}
+				disabled={!canEdit || isDisabled}
+				isSaving={isSaving}
+			/>
 		</div>
 	)
 }

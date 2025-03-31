@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PosDevicesService from '../../api/PosDevices/PosDevicesService'
 import { DeviceSidebar } from '../../components/Device/DeviceSidebar'
 import { DeviceNavigate } from '../../components/Device/Navigate'
@@ -8,6 +8,7 @@ import { useDevice } from '../../helpers/context/DeviceContext'
 import { IoSettingsSharp } from 'react-icons/io5'
 import useSidebar from '../../helpers/hooks/useSidebar'
 import usePermissions from '../../helpers/hooks/usePermissions'
+import { useAuth } from '../../helpers/context/AuthContext'
 
 const fieldLabels: Record<string, string> = {
 	water_inlet_counter: 'Счетчик воды на входе',
@@ -32,14 +33,29 @@ const units: Record<string, string> = {
 
 export const ReplacingValues = () => {
 	const [isSaving, setIsSaving] = useState<boolean>(false)
+	const [isDisabled, setIsDisabled] = useState<boolean>(true)
 	const [editedValues, setEditedValues] = useState<
 		Record<string, string | number>
 	>({})
 	const { selectedDevice, selectedDeviceId, loading, error } = useDevice()
+	const { userRole } = useAuth()
 	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
 	const { canEdit } = usePermissions()
 
-	console.log('selected device:', selectedDevice)
+	const checkForChanges = () => {
+		return Object.keys(fieldLabels).some(key => {
+			const currentValue = editedValues[key]
+			const originalValue = selectedDevice[key]
+			return (
+				currentValue !== undefined &&
+				String(currentValue) !== String(originalValue)
+			)
+		})
+	}
+
+	useEffect(() => {
+		setIsDisabled(!checkForChanges())
+	}, [editedValues])
 
 	if (loading) return <p>Загрузка устройства...</p>
 	if (error) return <p className='text-red-500'>{error}</p>
@@ -49,6 +65,7 @@ export const ReplacingValues = () => {
 	const handleChange = (key: string, value: string | number) => {
 		if (canEdit) {
 			setEditedValues(prev => ({ ...prev, [key]: value }))
+			setIsDisabled(false)
 		}
 	}
 
@@ -59,7 +76,14 @@ export const ReplacingValues = () => {
 		}
 		try {
 			setIsSaving(true)
-			await PosDevicesService.updateDevice(selectedDevice.id, editedValues)
+			if (userRole === 'technician') {
+				await PosDevicesService.updateTechnicianDevice(
+					selectedDevice.id,
+					editedValues
+				)
+			} else {
+				await PosDevicesService.updateDevice(selectedDevice.id, editedValues)
+			}
 		} catch (error) {
 			console.error('Ошибка при сохранении:', error)
 		} finally {
@@ -132,7 +156,8 @@ export const ReplacingValues = () => {
 									))}
 								<ButtonSave
 									onClick={handleSave}
-									disabled={isSaving || !canEdit}
+									disabled={!canEdit || isDisabled}
+									isSaving={isSaving}
 								/>
 							</div>
 						</div>

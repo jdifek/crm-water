@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PosDevicesService from '../../api/PosDevices/PosDevicesService'
 import { DeviceSidebar } from '../../components/Device/DeviceSidebar'
 import { DeviceNavigate } from '../../components/Device/Navigate'
@@ -20,11 +20,24 @@ const fieldLabels: Record<string, string> = {
 
 const DeviceRegulations = () => {
 	const [isSaving, setIsSaving] = useState<boolean>(false)
+	const [isDisabled, setIsDisabled] = useState<boolean>(true)
 	const [editedValues, setEditedValues] = useState<Record<string, number>>({})
 	const { userRole } = useAuth()
 	const { selectedDevice, loading, error } = useDevice()
 	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
 	const { canEdit } = usePermissions()
+
+	const checkForChanges = () => {
+		return Object.keys(fieldLabels).some(key => {
+			const currentValue = editedValues[key]
+			const originalValue = selectedDevice[key]
+			return currentValue !== undefined && currentValue !== originalValue
+		})
+	}
+
+	useEffect(() => {
+		setIsDisabled(!checkForChanges())
+	}, [editedValues])
 
 	if (loading) return <p>Загрузка устройства...</p>
 	if (error) return <p className='text-red-500'>{error}</p>
@@ -33,6 +46,7 @@ const DeviceRegulations = () => {
 	const handleChange = (key: string, value: number) => {
 		if (canEdit) {
 			setEditedValues(prev => ({ ...prev, [key]: value }))
+			setIsDisabled(false)
 		}
 	}
 
@@ -92,7 +106,8 @@ const DeviceRegulations = () => {
 								))}
 								<ButtonSave
 									onClick={handleSave}
-									disabled={isSaving || !canEdit}
+									disabled={!canEdit || isDisabled}
+									isSaving={isSaving}
 								/>
 							</div>
 						</div>

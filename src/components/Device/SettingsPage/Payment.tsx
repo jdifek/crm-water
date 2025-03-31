@@ -27,6 +27,7 @@ export const Payment = ({ selectedDevice, loading }: IPaymentProps) => {
 	const [useEnablePrivat24, setUseEnablePrivat24] = useState<boolean>(
 		selectedDevice.enable_privat_24_payment
 	)
+	const [isDisabled, setIsDisabled] = useState<boolean>(true)
 	const { canEdit } = usePermissions()
 
 	useEffect(() => {
@@ -34,25 +35,42 @@ export const Payment = ({ selectedDevice, loading }: IPaymentProps) => {
 		setPosTerminalModel(POS_TERMINAL_MODEL_OPTIONS[model] || 'Ingenico iUC180B')
 	}, [selectedDevice])
 
-	const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		if (canEdit) {
-			setPosTerminalModel(e.target.value)
-		}
-	}
-
 	useEffect(() => {
 		setUseCustomerCards(selectedDevice.use_customer_cards)
 		setUseEnablePrivat24(selectedDevice.enable_privat_24_payment)
 	}, [selectedDevice])
 
+	useEffect(() => {
+		const model = selectedDevice.pos_terminal_model.toLowerCase()
+		const currentModel = POS_TERMINAL_MODEL_OPTIONS[model] || 'Ingenico iUC180B'
+		const hasModelChanged = posTerminalModel !== currentModel
+		const hasCustomerCardsChanged =
+			useCustomerCards !== selectedDevice.use_customer_cards
+		const hasPrivat24Changed =
+			useEnablePrivat24 !== selectedDevice.enable_privat_24_payment
+		setIsDisabled(
+			!hasModelChanged && !hasCustomerCardsChanged && !hasPrivat24Changed
+		)
+	}, [posTerminalModel, useCustomerCards, useEnablePrivat24])
+
+	const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		if (canEdit) {
+			setPosTerminalModel(e.target.value)
+			setIsDisabled(false)
+		}
+	}
+
 	const handleToggleCustomerCard = () => {
 		if (canEdit) {
 			setUseCustomerCards(!useCustomerCards)
+			setIsDisabled(false)
 		}
 	}
+
 	const handleToggleEnablePrivat24 = () => {
 		if (canEdit) {
 			setUseEnablePrivat24(!useEnablePrivat24)
+			setIsDisabled(false)
 		}
 	}
 
@@ -151,7 +169,11 @@ export const Payment = ({ selectedDevice, loading }: IPaymentProps) => {
 					/>
 				</div>
 
-				<ButtonSave onClick={handleSave} disabled={isSaving || !canEdit} />
+				<ButtonSave
+					onClick={handleSave}
+					disabled={!canEdit || isDisabled}
+					isSaving={isSaving}
+				/>
 			</div>
 		</div>
 	)
