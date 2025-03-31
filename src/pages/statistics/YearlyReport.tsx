@@ -241,7 +241,7 @@ const YearlyReport = () => {
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5 }}
-				className='bg-white shadow-lg rounded-lg p-6 w-full mx-auto sm:max-w-[640px] md:max-w-[796px] lg:max-w-[730px] max-w-3lg max-w-2lg xl:max-w-[980px] 2xl:max-w-full'
+				className='bg-white shadow-lg rounded-lg p-6 w-full mx-auto sm:max-w-[640px] md:max-w-full lg:max-w-[700px] max-w-1lg_sm max-w-1_5lg_sm max-w-2lg_sm max-w-2_5lg_sm max-w-3lg_sm max-w-3_5lg_sm max-w-4lg_sm xl:max-w-[980px] max-w-0_6xl  max-w-0_9xl max-w-1_3xl max-w-1_6xl max-w-1_9xl 2xl:max-w-full'
 			>
 				{loading ? (
 					<div className='flex justify-center items-center h-[400px]'>

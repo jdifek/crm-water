@@ -148,8 +148,8 @@ const EditTab = () => {
 					<div className='mt-10'>
 						<form onSubmit={handleSubmit} className='space-y-8 sm:w-1/2'>
 							{/* fullname */}
-							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700 w-20'>
+							<div className='flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4'>
+								<label className='block text-sm font-medium text-gray-700 sm:w-fit sm:min-w-16'>
 									ПІБ
 								</label>
 								<input
@@ -161,8 +161,8 @@ const EditTab = () => {
 								/>
 							</div>
 							{/* username */}
-							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700 w-20'>
+							<div className='flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4'>
+								<label className='block text-sm font-medium text-gray-700 sm:w-fit sm:min-w-16'>
 									Логін
 								</label>
 								<input
@@ -174,8 +174,8 @@ const EditTab = () => {
 								/>
 							</div>
 							{/* phone number */}
-							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700 w-20'>
+							<div className='flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4'>
+								<label className='block text-sm font-medium text-gray-700 sm:w-fit sm:min-w-16'>
 									Телефон
 								</label>
 								<input
@@ -187,8 +187,8 @@ const EditTab = () => {
 								/>
 							</div>
 							{/* email */}
-							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700 w-20'>
+							<div className='flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4'>
+								<label className='block text-sm font-medium text-gray-700 sm:w-fit sm:min-w-16'>
 									Email
 								</label>
 								<input
@@ -200,8 +200,8 @@ const EditTab = () => {
 								/>
 							</div>
 							{/* role */}
-							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700 w-20'>
+							<div className='flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4'>
+								<label className='block text-sm font-medium text-gray-700 sm:w-fit sm:min-w-16'>
 									Роль
 								</label>
 								<select
@@ -238,8 +238,8 @@ const EditTab = () => {
 							onSubmit={handlePasswordSubmit}
 							className='space-y-6 sm:w-1/2'
 						>
-							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700 w-20 sm:w-[60%]'>
+							<div className='flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4'>
+								<label className='block text-sm font-medium text-gray-700 sm:w-fit sm:min-w-16 sm:w-[60%]'>
 									Новий пароль
 								</label>
 								<input
@@ -250,8 +250,8 @@ const EditTab = () => {
 									className='mt-1 py-1 px-2 block w-full border-b border-gray-300 focus:border-blue-500 focus:ring-blue-500'
 								/>
 							</div>
-							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700 w-20 sm:w-[60%]'>
+							<div className='flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4'>
+								<label className='block text-sm font-medium text-gray-700 sm:w-[60%]'>
 									Підтвердження пароля
 								</label>
 								<input
