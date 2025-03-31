@@ -54,80 +54,83 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	}
 
 	// Инициализация авторизации
-	useEffect(() => {
-		const initializeAuth = async () => {
-			const authToken = localStorage.getItem('authToken')
-			const refreshToken = localStorage.getItem('refreshToken')
+  useEffect(() => {
+    const initializeAuth = async () => {
+      const authToken = localStorage.getItem('authToken')
+      const refreshToken = localStorage.getItem('refreshToken')
+  
+      try {
+        if (authToken) {
+          const decoded = decodeToken(refreshToken)
+          const userId = decoded.user_id
+  
+          if (userId) {
+            // Запрашиваем данные текущего пользователя через getMe
+            const userResponse = await UsersService.getMe()
+            const role = userResponse.data.role
+            if (role) {
+              setUserRole(role)
+              localStorage.setItem('userRole', role) // Сохраняем роль в localStorage
+              setIsAuthenticated(true)
+            } else {
+              throw new Error('Роль не найдена в данных пользователя')
+            }
+          } else {
+            throw new Error('user_id не найден в токене')
+          }
+        } else if (refreshToken) {
+          // Попробуем обновить токен, используя refreshToken
+          const decodedRefresh = decodeToken(refreshToken)
+          const refreshUserId = decodedRefresh.user_id
+  
+          if (refreshUserId) {
+            const refreshResponse = await UsersService.refreshUserToken({
+              refresh: refreshToken,
+            })
+            console.log('Refresh token response:', refreshResponse)
 
-			try {
-				if (authToken) {
-					const decoded = decodeToken(authToken)
-					const userId = decoded.user_id
-
-					if (userId) {
-						// Запрашиваем данные текущего пользователя через getMe
-						const userResponse = await UsersService.getMe()
-						const role = userResponse.data.role
-						if (role) {
-							setUserRole(role)
-							localStorage.setItem('userRole', role) // Сохраняем роль в localStorage
-							setIsAuthenticated(true)
-						} else {
-							throw new Error('Роль не найдена в данных пользователя')
-						}
-					} else {
-						throw new Error('user_id не найден в токене')
-					}
-				} else if (refreshToken) {
-					const decoded = decodeToken(refreshToken)
-					const userId = decoded.user_id
-
-					if (userId) {
-						// Поскольку у нас есть только refreshToken, попробуем обновить access token
-						const refreshResponse = await UsersService.refreshUserToken({
-							refresh: refreshToken,
-						})
-						const newAccessToken = refreshResponse.access
-						localStorage.setItem('authToken', newAccessToken)
-
-						// Повторно декодируем новый access token
-						const newDecoded = decodeToken(newAccessToken)
-						const newUserId = newDecoded.user_id
-
-						if (newUserId) {
-							const userResponse = await UsersService.getMe()
-							const role = userResponse.data.role
-							if (role) {
-								setUserRole(role)
-								localStorage.setItem('userRole', role) // Сохраняем роль в localStorage
-								setIsAuthenticated(true)
-							} else {
-								throw new Error('Роль не найдена в данных пользователя')
-							}
-						} else {
-							throw new Error('user_id не найден в новом токене')
-						}
-					} else {
-						throw new Error('user_id не найден в refresh token')
-					}
-				} else {
-					setIsAuthenticated(false)
-					setUserRole(null)
-					setIsLoginModalOpen(true)
-				}
-			} catch (error) {
-				console.error('Ошибка инициализации авторизации:', error)
-				setIsAuthenticated(false)
-				setUserRole(null)
-				localStorage.removeItem('userRole') // Удаляем роль из localStorage при ошибке
-				setIsLoginModalOpen(true)
-			} finally {
-				setLoading(false)
-			}
-		}
-
-		initializeAuth()
-	}, [])
+            const newAccessToken = refreshResponse.access
+            localStorage.setItem('authToken', newAccessToken)
+  
+            // Повторно декодируем новый access token
+            const newDecoded = decodeToken(newAccessToken)
+            const newUserId = newDecoded.user_id
+  
+            if (newUserId) {
+              const userResponse = await UsersService.getMe()
+              const role = userResponse.data.role
+              if (role) {
+                setUserRole(role)
+                localStorage.setItem('userRole', role) // Сохраняем роль в localStorage
+                setIsAuthenticated(true)
+              } else {
+                throw new Error('Роль не найдена в данных пользователя')
+              }
+            } else {
+              throw new Error('user_id не найден в новом токене')
+            }
+          } else {
+            throw new Error('user_id не найден в refresh token')
+          }
+        } else {
+          setIsAuthenticated(false)
+          setUserRole(null)
+          setIsLoginModalOpen(true)
+        }
+      } catch (error) {
+        console.error('Ошибка инициализации авторизации:', error)
+        setIsAuthenticated(false)
+        setUserRole(null)
+        localStorage.removeItem('userRole') // Удаляем роль из localStorage при ошибке
+        setIsLoginModalOpen(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+  
+    initializeAuth()
+  }, [])
+  
 
 	const fetchStats = async () => {
 		setLoading(true)

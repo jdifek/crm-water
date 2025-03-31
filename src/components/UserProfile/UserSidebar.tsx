@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../helpers/context/AuthContext'
 import { IoClose } from 'react-icons/io5'
 import { IUser } from '../../api/Users/UsersTypes'
@@ -17,6 +17,7 @@ const UserSidebar = ({
 	setIsOpen,
 }: UserSidebarProps) => {
 	const navigate = useNavigate()
+	const location = useLocation() // Получаем текущий путь
 	const { setIsAuthenticated, setUserRole, setIsLoginModalOpen } = useAuth()
 
 	const handleLogout = () => {
@@ -30,6 +31,9 @@ const UserSidebar = ({
 
 		navigate('/')
 	}
+
+	// Условие для отображения кнопки выхода
+	const showLogoutButton = location.pathname === '/profile'
 
 	return (
 		<div
@@ -63,12 +67,15 @@ const UserSidebar = ({
 				</button>
 			</div>
 			<div className='space-y-4 mt-0'>
-				<button
-					onClick={handleLogout}
-					className='w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600'
-				>
-					Выйти
-				</button>
+				{/* Кнопка выхода показывается только на /profile */}
+				{showLogoutButton && (
+					<button
+						onClick={handleLogout}
+						className='w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600'
+					>
+						Выйти
+					</button>
+				)}
 			</div>
 		</div>
 	)

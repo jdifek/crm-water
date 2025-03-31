@@ -149,7 +149,7 @@ const EditTab = () => {
 						<form onSubmit={handleSubmit} className='space-y-8 sm:w-1/2'>
 							{/* fullname */}
 							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700'>
+								<label className='block text-sm font-medium text-gray-700 w-20'>
 									ПІБ
 								</label>
 								<input
@@ -162,7 +162,7 @@ const EditTab = () => {
 							</div>
 							{/* username */}
 							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700'>
+								<label className='block text-sm font-medium text-gray-700 w-20'>
 									Логін
 								</label>
 								<input
@@ -175,7 +175,7 @@ const EditTab = () => {
 							</div>
 							{/* phone number */}
 							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700'>
+								<label className='block text-sm font-medium text-gray-700 w-20'>
 									Телефон
 								</label>
 								<input
@@ -188,7 +188,7 @@ const EditTab = () => {
 							</div>
 							{/* email */}
 							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700'>
+								<label className='block text-sm font-medium text-gray-700 w-20'>
 									Email
 								</label>
 								<input
@@ -201,7 +201,7 @@ const EditTab = () => {
 							</div>
 							{/* role */}
 							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700'>
+								<label className='block text-sm font-medium text-gray-700 w-20'>
 									Роль
 								</label>
 								<select
@@ -239,7 +239,7 @@ const EditTab = () => {
 							className='space-y-6 sm:w-1/2'
 						>
 							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700 sm:w-[60%]'>
+								<label className='block text-sm font-medium text-gray-700 w-20 sm:w-[60%]'>
 									Новий пароль
 								</label>
 								<input
@@ -251,7 +251,7 @@ const EditTab = () => {
 								/>
 							</div>
 							<div className='flex items-center gap-4'>
-								<label className='block text-sm font-medium text-gray-700 sm:w-[60%]'>
+								<label className='block text-sm font-medium text-gray-700 w-20 sm:w-[60%]'>
 									Підтвердження пароля
 								</label>
 								<input
