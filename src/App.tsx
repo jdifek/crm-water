@@ -1,28 +1,27 @@
 /* временно прописанные роли пользователей */
-import { Route, Routes, Navigate } from 'react-router-dom';
-import DevicesList from './components/DevicesList';
-import { Layout } from './components/Layout';
-import Users from './pages/admin/Users';
-import CardsList from './pages/cards/CardsList';
-import Dashboard from './pages/Dashboard';
-import { DeviceConfig } from './pages/devices/DeviceConfig';
-import DeviceDetails from './pages/devices/DeviceDetails';
-import DeviceRegulations from './pages/devices/DeviceRegulations';
-import DeviceSettings from './pages/devices/DeviceSettings';
-import { ReplacingValues } from './pages/devices/ReplacingValues';
-import MaintenanceHistory from './pages/maintenance/MaintenanceHistory';
-import Collection from './pages/statistics/Collection';
-import DailyStats from './pages/statistics/DailyStats';
-import DeviceStats from './pages/statistics/DeviceStats';
-import LiterStats from './pages/statistics/LiterStats';
-import SalesByDay from './pages/statistics/SalesByDay';
-import Statistics from './pages/statistics/Statistics';
-import YearlyReport from './pages/statistics/YearlyReport';
-import { useAuth } from './helpers/context/AuthContext';
-import UserProfile from './pages/UserProfile';
-import EditTab from './components/UserProfile/EditTab';
-import DeviceRefill from './pages/devices/DeviceRefill';
-
+import { Route, Routes, Navigate } from 'react-router-dom'
+import DevicesList from './components/DevicesList'
+import { Layout } from './components/Layout'
+import Users from './pages/admin/Users'
+import CardsList from './pages/cards/CardsList'
+import Dashboard from './pages/Dashboard'
+import { DeviceConfig } from './pages/devices/DeviceConfig'
+import DeviceDetails from './pages/devices/DeviceDetails'
+import DeviceRegulations from './pages/devices/DeviceRegulations'
+import DeviceSettings from './pages/devices/DeviceSettings'
+import { ReplacingValues } from './pages/devices/ReplacingValues'
+import MaintenanceHistory from './pages/maintenance/MaintenanceHistory'
+import Collection from './pages/statistics/Collection'
+import DailyStats from './pages/statistics/DailyStats'
+import DeviceStats from './pages/statistics/DeviceStats'
+import LiterStats from './pages/statistics/LiterStats'
+import SalesByDay from './pages/statistics/SalesByDay'
+import Statistics from './pages/statistics/Statistics'
+import YearlyReport from './pages/statistics/YearlyReport'
+import { useAuth } from './helpers/context/AuthContext'
+import UserProfile from './pages/UserProfile'
+import EditTab from './components/UserProfile/EditTab'
+import DeviceRefill from './pages/devices/DeviceRefill'
 
 interface ProtectedRouteProps {
 	component: React.ComponentType
@@ -163,7 +162,6 @@ function App() {
 							allowedRoles={[
 								'super_admin',
 								'admin',
-								'operator',
 								'driver',
 								'technician',
 								'collector',
@@ -179,7 +177,6 @@ function App() {
 							allowedRoles={[
 								'super_admin',
 								'admin',
-								'operator',
 								'technician',
 								'driver',
 								'collector',
@@ -195,7 +192,6 @@ function App() {
 							allowedRoles={[
 								'super_admin',
 								'admin',
-								'operator',
 								'technician',
 								'driver',
 								'collector',
@@ -211,7 +207,6 @@ function App() {
 							allowedRoles={[
 								'super_admin',
 								'admin',
-								'operator',
 								'technician',
 								'driver',
 								'collector',
@@ -227,7 +222,6 @@ function App() {
 							allowedRoles={[
 								'super_admin',
 								'admin',
-								'operator',
 								'technician',
 								'driver',
 								'collector',
@@ -243,7 +237,6 @@ function App() {
 							allowedRoles={[
 								'super_admin',
 								'admin',
-								'operator',
 								'technician',
 								'driver',
 								'collector',

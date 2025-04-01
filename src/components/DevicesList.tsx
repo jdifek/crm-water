@@ -346,7 +346,7 @@ const DevicesList = () => {
 	const getRowData = (device: IPosDevice, column: string) => {
 		switch (column) {
 			case 'ID':
-				return (
+				return userRole !== 'operator' ? (
 					<Link
 						to={`/devices/details/${device.id}`}
 						onClick={() => handleDeviceClick(device.id)}
@@ -354,6 +354,8 @@ const DevicesList = () => {
 					>
 						{device.id}
 					</Link>
+				) : (
+					device.id
 				)
 			case 'Аппарат':
 				return device.name

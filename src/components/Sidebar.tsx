@@ -145,7 +145,6 @@ const Sidebar: React.FC<{ onClose?: () => void }> = ({ onClose }) => {
 					allowedRoles: [
 						'super_admin',
 						'admin',
-						'operator',
 						'driver',
 						'technician',
 						'collector',
