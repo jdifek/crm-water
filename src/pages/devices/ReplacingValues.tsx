@@ -37,7 +37,7 @@ export const ReplacingValues = () => {
 	const [editedValues, setEditedValues] = useState<
 		Record<string, string | number>
 	>({})
-	const { selectedDevice, selectedDeviceId, loading, error } = useDevice()
+	const { selectedDevice, loading, error } = useDevice()
 	const { userRole } = useAuth()
 	const { isSidebarOpen, setIsSidebarOpen } = useSidebar()
 	const { canEdit } = usePermissions()
@@ -45,12 +45,9 @@ export const ReplacingValues = () => {
 	const checkForChanges = () => {
 		if (!selectedDevice) return false
 		return Object.keys(fieldLabels).some(key => {
-			const currentValue = editedValues[key]
-			const originalValue = selectedDevice[key]
-			return (
-				currentValue !== undefined &&
-				String(currentValue) !== String(originalValue)
-			)
+			const currentValue = editedValues[key] ?? ''
+			const originalValue = selectedDevice[key] ?? ''
+			return String(currentValue) !== String(originalValue)
 		})
 	}
 
@@ -65,17 +62,19 @@ export const ReplacingValues = () => {
 				initialValues[key] = selectedDevice[key] ?? ''
 			})
 			setEditedValues(initialValues)
+			setIsDisabled(true) // Устанавливаем неактивность при загрузке данных
 		}
 	}, [selectedDevice])
 
-	if (loading) return <div className="p-4 lg:p-8">Загрузка устройства...</div>
-	if (error) return <div className="p-4 lg:p-8 text-red-500">{error}</div>
-	if (!selectedDevice) return <div className="p-4 lg:p-8">Устройство не найдено</div>
+	if (loading) return <div className='p-4 lg:p-8'>Загрузка устройства...</div>
+	if (error) return <div className='p-4 lg:p-8 text-red-500'>{error}</div>
+	if (!selectedDevice)
+		return <div className='p-4 lg:p-8'>Устройство не найдено</div>
 
 	const handleChange = (key: string, value: string | number) => {
 		if (canEdit) {
 			setEditedValues(prev => ({ ...prev, [key]: value }))
-			setIsDisabled(false)
+			// Убрано setIsDisabled(false), теперь только useEffect управляет состоянием
 		}
 	}
 

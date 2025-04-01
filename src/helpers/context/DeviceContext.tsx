@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, {
+	createContext,
+	useContext,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import PosDevicesService from '../../api/PosDevices/PosDevicesService'
 import {
@@ -40,18 +46,14 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 		| IPosDriverDeviceDetails
 		| undefined
 	>(undefined)
-	const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(null)
+	const [selectedDeviceId, setSelectedDeviceId] = useState<number | null>(
+		id ? Number(id) : null
+	)
 	const [loading, setLoading] = useState<boolean>(false)
 	const [error, setError] = useState<string | undefined>(undefined)
+	const isInitialMount = useRef(true)
 
-	const deviceRoles = [
-		'super_admin',
-		'admin',
-		'operator',
-		'driver',
-		'technician',
-		'collector',
-	]
+	const deviceRoles = ['operator', 'driver', 'technician', 'collector']
 
 	const fetchDevice = async (deviceId: number) => {
 		setLoading(true)
@@ -102,13 +104,19 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 	}
 
 	// Инициализация при монтировании компонента
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (isAuthenticated && userRole) {
 			fetchDevices(true)
 			if (id) {
 				const deviceId = Number(id)
 				setSelectedDeviceId(deviceId)
 				fetchDevice(deviceId)
+			} else if (
+				isInitialMount.current &&
+				deviceRoles.includes(userRole) &&
+				!location.pathname.startsWith('/devices/')
+			) {
+				navigate('/devices/list', { replace: true })
 			}
 		} else {
 			setDevices([])
@@ -116,10 +124,11 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 			setSelectedDevice(undefined)
 			setLoading(false)
 		}
+		isInitialMount.current = false
 	}, [isAuthenticated, userRole])
 
 	// Синхронизируем selectedDeviceId с URL
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (id) {
 			const deviceId = Number(id)
 			if (selectedDeviceId !== deviceId) {
@@ -129,7 +138,8 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 		} else if (
 			devices.length > 0 &&
 			selectedDeviceId === null &&
-			location.pathname.startsWith('/devices/')
+			location.pathname.startsWith('/devices/') &&
+			!location.pathname.startsWith('/devices/list')
 		) {
 			const currentPath = location.pathname.split('/')
 			const currentTab = currentPath[2] || 'details'
@@ -139,7 +149,7 @@ export const DeviceProvider = ({ children }: { children: React.ReactNode }) => {
 	}, [id, devices, navigate, location.pathname])
 
 	// Загружаем данные устройства при изменении selectedDeviceId
-	useEffect(() => {
+	useLayoutEffect(() => {
 		if (selectedDeviceId && isAuthenticated && !id) {
 			fetchDevice(selectedDeviceId)
 		}
